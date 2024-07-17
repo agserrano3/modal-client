@@ -4,7 +4,7 @@ import platform
 import sys
 from multiprocessing.context import SpawnProcess
 from multiprocessing.synchronize import Event
-from typing import TYPE_CHECKING, AsyncGenerator, Optional, Set, TypeVar
+from typing import AsyncGenerator, Optional, Set, TypeVar
 
 from synchronicity import Interface
 from synchronicity.async_wrap import asynccontextmanager
@@ -19,10 +19,9 @@ from .config import config
 from .exception import deprecation_warning
 from .runner import _run_app, serve_update
 
-if TYPE_CHECKING:
-    from .app import _App
+if TYPE_CHECKING
 else:
-    _App = TypeVar("_App")
+    
 
 
 def _run_serve(app_ref: str, existing_app_id: str, is_ready: Event, environment_name: str):
@@ -89,16 +88,6 @@ async def _run_watch_loop(
             await _terminate(curr_proc, output_mgr)
 
 
-def _get_clean_app_description(app_ref: str) -> str:
-    # If possible, consider the 'ref' argument the start of the app's args. Everything
-    # before it Modal CLI cruft (eg. `modal serve --timeout 1.0`).
-    try:
-        func_ref_arg_idx = sys.argv.index(app_ref)
-        return " ".join(sys.argv[func_ref_arg_idx:])
-    except ValueError:
-        return " ".join(sys.argv)
-
-
 @asynccontextmanager
 async def _serve_app(
     app: "_App",
@@ -131,4 +120,3 @@ def _serve_stub(*args, **kwargs):
 
 
 serve_app = synchronize_api(_serve_app)
-serve_stub = synchronize_api(_serve_stub)

@@ -35,31 +35,7 @@ class RenderableBool:
         return repr(self.value)
 
 
-@environment_cli.command(name="list", help="List all environments in the current workspace")
-def list(json: Optional[bool] = False):
-    envs = environments.list_environments()
-    table_data = []
-    for item in envs:
-        is_active = item.name == config.get("environment")
-        row = [item.name, item.webhook_suffix, is_active if json else RenderableBool(is_active)]
-        table_data.append(row)
-    display_table(["name", "web suffix", "active"], table_data, json=json)
-
-
 ENVIRONMENT_CREATE_HELP = """Create a new environment in the current workspace"""
-
-
-@environment_cli.command(name="create", help=ENVIRONMENT_CREATE_HELP)
-def create(name: Annotated[str, typer.Argument(help="Name of the new environment. Must be unique. Case sensitive")]):
-    check_environment_name(name)
-
-    try:
-        environments.create_environment(name)
-    except GRPCError as exc:
-        if exc.status == Status.INVALID_ARGUMENT:
-            raise InvalidError(exc.message)
-        raise
-    typer.echo(f"Environment created: {name}")
 
 
 ENVIRONMENT_DELETE_HELP = """Delete an environment in the current workspace
@@ -68,47 +44,4 @@ Deletes all apps in the selected environment and deletes the environment irrevoc
 """
 
 
-@environment_cli.command(name="delete", help=ENVIRONMENT_DELETE_HELP)
-def delete(
-    name: str = typer.Argument(help="Name of the environment to be deleted. Case sensitive"),
-    confirm: bool = typer.Option(default=False, help="Set this flag to delete without prompting for confirmation"),
-):
-    if not confirm:
-        typer.confirm(
-            (
-                f"Are you sure you want to irrevocably delete the environment '{name}' and"
-                " all its associated apps and secrets?"
-            ),
-            default=False,
-            abort=True,
-        )
-
-    environments.delete_environment(name)
-    typer.echo(f"Environment deleted: {name}")
-
-
 ENVIRONMENT_UPDATE_HELP = """Update the name or web suffix of an environment"""
-
-
-@environment_cli.command(name="update", help=ENVIRONMENT_UPDATE_HELP)
-def update(
-    current_name: str,
-    set_name: Optional[str] = typer.Option(default=None, help="New name of the environment"),
-    set_web_suffix: Optional[str] = typer.Option(
-        default=None, help="New web suffix of environment (empty string is no suffix)"
-    ),
-):
-    if set_name is None and set_web_suffix is None:
-        raise UsageError("You need to at least one new property (using --set-name or --set-web-suffix)")
-
-    if set_name:
-        check_environment_name(set_name)
-
-    try:
-        environments.update_environment(current_name, new_name=set_name, new_web_suffix=set_web_suffix)
-    except GRPCError as exc:
-        if exc.status == Status.INVALID_ARGUMENT:
-            raise InvalidError(exc.message)
-        raise
-
-    typer.echo("Environment updated")

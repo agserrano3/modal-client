@@ -678,7 +678,6 @@ class _VolumeUploadContextManager:
 
 
 Volume = synchronize_api(_Volume)
-VolumeUploadContextManager = synchronize_api(_VolumeUploadContextManager)
 
 
 def _open_files_error_annotation(mount_path: str) -> Optional[str]:

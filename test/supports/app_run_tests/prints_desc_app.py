@@ -7,8 +7,3 @@ app = modal.App()
 # value is at import time, which may be different if some code
 # changes the `description` post-import.
 print(f"app.description: {app.description}")
-
-
-@app.function()
-def foo():
-    pass

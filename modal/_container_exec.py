@@ -4,7 +4,6 @@ import platform
 from typing import List, Optional
 
 import rich
-import rich.status
 from grpclib import Status
 from grpclib.exceptions import GRPCError, StreamTerminatedError
 from rich.console import Console

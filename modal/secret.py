@@ -241,6 +241,3 @@ class _Secret(_Object, type_prefix="st"):
         )
         resp = await retry_transient_errors(client.stub.SecretGetOrCreate, request)
         return resp.secret_id
-
-
-Secret = synchronize_api(_Secret)

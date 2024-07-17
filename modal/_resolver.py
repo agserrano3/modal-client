@@ -2,7 +2,7 @@
 import asyncio
 import contextlib
 from asyncio import Future
-from typing import TYPE_CHECKING, Dict, Hashable, List, Optional
+from typing import Dict, Hashable, List, Optional
 
 from grpclib import GRPCError, Status
 
@@ -15,8 +15,6 @@ from .exception import NotFoundError
 
 if TYPE_CHECKING:
     from rich.tree import Tree
-
-    from modal.object import _Object
 
 
 class StatusRow:

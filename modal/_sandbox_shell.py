@@ -5,21 +5,6 @@ from ._utils.shell_utils import connect_to_terminal, write_to_fd
 from .sandbox import _Sandbox
 
 
-async def connect_to_sandbox(sandbox: _Sandbox):
-    """
-    Connects the current terminal to the Sandbox process.
-    """
-
-    async def _handle_input(data: bytes, _):
-        sandbox.stdin.write(data)
-        await sandbox.stdin.drain.aio()  # type: ignore
-
-    async def _stream_to_stdout(on_connect: asyncio.Event) -> int:
-        return await _stream_logs_to_stdout(sandbox, on_connect)
-
-    await connect_to_terminal(_handle_input, _stream_to_stdout, pty=True)
-
-
 async def _stream_logs_to_stdout(sandbox: _Sandbox, on_connect: asyncio.Event) -> int:
     """
     Streams sandbox output logs to the current terminal's stdout.

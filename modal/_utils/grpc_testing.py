@@ -2,17 +2,13 @@
 import contextlib
 import inspect
 import logging
-import typing
 from collections import Counter, defaultdict
 from typing import Any, Awaitable, Callable, Dict, List, Tuple
-
-import grpclib.server
 from grpclib import GRPCError, Status
 
 from modal.config import logger
 
-if typing.TYPE_CHECKING:
-    from test.conftest import MockClientServicer
+if typing.TYPE_CHECKING
 
 
 def patch_mock_servicer(cls):

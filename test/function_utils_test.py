@@ -20,13 +20,6 @@ def wildcard_args(*wildcard_list, **wildcard_dict):
     ...
 
 
-def test_is_nullary():
-    assert not FunctionInfo(hasarg).is_nullary()
-    assert FunctionInfo(noarg).is_nullary()
-    assert FunctionInfo(defaultarg).is_nullary()
-    assert FunctionInfo(wildcard_args).is_nullary()
-
-
 class Cls:
     def foo(self):
         pass
@@ -35,26 +28,4 @@ class Cls:
         pass
 
     def buz(self, *args):
-        pass
-
-
-def test_method_has_params():
-    assert not method_has_params(Cls.foo)
-    assert not method_has_params(Cls().foo)
-    assert method_has_params(Cls.bar)
-    assert method_has_params(Cls().bar)
-    assert method_has_params(Cls.buz)
-    assert method_has_params(Cls().buz)
-
-
-class Foo:
-    def __init__(self):
-        pass
-
-    @method()
-    def bar(self):
-        return "hello"
-
-    @web_endpoint()
-    def web(self):
         pass

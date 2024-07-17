@@ -1,7 +1,5 @@
 # Copyright Modal Labs 2022
 import asyncio
-import base64
-import concurrent.futures
 import importlib
 import inspect
 import os
@@ -13,7 +11,7 @@ import time
 import typing
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from google.protobuf.message import Message
 from synchronicity import Interface
@@ -29,7 +27,6 @@ from ._asgi import (
     wsgi_app_wrapper,
 )
 from ._container_io_manager import ContainerIOManager, LocalInput, UserException, _ContainerIOManager
-from ._proxy_tunnel import proxy_tunnel
 from ._serialization import deserialize, deserialize_proto_params
 from ._utils.async_utils import TaskContext, synchronizer
 from ._utils.function_utils import (
@@ -42,7 +39,7 @@ from .app import App, _App
 from .client import Client, _Client
 from .cls import Cls, Obj
 from .config import logger
-from .exception import ExecutionError, InputCancellation, InvalidError, deprecation_warning
+from .exception import ExecutionError, InputCancellation, InvalidError
 from .execution_context import _set_current_context_ids, interact
 from .functions import Function, _Function
 from .partial_function import (
@@ -54,13 +51,8 @@ from .partial_function import (
 from .running_app import RunningApp
 
 if TYPE_CHECKING:
-    import modal._container_io_manager
-    import modal.object
-
-telemetry_socket = os.environ.get("MODAL_TELEMETRY_SOCKET")
+    
 if telemetry_socket:
-    from ._telemetry import instrument_imports
-
     instrument_imports(telemetry_socket)
 
 
@@ -834,10 +826,6 @@ if __name__ == "__main__":
 
     # Check and warn on deprecated Python version
     if sys.version_info[:2] == (3, 8):
-        msg = (
-            "You are using Python 3.8 in your remote environment. Modal will soon drop support for this version,"
-            " and you will be unable to use this Image. Please update your Image definition."
-        )
         deprecation_warning((2024, 5, 2), msg, show_source=False, pending=True)
 
     container_args = api_pb2.ContainerArguments()
@@ -867,7 +855,6 @@ if __name__ == "__main__":
         if thread.ident is not None and thread.ident != current_thread and not thread.daemon and thread.is_alive():
             lingering_threads.append(thread)
     if lingering_threads:
-        thread_names = ", ".join(t.name for t in lingering_threads)
         logger.warning(
             f"Detected {len(lingering_threads)} background thread(s) [{thread_names}] still running "
             "after container exit. This will prevent runner shutdown for up to 30 seconds."

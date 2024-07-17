@@ -1,6 +1,4 @@
 # Copyright Modal Labs 2024
-
-import importlib.abc
 import json
 import queue
 import socket

@@ -21,9 +21,5 @@ def publish_client_mount(client):
     print(f"✅ Deployed client mount {name} to global namespace.")
 
 
-def main(client=None):
-    publish_client_mount(client)
-
-
 if __name__ == "__main__":
     main()

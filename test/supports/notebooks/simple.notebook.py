@@ -19,17 +19,10 @@ server_addr = None
 from modal.client import Client
 from modal_proto import api_pb2
 
-client = Client(server_addr, api_pb2.CLIENT_TYPE_CLIENT, ("foo-id", "foo-secret"))
-
 # +
 import modal
 
 app = modal.App()
-
-
-@app.function()
-def hello():
-    print("running")
 
 
 # + tags=["main"]

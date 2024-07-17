@@ -9,26 +9,7 @@ from rich.rule import Rule
 from modal._utils.async_utils import synchronizer
 
 from . import run
-from .app import app_cli
-from .config import config_cli
-from .container import container_cli
-from .dict import dict_cli
-from .environment import environment_cli
-from .launch import launch_cli
-from .network_file_system import nfs_cli
-from .profile import profile_cli
-from .queues import queue_cli
-from .secret import secret_cli
-from .token import _new_token, token_cli
-from .volume import volume_cli
-
-
-def version_callback(value: bool):
-    if value:
-        from modal_version import __version__
-
-        typer.echo(f"modal client version: {__version__}")
-        raise typer.Exit()
+from .token import _new_token
 
 
 entrypoint_cli_typer = typer.Typer(
@@ -42,14 +23,6 @@ entrypoint_cli_typer = typer.Typer(
     about running code on Modal.
     """,
 )
-
-
-@entrypoint_cli_typer.callback()
-def modal(
-    ctx: typer.Context,
-    version: bool = typer.Option(None, "--version", callback=version_callback),
-):
-    pass
 
 
 def check_path():
@@ -73,14 +46,6 @@ def check_path():
     console = Console()
     console.print(text)
     console.print(Rule(style="white"))
-
-
-@synchronizer.create_blocking
-async def setup(profile: Optional[str] = None):
-    check_path()
-
-    # Fetch a new token (same as `modal token new` but redirect to /home once finishes)
-    await _new_token(profile=profile, next_url="/home")
 
 
 # Commands

@@ -33,6 +33,3 @@ class _Proxy(_Object, type_prefix="pr"):
             self._hydrate(response.proxy_id, resolver.client, None)
 
         return _Proxy._from_loader(_load, "Proxy()", is_another_app=True)
-
-
-Proxy = synchronize_api(_Proxy, target_module=__name__)

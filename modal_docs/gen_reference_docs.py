@@ -3,7 +3,6 @@ import importlib
 import inspect
 import json
 import os
-import sys
 import warnings
 from typing import NamedTuple
 
@@ -42,118 +41,6 @@ def validate_doc_item(docitem: DocItem) -> DocItem:
                 msg = f"Found unwanted string '{bad_str}' in content for item '{docitem.label}'. Problem line: {line}"
                 raise ValueError(msg)
     return docitem
-
-
-def run(output_dir: str = None):
-    """Generate Modal docs."""
-    import modal
-
-    ordered_doc_items: list[DocItem] = []
-    documented_items = set()
-
-    def filter_non_aio(module, name):
-        return not name.lower().startswith("aio")
-
-    def filter_already_documented(module, name):
-        item = getattr(module, name)
-        try:
-            if item in documented_items:
-                return False
-        except TypeError:  # unhashable stuff
-            print(f"Warning: could not document item {name}: {item}:")
-            return False
-        documented_items.add(item)
-        return True
-
-    def modal_default_filter(module, name):
-        return default_filter(module, name) and filter_non_aio(module, name) and filter_already_documented(module, name)
-
-    def top_level_filter(module, name):
-        item = getattr(module, name)
-        if object_is_private(name, item) or inspect.ismodule(item):
-            return False
-        return package_filter("modal") and filter_already_documented(module, name) and filter_non_aio(module, name)
-
-    base_title_level = "#"
-    forced_module_docs = [
-        ("modal.Function", "modal.functions"),
-        ("modal.Secret", "modal.secret"),
-        ("modal.Dict", "modal.dict"),
-        ("modal.Queue", "modal.queue"),
-        ("modal.call_graph", "modal.call_graph"),
-        ("modal.gpu", "modal.gpu"),
-        ("modal.runner", "modal.runner"),
-        ("modal.Sandbox", "modal.sandbox"),
-    ]
-    # These aren't defined in `modal`, but should still be documented as top-level entries.
-    forced_members = {"web_endpoint", "asgi_app", "method", "wsgi_app", "forward"}
-    # These are excluded from the sidebar, typically to 'soft release' some documentation.
-    sidebar_excluded: set[str] = set()
-
-    for title, modulepath in forced_module_docs:
-        module = importlib.import_module(modulepath)
-        document = module_str(modulepath, module, title_level=base_title_level, filter_items=modal_default_filter)
-        if document:
-            ordered_doc_items.append(
-                validate_doc_item(
-                    DocItem(
-                        label=title,
-                        category=Category.MODULE,
-                        document=document,
-                        in_sidebar=title not in sidebar_excluded,
-                    )
-                )
-            )
-
-    def f(module, member_name):
-        return top_level_filter(module, member_name) or (member_name in forced_members)
-
-    # now add all remaining top level modal.X entries
-    for qual_name, item_name, item in module_items(modal, filter_items=f):
-        if object_is_private(item_name, item):
-            continue  # skip stuff that's part of explicit `handle_objects` above
-
-        title = f"modal.{item_name}"
-        if inspect.isclass(item):
-            content = f"{base_title_level} {qual_name}\n\n" + class_str(item_name, item, base_title_level)
-            category = Category.CLASS
-        elif inspect.isroutine(item) or isinstance(item, FunctionWithAio):
-            content = f"{base_title_level} {qual_name}\n\n" + function_str(item_name, item)
-            category = Category.FUNCTION
-        elif inspect.ismodule(item):
-            continue  # skipping imported modules
-        else:
-            warnings.warn(f"Not sure how to document: {item_name} ({item})")
-            continue
-        ordered_doc_items.append(
-            validate_doc_item(
-                DocItem(
-                    label=title,
-                    category=category,
-                    document=content,
-                    in_sidebar=title not in sidebar_excluded,
-                )
-            )
-        )
-    ordered_doc_items.sort()
-
-    for modulepath in ["modal.exception", "modal.config"]:
-        module = importlib.import_module(modulepath)
-        document = module_str(modulepath, module, title_level=base_title_level, filter_items=modal_default_filter)
-        ordered_doc_items.append(
-            DocItem(
-                label=modulepath,
-                category=Category.MODULE,
-                document=document,
-            )
-        )
-
-    # TODO: add some way of documenting our .aio sub-methods
-
-    make_markdown_docs(
-        ordered_doc_items,
-        output_dir,
-    )
 
 
 def make_markdown_docs(items: list[DocItem], output_dir: str = None):

@@ -3,12 +3,12 @@ from typing import Optional
 
 import typer
 from rich.console import Console
-from typer import Argument, Option, Typer
+from typer import Typer
 
 from modal._resolver import Resolver
 from modal._utils.async_utils import synchronizer
 from modal._utils.grpc_utils import retry_transient_errors
-from modal.cli.utils import ENV_OPTION, YES_OPTION, display_table, timestamp_to_local
+from modal.cli.utils import display_table, timestamp_to_local
 from modal.client import _Client
 from modal.dict import _Dict
 from modal.environments import ensure_env
@@ -19,32 +19,6 @@ dict_cli = Typer(
     no_args_is_help=True,
     help="Manage `modal.Dict` objects and inspect their contents.",
 )
-
-
-@dict_cli.command(name="create", rich_help_panel="Management")
-@synchronizer.create_blocking
-async def create(name: str, *, env: Optional[str] = ENV_OPTION):
-    """Create a named Dict object.
-
-    Note: This is a no-op when the Dict already exists.
-    """
-    d = _Dict.from_name(name, environment_name=env, create_if_missing=True)
-    client = await _Client.from_env()
-    resolver = Resolver(client=client)
-    await resolver.load(d)
-
-
-@dict_cli.command(name="list", rich_help_panel="Management")
-@synchronizer.create_blocking
-async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION):
-    """List all named Dicts."""
-    env = ensure_env(env)
-    client = await _Client.from_env()
-    request = api_pb2.DictListRequest(environment_name=env)
-    response = await retry_transient_errors(client.stub.DictList, request)
-
-    rows = [(d.name, timestamp_to_local(d.created_at, json)) for d in response.dicts]
-    display_table(["Name", "Created at"], rows, json)
 
 
 @dict_cli.command("clear", rich_help_panel="Management")

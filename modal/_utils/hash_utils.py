@@ -25,35 +25,7 @@ def _update(hashers: List[Callable[[bytes], None]], data: Union[bytes, BinaryIO]
         data.seek(pos)
 
 
-def get_sha256_hex(data: Union[bytes, BinaryIO]) -> str:
-    hasher = hashlib.sha256()
-    _update([hasher.update], data)
-    return hasher.hexdigest()
-
-
-def get_sha256_base64(data: Union[bytes, BinaryIO]) -> str:
-    hasher = hashlib.sha256()
-    _update([hasher.update], data)
-    return base64.b64encode(hasher.digest()).decode("ascii")
-
-
-def get_md5_base64(data: Union[bytes, BinaryIO]) -> str:
-    hasher = hashlib.md5()
-    _update([hasher.update], data)
-    return base64.b64encode(hasher.digest()).decode("utf-8")
-
-
 @dataclasses.dataclass
 class UploadHashes:
     md5_base64: str
     sha256_base64: str
-
-
-def get_upload_hashes(data: Union[bytes, BinaryIO]) -> UploadHashes:
-    md5 = hashlib.md5()
-    sha256 = hashlib.sha256()
-    _update([md5.update, sha256.update], data)
-    return UploadHashes(
-        md5_base64=base64.b64encode(md5.digest()).decode("ascii"),
-        sha256_base64=base64.b64encode(sha256.digest()).decode("ascii"),
-    )

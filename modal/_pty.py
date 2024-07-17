@@ -38,16 +38,3 @@ def raw_terminal():
         yield
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-
-
-def get_pty_info(shell: bool) -> api_pb2.PTYInfo:
-    rows, cols = get_winsz(sys.stdin.fileno())
-    return api_pb2.PTYInfo(
-        enabled=True,  # TODO(erikbern): deprecated
-        winsz_rows=rows,
-        winsz_cols=cols,
-        env_term=os.environ.get("TERM"),
-        env_colorterm=os.environ.get("COLORTERM"),
-        env_term_program=os.environ.get("TERM_PROGRAM"),
-        pty_type=api_pb2.PTYInfo.PTY_TYPE_SHELL if shell else api_pb2.PTYInfo.PTY_TYPE_FUNCTION,
-    )

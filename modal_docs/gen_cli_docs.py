@@ -1,6 +1,5 @@
 # Copyright Modal Labs 2023
 import inspect
-import sys
 from pathlib import Path
 from typing import Optional, cast
 
@@ -90,27 +89,6 @@ def get_docs_for_click(
                 use_prefix += f"{command_name}"
             docs += get_docs_for_click(obj=command_obj, ctx=ctx, indent=indent + 1, call_prefix=use_prefix)
     return docs
-
-
-def run(output_dirname: Optional[str]) -> None:
-    entrypoint: Group = cast(Group, entrypoint_cli)
-    ctx = Context(entrypoint)
-    commands = entrypoint.list_commands(ctx)
-
-    for command in commands:
-        command_obj = entrypoint.get_command(ctx, command)
-        if command_obj.hidden:
-            continue
-        docs = get_docs_for_click(obj=command_obj, ctx=ctx, call_prefix="modal")
-
-        if output_dirname:
-            output_dir = Path(output_dirname)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            output_file = output_dir / f"{command}.md"
-            print("Writing to", output_file)
-            output_file.write_text(docs)
-        else:
-            print(docs)
 
 
 if __name__ == "__main__":

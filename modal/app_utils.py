@@ -17,6 +17,3 @@ async def _list_apps(env: Optional[str] = None, client: Optional[_Client] = None
         api_pb2.AppListRequest(environment_name=_get_environment_name(env))
     )
     return list(resp.apps)
-
-
-list_apps = synchronize_api(_list_apps)

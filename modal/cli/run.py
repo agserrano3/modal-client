@@ -12,7 +12,6 @@ from functools import partial
 from typing import Any, Callable, Dict, Optional, get_type_hints
 
 import click
-import typer
 from rich.console import Console
 from typing_extensions import TypedDict
 
@@ -26,7 +25,7 @@ from ..image import Image
 from ..runner import deploy_app, interactive_shell, run_app
 from ..serving import serve_app
 from .import_refs import import_app, import_function
-from .utils import ENV_OPTION, ENV_OPTION_HELP, stream_app_logs
+from .utils import ENV_OPTION_HELP, stream_app_logs
 
 
 class ParameterMetadata(TypedDict):
@@ -271,160 +270,3 @@ def run(ctx, detach, quiet, interactive, env):
     ctx.obj["detach"] = detach  # if subcommand would be a click command...
     ctx.obj["show_progress"] = False if quiet else True
     ctx.obj["interactive"] = interactive
-
-
-def deploy(
-    app_ref: str = typer.Argument(..., help="Path to a Python file with an app."),
-    name: str = typer.Option(None, help="Name of the deployment."),
-    env: str = ENV_OPTION,
-    stream_logs: bool = typer.Option(False, help="Stream logs from the app upon deployment."),
-    tag: str = typer.Option(None, help="Tag the deployment with a version."),
-):
-    # this ensures that `modal.lookup()` without environment specification uses the same env as specified
-    env = ensure_env(env)
-
-    app = import_app(app_ref)
-
-    if name is None:
-        name = app.name
-
-    res = deploy_app(app, name=name, environment_name=env, tag=tag)
-
-    if stream_logs:
-        stream_app_logs(res.app_id)
-
-
-def serve(
-    app_ref: str = typer.Argument(..., help="Path to a Python file with an app."),
-    timeout: Optional[float] = None,
-    env: str = ENV_OPTION,
-):
-    """Run a web endpoint(s) associated with a Modal app and hot-reload code.
-
-    **Examples:**
-
-    ```bash
-    modal serve hello_world.py
-    ```
-    """
-    env = ensure_env(env)
-
-    app = import_app(app_ref)
-    if app.description is None:
-        app.set_description(_get_clean_app_description(app_ref))
-
-    with serve_app(app, app_ref, environment_name=env):
-        if timeout is None:
-            timeout = config["serve_timeout"]
-        if timeout is None:
-            timeout = float("inf")
-        while timeout > 0:
-            t = min(timeout, 3600)
-            time.sleep(t)
-            timeout -= t
-
-
-def shell(
-    func_ref: Optional[str] = typer.Argument(
-        default=None,
-        help="Path to a Python file with an App or Modal function whose container to run.",
-        metavar="FUNC_REF",
-    ),
-    cmd: str = typer.Option(default="/bin/bash", help="Command to run inside the Modal image."),
-    env: str = ENV_OPTION,
-    image: Optional[str] = typer.Option(
-        default=None, help="Container image tag for inside the shell (if not using FUNC_REF)."
-    ),
-    add_python: Optional[str] = typer.Option(default=None, help="Add Python to the image (if not using FUNC_REF)."),
-    cpu: Optional[int] = typer.Option(
-        default=None, help="Number of CPUs to allocate to the shell (if not using FUNC_REF)."
-    ),
-    memory: Optional[int] = typer.Option(
-        default=None, help="Memory to allocate for the shell, in MiB (if not using FUNC_REF)."
-    ),
-    gpu: Optional[str] = typer.Option(
-        default=None,
-        help="GPUs to request for the shell, if any. Examples are `any`, `a10g`, `a100:4` (if not using FUNC_REF).",
-    ),
-    cloud: Optional[str] = typer.Option(
-        default=None,
-        help=(
-            "Cloud provider to run the shell on. "
-            "Possible values are `aws`, `gcp`, `oci`, `auto` (if not using FUNC_REF)."
-        ),
-    ),
-    region: Optional[str] = typer.Option(
-        default=None,
-        help=(
-            "Region(s) to run the shell on. "
-            "Can be a single region or a comma-separated list to choose from (if not using FUNC_REF)."
-        ),
-    ),
-):
-    """Run an interactive shell inside a Modal image.
-
-    **Examples:**
-
-    Start a shell inside the default Debian-based image:
-
-    ```bash
-    modal shell
-    ```
-
-    Start a bash shell using the spec for `my_function` in your app:
-
-    ```bash
-    modal shell hello_world.py::my_function
-    ```
-
-    Start a `python` shell:
-
-    ```bash
-    modal shell hello_world.py --cmd=python
-    ```
-    """
-    env = ensure_env(env)
-
-    console = Console()
-    if not console.is_terminal:
-        raise click.UsageError("`modal shell` can only be run from a terminal.")
-
-    if platform.system() == "Windows":
-        raise InvalidError("`modal shell` is currently not supported on Windows")
-
-    app = App("modal shell")
-
-    if func_ref is not None:
-        function = import_function(func_ref, accept_local_entrypoint=False, accept_webhook=True, base_cmd="modal shell")
-        assert isinstance(function, Function)
-        function_spec: _FunctionSpec = function.spec
-        start_shell = partial(
-            interactive_shell,
-            image=function_spec.image,
-            mounts=function_spec.mounts,
-            secrets=function_spec.secrets,
-            network_file_systems=function_spec.network_file_systems,
-            gpu=function_spec.gpu,
-            cloud=function_spec.cloud,
-            cpu=function_spec.cpu,
-            memory=function_spec.memory,
-            volumes=function_spec.volumes,
-            region=function_spec.scheduler_placement.proto.regions if function_spec.scheduler_placement else None,
-            _allow_background_volume_commits=True,
-            _experimental_gpus=function_spec._experimental_gpus,
-        )
-    else:
-        modal_image = Image.from_registry(image, add_python=add_python) if image else None
-        start_shell = partial(
-            interactive_shell,
-            image=modal_image,
-            cpu=cpu,
-            memory=memory,
-            gpu=gpu,
-            cloud=cloud,
-            region=region.split(",") if region else [],
-        )
-
-    # NB: invoking under bash makes --cmd a lot more flexible.
-    cmds = shlex.split(f'/bin/bash -c "{cmd}"')
-    start_shell(app, cmds=cmds, environment_name=env, timeout=3600)

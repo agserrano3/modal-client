@@ -52,8 +52,7 @@ from typing import (
 
 ## BEGIN a2wsgi/asgi_typing.py
 
-if sys.version_info >= (3, 11):
-    from typing import NotRequired
+if sys.version_info >= (3, 11)
 else:
     from typing_extensions import NotRequired
 
@@ -101,9 +100,6 @@ class LifespanScope(TypedDict):
     type: Literal["lifespan"]
     asgi: ASGIVersions
     state: NotRequired[Dict[str, Any]]
-
-
-WWWScope = Union[HTTPScope, WebSocketScope]
 Scope = Union[HTTPScope, WebSocketScope, LifespanScope]
 
 
@@ -215,8 +211,6 @@ SendEvent = Union[
 Receive = Callable[[], Awaitable[ReceiveEvent]]
 
 Send = Callable[[SendEvent], Awaitable[None]]
-
-ASGIApp = Callable[[Scope, Receive, Send], Awaitable[None]]
 
 ## END a2wsgi/asgi_typing.py
 
@@ -540,39 +534,6 @@ def build_environ(scope: HTTPScope, body: Body) -> Environ:
             value = environ[corrected_name] + "," + value
         environ[corrected_name] = value
     return environ
-
-
-class WSGIMiddleware:
-    """
-    Convert WSGIApp to ASGIApp.
-    """
-
-    def __init__(
-        self, app: WSGIApp, workers: int = 10, send_queue_size: int = 10
-    ) -> None:
-        self.app = app
-        self.send_queue_size = send_queue_size
-        self.executor = ThreadPoolExecutor(
-            thread_name_prefix="WSGI", max_workers=workers
-        )
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] == "http":
-            responder = WSGIResponder(self.app, self.executor, self.send_queue_size)
-            return await responder(scope, receive, send)
-
-        if scope["type"] == "websocket":
-            await send({"type": "websocket.close", "code": 1000})
-            return
-
-        if scope["type"] == "lifespan":
-            message = await receive()
-            assert message["type"] == "lifespan.startup"
-            await send({"type": "lifespan.startup.complete"})
-            message = await receive()
-            assert message["type"] == "lifespan.shutdown"
-            await send({"type": "lifespan.shutdown.complete"})
-            return
 
 
 class WSGIResponder:

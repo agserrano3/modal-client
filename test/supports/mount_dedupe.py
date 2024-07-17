@@ -1,11 +1,9 @@
 # Copyright Modal Labs 2023
-import os
 
 import modal
 from modal import Mount
 
-app = modal.App()
-import pkg_a  # noqa
+app = modal.App()  # noqa
 
 
 if int(os.environ["USE_EXPLICIT"]):
@@ -19,13 +17,3 @@ if int(os.environ["USE_EXPLICIT"]):
     ]
 else:
     explicit_mounts1 = explicit_mounts2 = []  # only use automounting
-
-
-@app.function(mounts=explicit_mounts1)
-def foo():
-    pass
-
-
-@app.function(mounts=explicit_mounts2)
-def bar():
-    pass

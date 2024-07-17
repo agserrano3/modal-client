@@ -1,17 +1,6 @@
-# Copyright Modal Labs 2022
+# Copyright Modal Labs 2022  # noqa  # noqa
 
-import pkg_b.f  # noqa
-import pkg_b.g.h  # noqa
-
-import modal  # noqa
-
-from .a import *  # noqa
-from .b.c import *  # noqa
+import modal  # noqa  # noqa  # noqa
 
 
 app = modal.App()
-
-
-@app.function()
-def f():
-    pass

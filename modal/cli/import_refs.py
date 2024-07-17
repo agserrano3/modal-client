@@ -246,37 +246,3 @@ def foo():
 ```
 You would run foo as [bold green]{base_cmd} app.py::foo[/bold green]"""
     error_console.print(guidance_msg)
-
-
-def import_function(
-    func_ref: str, base_cmd: str, accept_local_entrypoint=True, accept_webhook=False
-) -> Union[Function, LocalEntrypoint]:
-    import_ref = parse_import_ref(func_ref)
-
-    module = import_file_or_module(import_ref.file_or_module)
-    app_or_function = get_by_object_path_try_possible_app_names(module, import_ref.object_path)
-
-    if app_or_function is None:
-        _show_function_ref_help(import_ref, base_cmd)
-        sys.exit(1)
-
-    if isinstance(app_or_function, App):
-        # infer function or display help for how to select one
-        app = app_or_function
-        function_handle = _infer_function_or_help(app, module, accept_local_entrypoint, accept_webhook)
-        return function_handle
-    elif isinstance(app_or_function, Function):
-        return app_or_function
-    elif isinstance(app_or_function, LocalEntrypoint):
-        if not accept_local_entrypoint:
-            raise click.UsageError(
-                f"{func_ref} is not a Modal Function (a Modal local_entrypoint can't be used in this context)"
-            )
-        return app_or_function
-    else:
-        raise click.UsageError(f"{app_or_function} is not a Modal entity (should be an App or Function)")
-
-
-# For backwards compatibility - delete soon
-# We use it in our internal intergration tests
-import_stub = import_app

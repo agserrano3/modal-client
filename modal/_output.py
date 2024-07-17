@@ -1,11 +1,9 @@
 # Copyright Modal Labs 2022
-from __future__ import annotations
 
 import asyncio
 import contextlib
 import functools
 import io
-import platform
 import re
 import socket
 import sys
@@ -78,25 +76,6 @@ def step_completed(message: str, is_substep: bool = False) -> RenderableType:
 
     symbol = SUBSTEP_COMPLETED if is_substep else STEP_COMPLETED
     return f"{symbol} {message}"
-
-
-def download_progress_bar() -> Progress:
-    """
-    Returns a progress bar suitable for showing file download progress.
-    Requires passing a `path: str` data field for rendering.
-    """
-    return Progress(
-        TextColumn("[bold white]{task.fields[path]}", justify="right"),
-        BarColumn(bar_width=None),
-        "[progress.percentage]{task.percentage:>3.1f}%",
-        "•",
-        DownloadColumn(),
-        "•",
-        TransferSpeedColumn(),
-        "•",
-        TimeRemainingColumn(),
-        transient=True,
-    )
 
 
 class LineBufferedOutput(io.StringIO):
@@ -403,133 +382,6 @@ async def stream_pty_shell_input(client: _Client, exec_id: str, finish_event: as
 
     async with stream_from_stdin(_handle_input, use_raw_terminal=True):
         await finish_event.wait()
-
-
-async def get_app_logs_loop(
-    client: _Client, output_mgr: OutputManager, app_id: Optional[str] = None, task_id: Optional[str] = None
-):
-    last_log_batch_entry_id = ""
-    pty_shell_finish_event: Optional[asyncio.Event] = None
-    pty_shell_task_id: Optional[str] = None
-
-    async def stop_pty_shell():
-        nonlocal pty_shell_finish_event
-        if pty_shell_finish_event:
-            print("\r", end="")  # move cursor to beginning of line
-            pty_shell_finish_event.set()
-            pty_shell_finish_event = None
-            await asyncio.sleep(0)  # yield to handle_exec_input() so it can disable raw terminal
-
-    async def _put_log(log_batch: api_pb2.TaskLogsBatch, log: api_pb2.TaskLogs):
-        if log.task_state:
-            output_mgr.update_task_state(log_batch.task_id, log.task_state)
-            if log.task_state == api_pb2.TASK_STATE_WORKER_ASSIGNED:
-                # Close function's queueing progress bar (if it exists)
-                output_mgr.update_queueing_progress(
-                    function_id=log_batch.function_id, completed=1, total=1, description=None
-                )
-        elif log.task_progress.len or log.task_progress.pos:
-            if log.task_progress.progress_type == api_pb2.FUNCTION_QUEUED:
-                output_mgr.update_queueing_progress(
-                    function_id=log_batch.function_id,
-                    completed=log.task_progress.pos,
-                    total=log.task_progress.len,
-                    description=log.task_progress.description,
-                )
-            else:  # Ensure forward-compatible with new types.
-                logger.debug(f"Received unrecognized progress type: {log.task_progress.progress_type}")
-        elif log.data:
-            await output_mgr.put_log_content(log)
-
-    async def _get_logs():
-        nonlocal last_log_batch_entry_id, pty_shell_finish_event, pty_shell_task_id
-
-        request = api_pb2.AppGetLogsRequest(
-            app_id=app_id or "",
-            task_id=task_id or "",
-            timeout=55,
-            last_entry_id=last_log_batch_entry_id,
-        )
-        log_batch: api_pb2.TaskLogsBatch
-        async for log_batch in unary_stream(client.stub.AppGetLogs, request):
-            if log_batch.entry_id:
-                # log_batch entry_id is empty for fd="server" messages from AppGetLogs
-                last_log_batch_entry_id = log_batch.entry_id
-            if log_batch.app_done:
-                logger.debug("App logs are done")
-                last_log_batch_entry_id = None
-                break
-            elif log_batch.image_id and not output_mgr._show_image_logs:
-                # Ignore image logs while app is creating objects.
-                # These logs are fetched through ImageJoinStreaming instead.
-                # Logs from images built "dynamically" (after the app has started)
-                # are printed through this loop.
-                # TODO (akshat): have a better way of differentiating between
-                # statically and dynamically built images.
-                pass
-            elif log_batch.pty_exec_id:
-                if pty_shell_finish_event:
-                    print("ERROR: concurrent PTY shells are not supported.")
-                else:
-                    output_mgr.flush_lines()
-                    output_mgr.hide_status_spinner()
-                    output_mgr.hide_output()
-                    pty_shell_finish_event = asyncio.Event()
-                    pty_shell_task_id = log_batch.task_id
-                    asyncio.create_task(stream_pty_shell_input(client, log_batch.pty_exec_id, pty_shell_finish_event))
-            else:
-                for log in log_batch.items:
-                    await _put_log(log_batch, log)
-
-            if log_batch.eof and log_batch.task_id == pty_shell_task_id:
-                await stop_pty_shell()
-
-        output_mgr.flush_lines()
-
-    while True:
-        try:
-            await _get_logs()
-        except asyncio.CancelledError:
-            # TODO: this should come from the backend maybe
-            app_logs_url = f"https://modal.com/logs/{app_id}"
-            if output_mgr.is_visible():
-                output_mgr.print(
-                    f"[red]Timed out waiting for logs. "
-                    f"[grey70]View logs at [underline]{app_logs_url}[/underline] for remaining output.[/grey70]"
-                )
-            raise
-        except (GRPCError, StreamTerminatedError, socket.gaierror, AttributeError) as exc:
-            if isinstance(exc, GRPCError):
-                if exc.status in RETRYABLE_GRPC_STATUS_CODES:
-                    # Try again if we had a temporary connection drop,
-                    # for example if computer went to sleep.
-                    logger.debug("Log fetching timed out. Retrying ...")
-                    continue
-            elif isinstance(exc, StreamTerminatedError):
-                logger.debug("Stream closed. Retrying ...")
-                continue
-            elif isinstance(exc, socket.gaierror):
-                logger.debug("Lost connection. Retrying ...")
-                continue
-            elif isinstance(exc, AttributeError):
-                if "_write_appdata" in str(exc):
-                    # Happens after losing connection
-                    # StreamTerminatedError are not properly raised in grpclib<=0.4.7
-                    # fixed in https://github.com/vmagamedov/grpclib/issues/185
-                    # TODO: update to newer version (>=0.4.8) once stable
-                    logger.debug("Lost connection. Retrying ...")
-                    continue
-            raise
-        except Exception as exc:
-            logger.exception(f"Failed to fetch logs: {exc}")
-            await asyncio.sleep(1)
-
-        if last_log_batch_entry_id is None:
-            break
-
-    await stop_pty_shell()
-
-    logger.debug("Logging exited gracefully")
 
 
 class FunctionCreationStatus:

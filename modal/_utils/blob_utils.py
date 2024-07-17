@@ -301,24 +301,6 @@ async def blob_download(blob_id, stub) -> bytes:
     return await _download_from_url(resp.download_url)
 
 
-async def blob_iter(blob_id, stub) -> AsyncIterator[bytes]:
-    req = api_pb2.BlobGetRequest(blob_id=blob_id)
-    resp = await retry_transient_errors(stub.BlobGet, req)
-    download_url = resp.download_url
-    async with ClientSessionRegistry.get_session().get(download_url) as resp:
-        # S3 signal to slow down request rate.
-        if resp.status == 503:
-            logger.warning("Received SlowDown signal from S3, sleeping for 1 second before retrying.")
-            await asyncio.sleep(1)
-
-        if resp.status != 200:
-            text = await resp.text()
-            raise ExecutionError(f"Get from url failed with status {resp.status}: {text}")
-
-        async for chunk in resp.content.iter_any():
-            yield chunk
-
-
 @dataclasses.dataclass
 class FileUploadSpec:
     source: Callable[[], Union[AbstractContextManager, BinaryIO]]
@@ -362,35 +344,6 @@ def _get_file_upload_spec(
         sha256_hex=sha256_hex,
         mode=mode & 0o7777,
         size=size,
-    )
-
-
-def get_file_upload_spec_from_path(
-    filename: Path, mount_filename: PurePosixPath, mode: Optional[int] = None
-) -> FileUploadSpec:
-    # Python appears to give files 0o666 bits on Windows (equal for user, group, and global),
-    # so we mask those out to 0o755 for compatibility with POSIX-based permissions.
-    mode = mode or os.stat(filename).st_mode & (0o7777 if platform.system() != "Windows" else 0o7755)
-    return _get_file_upload_spec(
-        lambda: open(filename, "rb"),
-        filename,
-        mount_filename,
-        mode,
-    )
-
-
-def get_file_upload_spec_from_fileobj(fp: BinaryIO, mount_filename: PurePosixPath, mode: int) -> FileUploadSpec:
-    @contextmanager
-    def source():
-        # We ignore position in stream and always upload from position 0
-        fp.seek(0)
-        yield fp
-
-    return _get_file_upload_spec(
-        source,
-        str(fp),
-        mount_filename,
-        mode,
     )
 
 

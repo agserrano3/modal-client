@@ -17,7 +17,6 @@ args: Dict[str, Any] = json.loads(os.environ.get("MODAL_LAUNCH_ARGS", "{}"))
 
 
 app = App()
-app.image = Image.from_registry(args.get("image"), add_python=args.get("add_python")).pip_install("jupyterlab")
 
 
 mount = (
@@ -87,15 +86,3 @@ def run_jupyter(q: Queue):
             stderr=subprocess.DEVNULL,
         )
     q.put("done")
-
-
-@app.local_entrypoint()
-def main():
-    with Queue.ephemeral() as q:
-        run_jupyter.spawn(q)
-        url = q.get()
-        time.sleep(1)  # Give Jupyter a chance to start up
-        print("\nJupyter on Modal, opening in browser...")
-        print(f"   -> {url}\n")
-        webbrowser.open(url)
-        assert q.get() == "done"

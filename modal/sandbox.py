@@ -1,7 +1,7 @@
 # Copyright Modal Labs 2022
 import asyncio
 import os
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List, Optional, Sequence, Tuple, Union
+from typing import AsyncIterator, Dict, List, Optional, Sequence, Tuple, Union
 
 from google.protobuf.message import Message
 from grpclib.exceptions import GRPCError, StreamTerminatedError
@@ -31,8 +31,7 @@ from .secret import _Secret
 _default_image: _Image = _Image.debian_slim()
 
 
-if TYPE_CHECKING:
-    import modal.app
+if TYPE_CHECKING
 
 
 class _LogsReader:

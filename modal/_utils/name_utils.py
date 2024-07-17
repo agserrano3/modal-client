@@ -11,10 +11,6 @@ def is_valid_subdomain_label(label: str) -> bool:
     return subdomain_regex.match(label) is not None
 
 
-def replace_invalid_subdomain_chars(label: str) -> str:
-    return re.sub("[^a-z0-9-]", "-", label.lower())
-
-
 def is_valid_object_name(name: str) -> bool:
     return len(name) <= 64 and re.match("^[a-zA-Z0-9-_.]+$", name) is not None
 
@@ -59,6 +55,3 @@ def check_environment_name(name: str, warn: bool = False) -> None:
             deprecation_warning((2024, 4, 30), message, show_source=False)
         else:
             raise InvalidError(message)
-
-
-is_valid_app_name = is_valid_object_name  # TODO becaue we use the former in the server

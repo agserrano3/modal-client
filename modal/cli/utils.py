@@ -38,26 +38,6 @@ async def stream_app_logs(app_id: Optional[str] = None, task_id: Optional[str] =
         pass
 
 
-@synchronizer.create_blocking
-async def get_app_id_from_name(name: str, env: Optional[str], client: Optional[_Client] = None) -> str:
-    if client is None:
-        client = await _Client.from_env()
-    env_name = ensure_env(env)
-    request = api_pb2.AppGetByDeploymentNameRequest(
-        namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, name=name, environment_name=env_name
-    )
-    try:
-        resp = await client.stub.AppGetByDeploymentName(request)
-    except GRPCError as exc:
-        if exc.status in (Status.INVALID_ARGUMENT, Status.NOT_FOUND):
-            raise UsageError(exc.message or "")
-        raise
-    if not resp.app_id:
-        env_comment = f" in the '{env_name}' environment" if env_name else ""
-        raise NotFoundError(f"Could not find a deployed app named '{name}'{env_comment}.")
-    return resp.app_id
-
-
 def timestamp_to_local(ts: float, isotz: bool = True) -> str:
     if ts > 0:
         locale_tz = datetime.now().astimezone().tzinfo

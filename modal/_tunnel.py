@@ -186,6 +186,3 @@ async def _forward(port: int, *, unencrypted: bool = False, client: Optional[_Cl
         yield Tunnel(response.host, response.port, response.unencrypted_host, response.unencrypted_port)
     finally:
         await client.stub.TunnelStop(api_pb2.TunnelStopRequest(port=port))
-
-
-forward = synchronize_api(_forward)

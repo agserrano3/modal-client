@@ -51,31 +51,6 @@ def is_global_object(object_qual_name: str):
     return "<locals>" not in object_qual_name.split(".")
 
 
-def is_top_level_function(f: Callable) -> bool:
-    """Returns True if this function is defined in global scope.
-
-    Returns False if this function is locally scoped (including on a class).
-    """
-    return f.__name__ == f.__qualname__
-
-
-def is_async(function):
-    # TODO: this is somewhat hacky. We need to know whether the function is async or not in order to
-    # coerce the input arguments to the right type. The proper way to do is to call the function and
-    # see if you get a coroutine (or async generator) back. However at this point, it's too late to
-    # coerce the type. For now let's make a determination based on inspecting the function definition.
-    # This sometimes isn't correct, since a "vanilla" Python function can return a coroutine if it
-    # wraps async code or similar. Let's revisit this shortly.
-    if inspect.ismethod(function):
-        function = function.__func__  # inspect the underlying function
-    if inspect.iscoroutinefunction(function) or inspect.isasyncgenfunction(function):
-        return True
-    elif inspect.isfunction(function) or inspect.isgeneratorfunction(function):
-        return False
-    else:
-        raise RuntimeError(f"Function {function} is a strange type {type(function)}")
-
-
 class FunctionInfo:
     """Class that helps us extract a bunch of information about a function."""
 
@@ -315,45 +290,6 @@ def method_has_params(f: Callable) -> bool:
         return num_params > 0
     else:
         return num_params > 1
-
-
-async def _stream_function_call_data(
-    client, function_call_id: str, variant: Literal["data_in", "data_out"]
-) -> AsyncIterator[Any]:
-    """Read from the `data_in` or `data_out` stream of a function call."""
-    last_index = 0
-    retries_remaining = 10
-
-    if variant == "data_in":
-        stub_fn = client.stub.FunctionCallGetDataIn
-    elif variant == "data_out":
-        stub_fn = client.stub.FunctionCallGetDataOut
-    else:
-        raise ValueError(f"Invalid variant {variant}")
-
-    while True:
-        req = api_pb2.FunctionCallGetDataRequest(function_call_id=function_call_id, last_index=last_index)
-        try:
-            async for chunk in unary_stream(stub_fn, req):
-                if chunk.index <= last_index:
-                    continue
-                last_index = chunk.index
-                if chunk.data_blob_id:
-                    message_bytes = await blob_download(chunk.data_blob_id, client.stub)
-                else:
-                    message_bytes = chunk.data
-                message = deserialize_data_format(message_bytes, chunk.data_format, client)
-                yield message
-        except (GRPCError, StreamTerminatedError) as exc:
-            if retries_remaining > 0:
-                retries_remaining -= 1
-                if isinstance(exc, GRPCError):
-                    if exc.status in RETRYABLE_GRPC_STATUS_CODES:
-                        await asyncio.sleep(1.0)
-                        continue
-                elif isinstance(exc, StreamTerminatedError):
-                    continue
-            raise
 
 
 OUTPUTS_TIMEOUT = 55.0  # seconds

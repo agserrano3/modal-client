@@ -2,8 +2,3 @@
 import modal
 
 my_app = modal.App()
-
-
-@my_app.function()
-def foo():
-    pass

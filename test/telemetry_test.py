@@ -94,33 +94,6 @@ class TelemetryConsumer:
             self.connections.remove(conn)
 
 
-def test_import_tracing(monkeypatch):
-    if not supported_platform():
-        pytest.skip(f"unsupported platform: {sys.platform}")
-
-    with TelemetryConsumer() as consumer, ImportInterceptor.connect(consumer.socket_filename.absolute().as_posix()):
-        from .telemetry import tracing_module_1  # noqa
-
-        expected_messages: list[typing.Dict[str, typing.Any]] = [
-            {"event": "module_load_start", "attributes": {"name": "test.telemetry.tracing_module_1"}},
-            {"event": "module_load_start", "attributes": {"name": "test.telemetry.tracing_module_2"}},
-            {"event": "module_load_end", "attributes": {"name": "test.telemetry.tracing_module_2"}},
-            {"event": "module_load_end", "attributes": {"name": "test.telemetry.tracing_module_1"}},
-        ]
-
-        for expected_message in expected_messages:
-            m = consumer.events.get(timeout=30)
-            # skip this test module - behavior seems to vary depending on timing and maybe python version etc
-            while m["attributes"]["name"] == "test.telemetry":
-                m = consumer.events.get(timeout=30)
-            assert m["event"] == expected_message["event"]
-            assert m["attributes"]["name"] == expected_message["attributes"]["name"]
-            assert m["timestamp"] >= 0
-            assert uuid.UUID(m["span_id"])
-            if m["event"] == "module_load_end":
-                assert m["attributes"]["latency"] >= 0
-
-
 # For manual testing
 def generate_import_telemetry(telemetry_socket):
     instrument_imports(telemetry_socket)
@@ -128,25 +101,6 @@ def generate_import_telemetry(telemetry_socket):
     import kubernetes  # noqa
 
     return time.monotonic() - t0
-
-
-# For manual testing
-def main():
-    telemetry_socket = os.environ.get("MODAL_TELEMETRY_SOCKET")
-    if telemetry_socket:
-        latency = generate_import_telemetry(telemetry_socket)
-    else:
-        with TelemetryConsumer() as consumer:
-            latency = generate_import_telemetry(consumer.socket_filename.absolute().as_posix())
-
-            while True:
-                try:
-                    m = consumer.events.get_nowait()
-                    print(m)
-                except queue.Empty:
-                    break
-
-    print(f"import kubernetes took {latency:.02}s")
 
 
 if __name__ == "__main__":

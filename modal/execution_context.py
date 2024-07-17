@@ -7,15 +7,6 @@ from modal._utils.async_utils import synchronize_api
 from modal.exception import InvalidError
 
 
-def is_local() -> bool:
-    """Returns if we are currently on the machine launching/deploying a Modal app
-
-    Returns `True` when executed locally on the user's machine.
-    Returns `False` when executed from a Modal container in the cloud.
-    """
-    return not _ContainerIOManager._singleton
-
-
 async def _interact() -> None:
     """Enable interactivity with user input inside a Modal container.
 
@@ -47,25 +38,6 @@ def current_input_id() -> Optional[str]:
     """
     try:
         return _current_input_id.get()
-    except LookupError:
-        return None
-
-
-def current_function_call_id() -> Optional[str]:
-    """Returns the function call ID for the current input.
-
-    Can only be called from Modal function (i.e. in a container context).
-
-    ```python
-    from modal import current_function_call_id
-
-    @app.function()
-    def process_stuff():
-        print(f"Starting to process input from {current_function_call_id()}")
-    ```
-    """
-    try:
-        return _current_function_call_id.get()
     except LookupError:
         return None
 

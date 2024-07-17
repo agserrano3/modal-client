@@ -10,8 +10,6 @@ from modal.mount import _Mount
 
 from ._output import OutputManager
 
-_TIMEOUT_SENTINEL = object()
-
 
 class AppFilesFilter(DefaultFilter):
     def __init__(
@@ -92,12 +90,3 @@ def _watch_args_from_mounts(mounts: List[_Mount]) -> Tuple[Set[Path], AppFilesFi
 
     watch_filter = AppFilesFilter(dir_filters=dict(dir_filters))
     return paths, watch_filter
-
-
-async def watch(mounts: List[_Mount], output_mgr: OutputManager) -> AsyncGenerator[Set[str], None]:
-    paths, watch_filter = _watch_args_from_mounts(mounts)
-
-    _print_watched_paths(paths, output_mgr)
-
-    async for updated_paths in _watch_paths(paths, watch_filter):
-        yield updated_paths

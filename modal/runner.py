@@ -3,7 +3,7 @@ import asyncio
 import dataclasses
 import os
 from multiprocessing.synchronize import Event
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Coroutine, Dict, List, Optional, TypeVar
+from typing import Any, AsyncGenerator, Coroutine, Dict, List, Optional, TypeVar
 
 from grpclib import GRPCError, Status
 from rich.console import Console
@@ -33,8 +33,7 @@ from .object import _Object
 from .running_app import RunningApp
 from .sandbox import _Sandbox
 
-if TYPE_CHECKING:
-    from .app import _App
+if TYPE_CHECKING
 else:
     _App = TypeVar("_App")
 
@@ -557,8 +556,5 @@ def _deploy_stub(*args: Any, **kwargs: Any) -> Coroutine[Any, Any, DeployResult]
 
 
 run_app = synchronize_api(_run_app)
-serve_update = synchronize_api(_serve_update)
 deploy_app = synchronize_api(_deploy_app)
-interactive_shell = synchronize_api(_interactive_shell)
-run_stub = synchronize_api(_run_stub)
 deploy_stub = synchronize_api(_deploy_stub)

@@ -645,14 +645,6 @@ def _create_client_mount():
 create_client_mount = synchronize_api(_create_client_mount)
 
 
-def _get_client_mount():
-    # TODO(erikbern): make this a static method on the Mount class
-    if config["sync_entrypoint"]:
-        return _create_client_mount()
-    else:
-        return _Mount.from_name(client_mount_name(), namespace=api_pb2.DEPLOYMENT_NAMESPACE_GLOBAL)
-
-
 SYS_PREFIXES = {
     Path(p)
     for p in (

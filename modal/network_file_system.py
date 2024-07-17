@@ -33,23 +33,6 @@ NETWORK_FILE_SYSTEM_PUT_FILE_CLIENT_TIMEOUT = (
 )  # 10 min max for transferring files (does not include upload time to s3)
 
 
-def network_file_system_mount_protos(
-    validated_network_file_systems: List[Tuple[str, "_NetworkFileSystem"]],
-    allow_cross_region_volumes: bool,
-) -> List[api_pb2.SharedVolumeMount]:
-    network_file_system_mounts = []
-    # Relies on dicts being ordered (true as of Python 3.6).
-    for path, volume in validated_network_file_systems:
-        network_file_system_mounts.append(
-            api_pb2.SharedVolumeMount(
-                mount_path=path,
-                shared_volume_id=volume.object_id,
-                allow_cross_region=allow_cross_region_volumes,
-            )
-        )
-    return network_file_system_mounts
-
-
 class _NetworkFileSystem(_Object, type_prefix="sv"):
     """A shared, writable file system accessible by one or more Modal functions.
 

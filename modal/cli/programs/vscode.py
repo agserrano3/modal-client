@@ -17,7 +17,6 @@ args: Dict[str, Any] = json.loads(os.environ.get("MODAL_LAUNCH_ARGS", "{}"))
 
 
 app = App()
-app.image = Image.from_registry("codercom/code-server", add_python="3.11").dockerfile_commands("ENTRYPOINT []")
 
 
 mount = (
@@ -76,16 +75,3 @@ def run_vscode(q: Queue):
             env={**os.environ, "SHELL": "/bin/bash", "PASSWORD": token},
         )
     q.put("done")
-
-
-@app.local_entrypoint()
-def main():
-    with Queue.ephemeral() as q:
-        run_vscode.spawn(q)
-        url, token = q.get()
-        time.sleep(1)  # Give VS Code a chance to start up
-        print("\nVS Code on Modal, opening in browser...")
-        print(f"   -> {url}")
-        print(f"   -> password: {token}\n")
-        webbrowser.open(url)
-        assert q.get() == "done"

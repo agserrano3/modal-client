@@ -4,7 +4,6 @@ import os
 import re
 import shlex
 import sys
-import typing
 import warnings
 from dataclasses import dataclass
 from inspect import isfunction
@@ -32,8 +31,7 @@ from .object import _Object, live_method_gen
 from .secret import _Secret
 from .volume import _Volume
 
-if typing.TYPE_CHECKING:
-    import modal.functions
+if typing.TYPE_CHECKING
 
 
 # This is used for both type checking and runtime validation

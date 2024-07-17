@@ -26,31 +26,6 @@ from modal_version import __version__
 
 from .logger import logger
 
-# Monkey patches grpclib to have a Modal User Agent header.
-grpclib.client.USER_AGENT = "modal-client/{version} ({sys}; {py}/{py_ver})'".format(
-    version=__version__,
-    sys=platform.system(),
-    py=platform.python_implementation(),
-    py_ver=platform.python_version(),
-).lower()
-
-
-class Subchannel:
-    protocol: H2Protocol
-    created_at: float
-    requests: int
-
-    def __init__(self, protocol: H2Protocol) -> None:
-        self.protocol = protocol
-        self.created_at = time.time()
-        self.requests = 0
-
-    def connected(self):
-        if hasattr(self.protocol.handler, "connection_lost"):
-            # AbstractHandler doesn't have connection_lost, but Handler does
-            return not self.protocol.handler.connection_lost  # type: ignore
-        return True
-
 
 _SendType = TypeVar("_SendType")
 _RecvType = TypeVar("_RecvType")
@@ -105,18 +80,6 @@ def create_channel(
 
     grpclib.events.listen(channel, grpclib.events.SendRequest, send_request)
     return channel
-
-
-async def unary_stream(
-    method: grpclib.client.UnaryStreamMethod[_SendType, _RecvType],
-    request: _SendType,
-    metadata: Optional[Any] = None,
-) -> AsyncIterator[_RecvType]:
-    """Helper for making a unary-streaming gRPC request."""
-    async with method.open(metadata=metadata) as stream:
-        await stream.send_message(request, end=True)
-        async for item in stream:
-            yield item
 
 
 async def retry_transient_errors(
@@ -198,11 +161,3 @@ def find_free_port() -> int:
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
-
-
-def get_proto_oneof(message: Message, oneof_group: str) -> Optional[Message]:
-    oneof_field = message.WhichOneof(oneof_group)
-    if oneof_field is None:
-        return None
-
-    return getattr(message, oneof_field)

@@ -1,5 +1,4 @@
 # Copyright Modal Labs 2024
-from __future__ import annotations
 
 import asyncio
 import contextlib
@@ -20,7 +19,6 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Tuple, get_args
 
 import aiohttp.web
-import aiohttp.web_runner
 import grpclib.server
 import pkg_resources
 import pytest_asyncio
@@ -47,12 +45,6 @@ class VolumeFile:
     data: bytes
     data_blob_id: str
     mode: int
-
-
-# TODO: Isolate all test config from the host
-@pytest.fixture(scope="function", autouse=True)
-def set_env(monkeypatch):
-    monkeypatch.setenv("MODAL_ENVIRONMENT", "main")
 
 
 @patch_mock_servicer
@@ -1525,136 +1517,12 @@ async def client(servicer):
         yield client
 
 
-@pytest_asyncio.fixture(scope="function")
-async def container_client(servicer):
-    async with Client(servicer.container_addr, api_pb2.CLIENT_TYPE_CONTAINER, ("ta-123", "task-secret")) as client:
-        yield client
-
-
-@pytest_asyncio.fixture(scope="function")
-async def server_url_env(servicer, monkeypatch):
-    monkeypatch.setenv("MODAL_SERVER_URL", servicer.client_addr)
-    yield
-
-
-@pytest_asyncio.fixture(scope="function", autouse=True)
-async def reset_default_client():
-    Client.set_env_client(None)
-
-
-@pytest.fixture(name="mock_dir", scope="session")
-def mock_dir_factory():
-    """Sets up a temp dir with content as specified in a nested dict
-
-    Example usage:
-    spec = {
-        "foo": {
-            "bar.txt": "some content"
-        },
-    }
-
-    with mock_dir(spec) as root_dir:
-        assert os.path.exists(os.path.join(root_dir, "foo", "bar.txt"))
-    """
-
-    @contextlib.contextmanager
-    def mock_dir(root_spec):
-        def rec_make(dir, dir_spec):
-            for filename, spec in dir_spec.items():
-                path = os.path.join(dir, filename)
-                if isinstance(spec, str):
-                    with open(path, "w") as f:
-                        f.write(spec)
-                else:
-                    os.mkdir(path)
-                    rec_make(path, spec)
-
-        # Windows has issues cleaning up TempDirectory: https://www.scivision.dev/python-tempfile-permission-error-windows
-        # Seems to have been fixed for some python versions in https://github.com/python/cpython/pull/10320.
-        root_dir = tempfile.mkdtemp()
-        rec_make(root_dir, root_spec)
-        cwd = os.getcwd()
-        try:
-            os.chdir(root_dir)
-            yield
-        finally:
-            os.chdir(cwd)
-            shutil.rmtree(root_dir, ignore_errors=True)
-
-    return mock_dir
-
-
-@pytest.fixture(autouse=True)
-def reset_sys_modules():
-    # Needed since some tests will import dynamic modules
-    backup = sys.modules.copy()
-    try:
-        yield
-    finally:
-        sys.modules = backup
-
-
-@pytest.fixture(autouse=True)
-def reset_container_app():
-    try:
-        yield
-    finally:
-        _ContainerIOManager._reset_singleton()
-
-
-@pytest.fixture
-def repo_root(request):
-    return Path(request.config.rootdir)
-
-
 @pytest.fixture(scope="module")
 def test_dir(request):
     """Absolute path to directory containing test file."""
     root_dir = Path(request.config.rootdir)
     test_dir = Path(os.getenv("PYTEST_CURRENT_TEST")).parent
     return root_dir / test_dir
-
-
-@pytest.fixture(scope="function")
-def modal_config():
-    """Return a context manager with a temporary modal.toml file"""
-
-    @contextlib.contextmanager
-    def mock_modal_toml(contents: str = "", show_on_error: bool = False):
-        # Some of the cli tests run within within the main process
-        # so we need to modify the config singletons to pick up any changes
-        orig_config_path_env = os.environ.get("MODAL_CONFIG_PATH")
-        orig_config_path = config.user_config_path
-        orig_profile = config._profile
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".toml", mode="w") as t:
-                t.write(textwrap.dedent(contents.strip("\n")))
-            os.environ["MODAL_CONFIG_PATH"] = t.name
-            config.user_config_path = t.name
-            config._user_config = config._read_user_config()
-            config._profile = config._config_active_profile()
-            yield t.name
-        except Exception:
-            if show_on_error:
-                with open(t.name) as f:
-                    print(f"Test config file contents:\n\n{f.read()}", file=sys.stderr)
-            raise
-        finally:
-            if orig_config_path_env:
-                os.environ["MODAL_CONFIG_PATH"] = orig_config_path_env
-            else:
-                del os.environ["MODAL_CONFIG_PATH"]
-            config.user_config_path = orig_config_path
-            config._user_config = config._read_user_config()
-            config._profile = orig_profile
-            os.remove(t.name)
-
-    return mock_modal_toml
-
-
-@pytest.fixture
-def supports_dir(test_dir):
-    return test_dir / Path("supports")
 
 
 @pytest_asyncio.fixture
