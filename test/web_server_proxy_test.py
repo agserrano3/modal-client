@@ -24,7 +24,7 @@ class DummyHttpServer:
 
 
 @contextlib.asynccontextmanager
-async def run_temporary_http_server(app: Application):
+async def run_temporary_http_server(app: Application) -> None:
     # Allocates a random port, runs a server in a context manager
     sock = socket.socket()
     host = "127.0.0.1"

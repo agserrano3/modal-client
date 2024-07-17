@@ -62,7 +62,7 @@ class Code:
 
     co_code = None
 
-    def __init__(self, code):
+    def __init__(self, code) -> None:
         self.co_filename = code.co_filename
         self.co_name = code.co_name
         self.co_argcount = 0
@@ -85,13 +85,13 @@ class Frame:
             See :class:`Traceback` class for example.
     """
 
-    def __init__(self, frame, *, get_locals=None):
+    def __init__(self, frame, *, get_locals=None) -> None:
         self.f_locals = {} if get_locals is None else get_locals(frame)
         self.f_globals = {k: v for k, v in frame.f_globals.items() if k in ('__file__', '__name__')}
         self.f_code = Code(frame.f_code)
         self.f_lineno = frame.f_lineno
 
-    def clear(self):
+    def clear(self) -> None:
         """
         For compatibility with PyPy 3.5;
         clear() was added to frame in Python 3.4
@@ -122,7 +122,7 @@ class Traceback:
 
     tb_next = None
 
-    def __init__(self, tb, *, get_locals=None):
+    def __init__(self, tb, *, get_locals=None) -> None:
         self.tb_frame = Frame(tb.tb_frame, get_locals=get_locals)
         self.tb_lineno = int(tb.tb_lineno)
 

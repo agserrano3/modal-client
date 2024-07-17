@@ -18,7 +18,7 @@ def app_ref(test_dir):
 
 
 @pytest.mark.asyncio
-async def test_live_reload(app_ref, server_url_env, servicer):
+async def test_live_reload(app_ref, server_url_env, servicer) -> None:
     async with serve_app.aio(app, app_ref):
         await asyncio.sleep(3.0)
     assert servicer.app_set_objects_count == 1
@@ -27,7 +27,7 @@ async def test_live_reload(app_ref, server_url_env, servicer):
 
 
 @skip_windows("live-reload not supported on windows")
-def test_file_changes_trigger_reloads(app_ref, server_url_env, servicer):
+def test_file_changes_trigger_reloads(app_ref, server_url_env, servicer) -> None:
     watcher_done = threading.Event()
 
     async def fake_watch():
@@ -51,7 +51,7 @@ def test_file_changes_trigger_reloads(app_ref, server_url_env, servicer):
 
 
 @pytest.mark.asyncio
-async def test_no_change(app_ref, server_url_env, servicer):
+async def test_no_change(app_ref, server_url_env, servicer) -> None:
     async def fake_watch():
         # Iterator that returns immediately, yielding nothing
         if False:
@@ -66,7 +66,7 @@ async def test_no_change(app_ref, server_url_env, servicer):
 
 
 @pytest.mark.asyncio
-async def test_heartbeats(app_ref, server_url_env, servicer):
+async def test_heartbeats(app_ref, server_url_env, servicer) -> None:
     with mock.patch("modal.runner.HEARTBEAT_INTERVAL", 1):
         t0 = time.time()
         async with serve_app.aio(app, app_ref):

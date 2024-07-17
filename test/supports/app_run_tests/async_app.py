@@ -5,5 +5,5 @@ app = modal.App()
 
 
 @app.function()
-async def foo():
+async def foo() -> None:
     pass

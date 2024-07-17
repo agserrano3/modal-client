@@ -59,7 +59,7 @@ class Retries:
         initial_delay: float = 1.0,
         # Maximum length of retry delay in seconds, preventing the delay from growing infinitely.
         max_delay: float = 60.0,
-    ):
+    ) -> None:
         """
         Construct a new retries policy, supporting exponential and fixed-interval delays via a backoff coefficient.
         """

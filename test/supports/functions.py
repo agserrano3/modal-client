@@ -55,28 +55,28 @@ async def square_async(x):
 
 
 @app.function()
-def raises(x):
+def raises(x) -> None:
     raise Exception("Failure!")
 
 
 @app.function()
-def raises_sysexit(x):
+def raises_sysexit(x) -> None:
     raise SystemExit(1)
 
 
 @app.function()
-def raises_keyboardinterrupt(x):
+def raises_keyboardinterrupt(x) -> None:
     raise KeyboardInterrupt()
 
 
 @app.function()
-def gen_n(n):
+def gen_n(n) -> None:
     for i in range(n):
         yield i**2
 
 
 @app.function()
-def gen_n_fail_on_m(n, m):
+def gen_n_fail_on_m(n, m) -> None:
     for i in range(n):
         if i == m:
             raise Exception("bad")
@@ -94,7 +94,7 @@ def webhook(arg="world"):
     return {"hello": arg}
 
 
-def stream():
+def stream() -> None:
     for i in range(10):
         time.sleep(SLEEP_DELAY)
         yield f"{i}..."
@@ -108,7 +108,7 @@ def webhook_streaming():
     return StreamingResponse(stream())
 
 
-async def stream_async():
+async def stream_async() -> None:
     for i in range(10):
         await asyncio.sleep(SLEEP_DELAY)
         yield f"{i}..."
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     raise Exception("This line is not supposed to be reachable")
 
 
-def gen(n):
+def gen(n) -> None:
     for i in range(n):
         yield i**2
 
@@ -152,7 +152,7 @@ def fastapi_app():
 
 @app.function()
 @asgi_app()
-def error_in_asgi_setup():
+def error_in_asgi_setup() -> None:
     raise Exception("Error while setting up asgi app")
 
 
@@ -172,11 +172,11 @@ def basic_wsgi_app():
 
 @app.cls()
 class Cls:
-    def __init__(self):
+    def __init__(self) -> None:
         self._k = 11
 
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         self._k += 100
 
     @method()
@@ -206,7 +206,7 @@ class Cls:
 
         return web_app
 
-    def _generator(self, x):
+    def _generator(self, x) -> None:
         yield x**3
 
     @method(is_generator=True)
@@ -225,7 +225,7 @@ class LifecycleCls:
         async_enter_duration=0,
         sync_exit_duration=0,
         async_exit_duration=0,
-    ):
+    ) -> None:
         self.events: List[str] = []
         self.sync_enter_duration = sync_enter_duration
         self.async_enter_duration = async_enter_duration
@@ -234,33 +234,33 @@ class LifecycleCls:
         if print_at_exit:
             self._print_at_exit()
 
-    def _print_at_exit(self):
+    def _print_at_exit(self) -> None:
         import atexit
 
         atexit.register(lambda: print("[events:" + ",".join(self.events) + "]"))
 
     @enter()
-    def enter_sync(self):
+    def enter_sync(self) -> None:
         self.events.append("enter_sync")
         time.sleep(self.sync_enter_duration)
 
     @enter()
-    async def enter_async(self):
+    async def enter_async(self) -> None:
         self.events.append("enter_async")
         await asyncio.sleep(self.async_enter_duration)
 
     @exit()
-    def exit_sync(self):
+    def exit_sync(self) -> None:
         self.events.append("exit_sync")
         time.sleep(self.sync_exit_duration)
 
     @exit()
-    async def exit_async(self):
+    async def exit_async(self) -> None:
         self.events.append("exit_async")
         await asyncio.sleep(self.async_exit_duration)
 
     @method()
-    def local(self):
+    def local(self) -> None:
         self.events.append("local")
 
     @method()
@@ -291,7 +291,7 @@ class LifecycleCls:
 
 
 @app.function()
-def check_sibling_hydration(x):
+def check_sibling_hydration(x) -> None:
     assert square.is_hydrated
     assert Cls().f.is_hydrated
     assert Cls().web.is_hydrated
@@ -336,7 +336,7 @@ def unassociated_function(x):
 
 class BaseCls:
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         self.x = 2
 
     @method()
@@ -366,11 +366,11 @@ def function_calling_method(x, y, z):
 
 @app.cls()
 class BuildCls:
-    def __init__(self):
+    def __init__(self) -> None:
         self._k = 1
 
     @enter()
-    def enter1(self):
+    def enter1(self) -> None:
         self._k += 10
 
     @build()
@@ -384,7 +384,7 @@ class BuildCls:
         return self._k
 
     @exit()
-    def exit1(self):
+    def exit1(self) -> None:
         raise Exception("exit called!")
 
     @method()
@@ -394,19 +394,19 @@ class BuildCls:
 
 @app.cls(enable_memory_snapshot=True)
 class CheckpointingCls:
-    def __init__(self):
+    def __init__(self) -> None:
         self._vals = []
 
     @enter(snap=True)
-    def enter1(self):
+    def enter1(self) -> None:
         self._vals.append("A")
 
     @enter(snap=True)
-    def enter2(self):
+    def enter2(self) -> None:
         self._vals.append("B")
 
     @enter()
-    def enter3(self):
+    def enter3(self) -> None:
         self._vals.append("C")
 
     @method()
@@ -417,7 +417,7 @@ class CheckpointingCls:
 @app.cls()
 class EventLoopCls:
     @enter()
-    async def enter(self):
+    async def enter(self) -> None:
         self.loop = asyncio.get_running_loop()
 
     @method()
@@ -438,6 +438,6 @@ def is_local_f(x):
 
 
 @app.function()
-def raise_large_unicode_exception():
+def raise_large_unicode_exception() -> None:
     byte_str = (b"k" * 120_000_000) + b"\x99"
     byte_str.decode("utf-8")

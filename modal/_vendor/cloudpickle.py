@@ -132,7 +132,7 @@ def _lookup_class_or_track(class_tracker_id, class_def):
     return class_def
 
 
-def register_pickle_by_value(module):
+def register_pickle_by_value(module) -> None:
     """Register a module to make it functions and classes picklable by value.
 
     By default, functions and classes that are attributes of an importable
@@ -168,7 +168,7 @@ def register_pickle_by_value(module):
     _PICKLE_BY_VALUE_MODULES.add(module.__name__)
 
 
-def unregister_pickle_by_value(module):
+def unregister_pickle_by_value(module) -> None:
     """Unregister that the input module should be pickled by value."""
     if not isinstance(module, types.ModuleType):
         raise ValueError(f"Input should be a module object, got {str(module)} instead")
@@ -393,7 +393,7 @@ def _builtin_type(name):
     return getattr(types, name)
 
 
-def _walk_global_ops(code):
+def _walk_global_ops(code) -> None:
     """Yield referenced name for global-referencing instructions in code."""
     for instr in dis.get_instructions(code):
         op = instr.opcode
@@ -1068,7 +1068,7 @@ def _dataclass_field_base_reduce(obj):
 # it has to be updated to how it was at unpickling time.
 
 
-def _function_setstate(obj, state):
+def _function_setstate(obj, state) -> None:
     """Update the state of a dynamic function.
 
     As __closure__ and __globals__ are readonly attributes of a function, we
@@ -1232,7 +1232,7 @@ class Pickler(pickle.Pickler):
             else:
                 raise
 
-    def __init__(self, file, protocol=None, buffer_callback=None):
+    def __init__(self, file, protocol=None, buffer_callback=None) -> None:
         if protocol is None:
             protocol = DEFAULT_PROTOCOL
         super().__init__(file, protocol=protocol, buffer_callback=buffer_callback)
@@ -1423,7 +1423,7 @@ class Pickler(pickle.Pickler):
 # Shorthands similar to pickle.dump/pickle.dumps
 
 
-def dump(obj, file, protocol=None, buffer_callback=None):
+def dump(obj, file, protocol=None, buffer_callback=None) -> None:
     """Serialize obj as bytes streamed into file
 
     protocol defaults to cloudpickle.DEFAULT_PROTOCOL which is an alias to

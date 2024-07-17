@@ -17,18 +17,18 @@ profile_cli = typer.Typer(name="profile", help="Switch between Modal profiles.",
 
 
 @profile_cli.command(help="Change the active Modal profile.")
-def activate(profile: str = typer.Argument(..., help="Modal profile to activate.")):
+def activate(profile: str = typer.Argument(..., help="Modal profile to activate.")) -> None:
     config_set_active_profile(profile)
 
 
 @profile_cli.command(help="Print the currently active Modal profile.")
-def current():
+def current() -> None:
     typer.echo(_profile)
 
 
 @profile_cli.command(name="list", help="Show all Modal profiles and highlight the active one.")
 @synchronizer.create_blocking
-async def list(json: Optional[bool] = False):
+async def list(json: Optional[bool] = False) -> None:
     config = Config()
     profiles = config_profiles()
     lookup_coros = [

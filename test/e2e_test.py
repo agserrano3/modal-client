@@ -24,12 +24,12 @@ def _cli(args, server_url, extra_env={}, check=True) -> Tuple[int, str, str]:
     return ret.returncode, stdout, stderr
 
 
-def test_run_e2e(servicer):
+def test_run_e2e(servicer) -> None:
     _, _, err = _cli(["-m", "test.supports.script"], servicer.client_addr)
     assert err == ""
 
 
-def test_run_progress_info(servicer):
+def test_run_progress_info(servicer) -> None:
     returncode, stdout, stderr = _cli(["-m", "test.supports.progress_info"], servicer.client_addr)
     assert returncode == 0
     assert stderr == ""
@@ -38,11 +38,11 @@ def test_run_progress_info(servicer):
     assert "App completed" in lines[-1]
 
 
-def test_run_profiler(servicer):
+def test_run_profiler(servicer) -> None:
     _cli(["-m", "cProfile", "-m", "test.supports.script"], servicer.client_addr)
 
 
-def test_run_unconsumed_map(servicer):
+def test_run_unconsumed_map(servicer) -> None:
     _, _, err = _cli(["-m", "test.supports.unconsumed_map"], servicer.client_addr)
     assert "map" in err
     assert "for-loop" in err
@@ -52,7 +52,7 @@ def test_run_unconsumed_map(servicer):
     assert "for-loop" not in err
 
 
-def test_auth_failure_last_line(servicer):
+def test_auth_failure_last_line(servicer) -> None:
     returncode, out, err = _cli(
         ["-m", "test.supports.script"],
         servicer.client_addr,

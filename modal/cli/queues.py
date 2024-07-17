@@ -30,7 +30,7 @@ PARTITION_OPTION = Option(
 
 @queue_cli.command(name="create", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def create(name: str, *, env: Optional[str] = ENV_OPTION):
+async def create(name: str, *, env: Optional[str] = ENV_OPTION) -> None:
     """Create a named Queue.
 
     Note: This is a no-op when the Queue already exists.
@@ -43,7 +43,7 @@ async def create(name: str, *, env: Optional[str] = ENV_OPTION):
 
 @queue_cli.command(name="delete", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION):
+async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION) -> None:
     """Delete a named Queue and all of its data."""
     # Lookup first to validate the name, even though delete is a staticmethod
     await _Queue.lookup(name, environment_name=env)
@@ -58,7 +58,7 @@ async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_
 
 @queue_cli.command(name="list", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION):
+async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION) -> None:
     """List all named Queues."""
     env = ensure_env(env)
 
@@ -88,7 +88,7 @@ async def clear(
     yes: bool = YES_OPTION,
     *,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Clear the contents of a queue by removing all of its data."""
     q = await _Queue.lookup(name, environment_name=env)
     if not yes:
@@ -104,7 +104,7 @@ async def clear(
 @synchronizer.create_blocking
 async def peek(
     name: str, n: int = Argument(1), partition: Optional[str] = PARTITION_OPTION, *, env: Optional[str] = ENV_OPTION
-):
+) -> None:
     """Print the next N items in the queue or queue partition (without removal)."""
     q = await _Queue.lookup(name, environment_name=env)
     console = Console()
@@ -124,7 +124,7 @@ async def len(
     total: bool = Option(False, "-t", "--total", help="Compute the sum of the queue lengths across all partitions"),
     *,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Print the length of a queue partition or the total length of all partitions."""
     q = await _Queue.lookup(name, environment_name=env)
     console = Console()

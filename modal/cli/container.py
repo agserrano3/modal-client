@@ -17,7 +17,7 @@ container_cli = typer.Typer(name="container", help="Manage and connect to runnin
 
 @container_cli.command("list")
 @synchronizer.create_blocking
-async def list(json: bool = False):
+async def list(json: bool = False) -> None:
     """List all containers that are currently running."""
     client = await _Client.from_env()
     res: api_pb2.TaskListResponse = await client.stub.TaskList(api_pb2.TaskListRequest())
@@ -39,7 +39,7 @@ async def list(json: bool = False):
 
 
 @container_cli.command("logs")
-def logs(container_id: str = typer.Argument(help="Container ID")):
+def logs(container_id: str = typer.Argument(help="Container ID")) -> None:
     """Show logs for a specific container, streaming while active."""
     stream_app_logs(task_id=container_id)
 
@@ -50,7 +50,7 @@ async def exec(
     container_id: str = typer.Argument(help="Container ID"),
     command: List[str] = typer.Argument(help="A command to run inside the container."),
     pty: bool = typer.Option(is_flag=True, default=True, help="Run the command using a PTY."),
-):
+) -> None:
     """Execute a command in a container."""
     client = await _Client.from_env()
     await container_exec(container_id, command, pty=pty, client=client)
@@ -58,7 +58,7 @@ async def exec(
 
 @container_cli.command("stop")
 @synchronizer.create_blocking
-async def stop(container_id: str = typer.Argument(help="Container ID")):
+async def stop(container_id: str = typer.Argument(help="Container ID")) -> None:
     """Stop a currently-running container and reassign its in-progress inputs.
 
     This will send the container a SIGINT signal that Modal will handle.

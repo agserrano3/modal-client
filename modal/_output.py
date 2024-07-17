@@ -47,7 +47,7 @@ else:
 class FunctionQueuingColumn(ProgressColumn):
     """Renders time elapsed, including task.completed as additional elapsed time."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.lag = 0
         super().__init__()
 
@@ -66,7 +66,7 @@ def step_progress(text: str = "") -> Spinner:
     return Spinner(default_spinner, text, style="blue")
 
 
-def step_progress_update(spinner: Spinner, message: str):
+def step_progress_update(spinner: Spinner, message: str) -> None:
     spinner.update(text=message)
 
 
@@ -104,11 +104,11 @@ class LineBufferedOutput(io.StringIO):
 
     LINE_REGEX = re.compile("(\r\n|\r|\n)")
 
-    def __init__(self, callback: Callable[[str], None]):
+    def __init__(self, callback: Callable[[str], None]) -> None:
         self._callback = callback
         self._buf = ""
 
-    def write(self, data: str):
+    def write(self, data: str) -> None:
         chunks = self.LINE_REGEX.split(self._buf + data)
 
         # re.split("(<exp>)") returns the matched groups, and also the separators.
@@ -130,10 +130,10 @@ class LineBufferedOutput(io.StringIO):
         self._callback(completed_lines)
         self._buf = remainder
 
-    def flush(self):
+    def flush(self) -> None:
         pass
 
-    def finalize(self):
+    def finalize(self) -> None:
         if self._buf:
             self._callback(self._buf)
             self._buf = ""
@@ -160,7 +160,7 @@ class OutputManager:
         stdout: Optional[io.TextIOWrapper] = None,
         show_progress: bool = True,
         status_spinner_text: str = "Running app...",
-    ):
+    ) -> None:
         self._stdout = stdout or sys.stdout
         self._visible_progress = show_progress
         self._console = Console(file=stdout, highlight=False)
@@ -178,7 +178,7 @@ class OutputManager:
     def is_visible(self) -> bool:
         return self._visible_progress
 
-    def hide_output(self):
+    def hide_output(self) -> None:
         self._visible_progress = False
 
     def print(self, renderable) -> None:
@@ -191,7 +191,7 @@ class OutputManager:
         self._current_render_group = Group(renderable)
         return Live(self._current_render_group, console=self._console, transient=True, refresh_per_second=4)
 
-    def enable_image_logs(self):
+    def enable_image_logs(self) -> None:
         self._show_image_logs = True
 
     @property
@@ -340,7 +340,7 @@ class OutputManager:
             progress_task_id = self.function_queueing_progress.add_task(task_desc, start=True, total=None)
             self._task_progress_items[task_key] = progress_task_id
 
-    async def put_log_content(self, log: api_pb2.TaskLogs):
+    async def put_log_content(self, log: api_pb2.TaskLogs) -> None:
         if self._visible_progress:
             stream = self._line_buffers.get(log.file_descriptor)
             if stream is None:
@@ -369,12 +369,12 @@ class OutputManager:
             self._stdout.write(log.data)
             self._stdout.flush()
 
-    def flush_lines(self):
+    def flush_lines(self) -> None:
         for stream in self._line_buffers.values():
             stream.finalize()
 
     @contextlib.contextmanager
-    def show_status_spinner(self):
+    def show_status_spinner(self) -> None:
         self._status_spinner_live = self.make_live(self._status_spinner)
         if self.is_visible():
             with self._status_spinner_live:
@@ -382,12 +382,12 @@ class OutputManager:
         else:
             yield
 
-    def hide_status_spinner(self):
+    def hide_status_spinner(self) -> None:
         if self._status_spinner_live:
             self._status_spinner_live.stop()
 
 
-async def stream_pty_shell_input(client: _Client, exec_id: str, finish_event: asyncio.Event):
+async def stream_pty_shell_input(client: _Client, exec_id: str, finish_event: asyncio.Event) -> None:
     """
     Streams stdin to the given exec id until finish_event is triggered
     """
@@ -407,7 +407,7 @@ async def stream_pty_shell_input(client: _Client, exec_id: str, finish_event: as
 
 async def get_app_logs_loop(
     client: _Client, output_mgr: OutputManager, app_id: Optional[str] = None, task_id: Optional[str] = None
-):
+) -> None:
     last_log_batch_entry_id = ""
     pty_shell_finish_event: Optional[asyncio.Event] = None
     pty_shell_task_id: Optional[str] = None
@@ -536,7 +536,7 @@ class FunctionCreationStatus:
     tag: str
     response: Optional[api_pb2.FunctionCreateResponse] = None
 
-    def __init__(self, resolver, tag):
+    def __init__(self, resolver, tag) -> None:
         self.resolver = resolver
         self.tag = tag
 
@@ -545,10 +545,10 @@ class FunctionCreationStatus:
         self.status_row.message(f"Creating function {self.tag}...")
         return self
 
-    def set_response(self, resp: api_pb2.FunctionCreateResponse):
+    def set_response(self, resp: api_pb2.FunctionCreateResponse) -> None:
         self.response = resp
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if exc_type:
             raise exc_val
 

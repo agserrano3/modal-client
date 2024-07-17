@@ -18,7 +18,7 @@ PICKLE_PROTOCOL = 4  # Support older Python versions.
 
 
 class Pickler(cloudpickle.Pickler):
-    def __init__(self, buf):
+    def __init__(self, buf) -> None:
         super().__init__(buf, protocol=PICKLE_PROTOCOL)
 
     def persistent_id(self, obj):
@@ -55,7 +55,7 @@ class Pickler(cloudpickle.Pickler):
 
 
 class Unpickler(pickle.Unpickler):
-    def __init__(self, client, buf):
+    def __init__(self, client, buf) -> None:
         self.client = client
         super().__init__(buf)
 
@@ -364,7 +364,7 @@ def deserialize_data_format(s: bytes, data_format: int, client) -> Any:
 
 
 class ClsConstructorPickler(pickle.Pickler):
-    def __init__(self, buf):
+    def __init__(self, buf) -> None:
         super().__init__(buf, protocol=PICKLE_PROTOCOL)
 
     def persistent_id(self, obj):

@@ -89,7 +89,7 @@ class _NetworkFileSystem(_Object, type_prefix="sv"):
     """
 
     @staticmethod
-    def new(cloud: Optional[str] = None):
+    def new(cloud: Optional[str] = None) -> None:
         """`NetworkFileSystem.new` is deprecated.
 
         Please use `NetworkFileSystem.from_name` (for persisted) or `NetworkFileSystem.ephemeral`
@@ -174,7 +174,7 @@ class _NetworkFileSystem(_Object, type_prefix="sv"):
         namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
         environment_name: Optional[str] = None,
         cloud: Optional[str] = None,
-    ):
+    ) -> None:
         """Deprecated! Use `NetworkFileSystem.from_name(name, create_if_missing=True)`."""
         deprecation_error((2024, 3, 1), _NetworkFileSystem.persisted.__doc__)
 
@@ -184,7 +184,7 @@ class _NetworkFileSystem(_Object, type_prefix="sv"):
         namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
         environment_name: Optional[str] = None,
         cloud: Optional[str] = None,
-    ):
+    ) -> None:
         """`NetworkFileSystem().persist("my-volume")` is deprecated.
         Use `NetworkFileSystem.from_name("my-volume", create_if_missing=True)` instead."""
         deprecation_error((2024, 2, 29), _NetworkFileSystem.persist.__doc__)
@@ -317,7 +317,7 @@ class _NetworkFileSystem(_Object, type_prefix="sv"):
         self,
         local_path: Union[Path, str],
         remote_path: Optional[Union[str, PurePosixPath, None]] = None,
-    ):
+    ) -> None:
         _local_path = Path(local_path)
         if remote_path is None:
             remote_path = PurePosixPath("/", _local_path.name).as_posix()
@@ -352,7 +352,7 @@ class _NetworkFileSystem(_Object, type_prefix="sv"):
         return [entry async for entry in self.iterdir(path)]
 
     @live_method
-    async def remove_file(self, path: str, recursive=False):
+    async def remove_file(self, path: str, recursive=False) -> None:
         """Remove a file in a network file system."""
         req = api_pb2.SharedVolumeRemoveFileRequest(shared_volume_id=self.object_id, path=path, recursive=recursive)
         await retry_transient_errors(self._client.stub.SharedVolumeRemoveFile, req)

@@ -14,25 +14,25 @@ app = App()
         spot=False,
     ),
 )
-def f1():
+def f1() -> None:
     pass
 
 
 @app.function(
     region="us-east-1",
 )
-def f2():
+def f2() -> None:
     pass
 
 
 @app.function(
     region=["us-east-1", "us-west-2"],
 )
-def f3():
+def f3() -> None:
     pass
 
 
-def test_fn_scheduler_placement(servicer, client):
+def test_fn_scheduler_placement(servicer, client) -> None:
     with app.run(client=client):
         assert len(servicer.app_functions) == 3
         fn1 = servicer.app_functions["fu-1"]  # f1
@@ -54,7 +54,7 @@ def test_fn_scheduler_placement(servicer, client):
 
 
 @skip_non_linux
-def test_sandbox_scheduler_placement(client, servicer):
+def test_sandbox_scheduler_placement(client, servicer) -> None:
     Sandbox.create(
         "bash",
         "-c",

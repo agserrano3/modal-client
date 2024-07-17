@@ -4,23 +4,23 @@ from modal import method, web_endpoint
 from modal._utils.function_utils import FunctionInfo, method_has_params
 
 
-def hasarg(a):
+def hasarg(a) -> None:
     ...
 
 
-def noarg():
+def noarg() -> None:
     ...
 
 
-def defaultarg(a="hello"):
+def defaultarg(a="hello") -> None:
     ...
 
 
-def wildcard_args(*wildcard_list, **wildcard_dict):
+def wildcard_args(*wildcard_list, **wildcard_dict) -> None:
     ...
 
 
-def test_is_nullary():
+def test_is_nullary() -> None:
     assert not FunctionInfo(hasarg).is_nullary()
     assert FunctionInfo(noarg).is_nullary()
     assert FunctionInfo(defaultarg).is_nullary()
@@ -28,17 +28,17 @@ def test_is_nullary():
 
 
 class Cls:
-    def foo(self):
+    def foo(self) -> None:
         pass
 
-    def bar(self, x):
+    def bar(self, x) -> None:
         pass
 
-    def buz(self, *args):
+    def buz(self, *args) -> None:
         pass
 
 
-def test_method_has_params():
+def test_method_has_params() -> None:
     assert not method_has_params(Cls.foo)
     assert not method_has_params(Cls().foo)
     assert method_has_params(Cls.bar)
@@ -48,7 +48,7 @@ def test_method_has_params():
 
 
 class Foo:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @method()
@@ -56,5 +56,5 @@ class Foo:
         return "hello"
 
     @web_endpoint()
-    def web(self):
+    def web(self) -> None:
         pass

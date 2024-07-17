@@ -57,7 +57,7 @@ Inspect the output notebook: {output_notebook_path}
 
 
 @pytest.mark.skip("temporarily disabled until IPython import issues in CI are resolved")
-def test_notebook_outputs_status(notebook_runner, test_dir):
+def test_notebook_outputs_status(notebook_runner, test_dir) -> None:
     input_notebook_path = test_dir / "supports" / "notebooks" / "simple.notebook.py"
     tagged_cells = notebook_runner(input_notebook_path)
     combined_output = "\n".join(c["data"]["text/plain"] for c in tagged_cells["main"]["outputs"])

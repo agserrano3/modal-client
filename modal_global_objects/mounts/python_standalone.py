@@ -44,7 +44,7 @@ def publish_python_standalone_mount(client, version: str) -> None:
             print(f"✅ Deployed mount {mount_name} to global namespace.")
 
 
-def main(client=None):
+def main(client=None) -> None:
     for version in PYTHON_STANDALONE_VERSIONS:
         publish_python_standalone_mount(client, version)
 

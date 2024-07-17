@@ -13,5 +13,5 @@ app = modal.App()
 
 
 @app.function()
-def dummy():
+def dummy() -> None:
     pass

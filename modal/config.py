@@ -215,7 +215,7 @@ _SETTINGS = {
 class Config:
     """Singleton that holds configuration used by Modal internally."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def get(self, key, profile=None, use_env=True):
@@ -237,7 +237,7 @@ class Config:
         else:
             return s.default
 
-    def override_locally(self, key: str, value: str):
+    def override_locally(self, key: str, value: str) -> None:
         # Override setting in this process by overriding environment variable for the setting
         #
         # Does NOT write back to settings file etc.
@@ -271,7 +271,7 @@ configure_logger(logger, config["loglevel"], config["log_format"])
 
 def _store_user_config(
     new_settings: Dict[str, Any], profile: Optional[str] = None, active_profile: Optional[str] = None
-):
+) -> None:
     """Internal method, used by the CLI to set tokens."""
     if profile is None:
         profile = _profile
@@ -286,7 +286,7 @@ def _store_user_config(
     _write_user_config(user_config)
 
 
-def _write_user_config(user_config):
+def _write_user_config(user_config) -> None:
     if _is_remote():
         raise InvalidError("Can't update config file in remote environment.")
 

@@ -103,11 +103,11 @@ class TaskContext:
 
     _loops: Set[asyncio.Task]
 
-    def __init__(self, grace: Optional[float] = None):
+    def __init__(self, grace: Optional[float] = None) -> None:
         self._grace = grace
         self._loops = set()
 
-    async def start(self):
+    async def start(self) -> None:
         # TODO: this only exists as a standalone method because Client doesn't have a proper ctx mgr
         self._tasks: set[asyncio.Task] = set()
         self._exited: asyncio.Event = asyncio.Event()  # Used to stop infinite loops
@@ -120,7 +120,7 @@ class TaskContext:
         await self.start()
         return self
 
-    async def stop(self):
+    async def stop(self) -> None:
         self._exited.set()
         await asyncio.sleep(0)  # Causes any just-created tasks to get started
         unfinished_tasks = [t for t in self._tasks if not t.done()]
@@ -153,7 +153,7 @@ class TaskContext:
                 # Cancel any remaining unfinished tasks.
                 task.cancel()
 
-    async def __aexit__(self, exc_type, value, tb):
+    async def __aexit__(self, exc_type, value, tb) -> None:
         await self.stop()
 
     def create_task(self, coro_or_task) -> asyncio.Task:
@@ -244,7 +244,7 @@ def run_coro_blocking(coro):
         return fut.result()
 
 
-async def queue_batch_iterator(q: asyncio.Queue, max_batch_size=100, debounce_time=0.015):
+async def queue_batch_iterator(q: asyncio.Queue, max_batch_size=100, debounce_time=0.015) -> None:
     """
     Read from a queue but return lists of items when queue is large
 
@@ -272,7 +272,7 @@ async def queue_batch_iterator(q: asyncio.Queue, max_batch_size=100, debounce_ti
 
 
 class _WarnIfGeneratorIsNotConsumed:
-    def __init__(self, gen, function_name: str):
+    def __init__(self, gen, function_name: str) -> None:
         self.gen = gen
         self.function_name = function_name
         self.iterated = False
@@ -293,7 +293,7 @@ class _WarnIfGeneratorIsNotConsumed:
     def __repr__(self):
         return repr(self.gen)
 
-    def __del__(self):
+    def __del__(self) -> None:
         if not self.iterated and not self.warned:
             self.warned = True
             logger.warning(
@@ -352,14 +352,14 @@ class AsyncOrSyncIteratable:
     from an already async context, since that would otherwise deadlock the event loop
     """
 
-    def __init__(self, async_iterable: typing.AsyncIterable[Any], nested_async_message):
+    def __init__(self, async_iterable: typing.AsyncIterable[Any], nested_async_message) -> None:
         self._async_iterable = async_iterable
         self.nested_async_message = nested_async_message
 
     def __aiter__(self):
         return self._async_iterable
 
-    def __iter__(self):
+    def __iter__(self) -> None:
         try:
             for output in run_generator_sync(self._async_iterable):  # type: ignore
                 yield output
@@ -370,7 +370,7 @@ class AsyncOrSyncIteratable:
 _shutdown_tasks = []
 
 
-def on_shutdown(coro):
+def on_shutdown(coro) -> None:
     # hook into event loop shutdown when all active tasks get cancelled
     async def wrapper():
         try:
@@ -410,7 +410,7 @@ async def iterate_blocking(iterator: Iterator[T]) -> AsyncGenerator[T, None]:
 
 
 @asynccontextmanager
-async def asyncnullcontext(*args, **kwargs):
+async def asyncnullcontext(*args, **kwargs) -> None:
     """Async noop context manager.
 
     Note that for Python 3.10+ you can use contextlib.nullcontext() instead.

@@ -27,7 +27,7 @@ class SampleException(Exception):
 
 
 class FailNTimes:
-    def __init__(self, n_failures, exc=SampleException("Something bad happened")):
+    def __init__(self, n_failures, exc=SampleException("Something bad happened")) -> None:
         self.n_failures = n_failures
         self.n_calls = 0
         self.exc = exc
@@ -41,7 +41,7 @@ class FailNTimes:
 
 
 @pytest.mark.asyncio
-async def test_retry():
+async def test_retry() -> None:
     f_retry = retry(FailNTimes(2))
     assert await f_retry(42) == 43
 
@@ -58,7 +58,7 @@ async def test_retry():
 
 
 @pytest.mark.asyncio
-async def test_task_context():
+async def test_task_context() -> None:
     async with TaskContext() as task_context:
         t = task_context.create_task(asyncio.sleep(0.1))
         assert not t.done()
@@ -68,7 +68,7 @@ async def test_task_context():
 
 
 @pytest.mark.asyncio
-async def test_task_context_grace():
+async def test_task_context_grace() -> None:
     async with TaskContext(grace=0.2) as task_context:
         u = task_context.create_task(asyncio.sleep(0.1))
         v = task_context.create_task(asyncio.sleep(0.3))
@@ -81,7 +81,7 @@ async def test_task_context_grace():
 
 @skip_github_non_linux
 @pytest.mark.asyncio
-async def test_task_context_infinite_loop():
+async def test_task_context_infinite_loop() -> None:
     async with TaskContext(grace=0.01) as task_context:
         counter = 0
 
@@ -100,7 +100,7 @@ async def test_task_context_infinite_loop():
 
 
 @pytest.mark.asyncio
-async def test_task_context_gather():
+async def test_task_context_gather() -> None:
     state = "none"
 
     async def t1(error=False):
@@ -139,7 +139,7 @@ DEBOUNCE_TIME = 0.1
 
 
 @pytest.mark.asyncio
-async def test_queue_batch_iterator():
+async def test_queue_batch_iterator() -> None:
     queue: asyncio.Queue = asyncio.Queue()
     await queue.put(1)
     drained_items = []
@@ -167,7 +167,7 @@ async def test_queue_batch_iterator():
 
 
 @pytest.mark.asyncio
-async def test_warn_if_generator_is_not_consumed(caplog):
+async def test_warn_if_generator_is_not_consumed(caplog) -> None:
     @warn_if_generator_is_not_consumed()
     async def my_generator():
         yield 42
@@ -184,7 +184,7 @@ async def test_warn_if_generator_is_not_consumed(caplog):
 
 
 @pytest.mark.asyncio
-def test_warn_if_generator_is_not_consumed_sync(caplog):
+def test_warn_if_generator_is_not_consumed_sync(caplog) -> None:
     @warn_if_generator_is_not_consumed()
     def my_generator():
         yield 42
@@ -201,7 +201,7 @@ def test_warn_if_generator_is_not_consumed_sync(caplog):
 
 
 @pytest.mark.asyncio
-async def test_no_warn_if_generator_is_consumed(caplog):
+async def test_no_warn_if_generator_is_consumed(caplog) -> None:
     @warn_if_generator_is_not_consumed()
     async def my_generator():
         yield 42
@@ -215,7 +215,7 @@ async def test_no_warn_if_generator_is_consumed(caplog):
     assert len(caplog.records) == 0
 
 
-def test_exit_handler():
+def test_exit_handler() -> None:
     result = None
     sync = Synchronizer()
 

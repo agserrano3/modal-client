@@ -55,7 +55,7 @@ def jupyter(
     add_python: Optional[str] = "3.11",
     mount: Optional[str] = None,  # Create a `modal.Mount` from a local directory.
     volume: Optional[str] = None,  # Attach a persisted `modal.Volume` by name (creating if missing).
-):
+) -> None:
     args = {
         "cpu": cpu,
         "memory": memory,
@@ -77,7 +77,7 @@ def vscode(
     timeout: int = 3600,
     mount: Optional[str] = None,  # Create a `modal.Mount` from a local directory.
     volume: Optional[str] = None,  # Attach a persisted `modal.Volume` by name (creating if missing).
-):
+) -> None:
     args = {
         "cpu": cpu,
         "memory": memory,

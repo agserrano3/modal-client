@@ -87,14 +87,14 @@ class _Queue(_Object, type_prefix="qu"):
     """
 
     @staticmethod
-    def new():
+    def new() -> None:
         """`Queue.new` is deprecated.
 
         Please use `Queue.from_name` (for persisted) or `Queue.ephemeral` (for ephemeral) queues.
         """
         deprecation_error((2024, 3, 19), Queue.new.__doc__)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """mdmd:hidden"""
         raise RuntimeError("Queue() is not allowed. Please use `Queue.from_name(...)` or `Queue.ephemeral()` instead.")
 
@@ -175,7 +175,7 @@ class _Queue(_Object, type_prefix="qu"):
         return _Queue._from_loader(_load, "Queue()", is_another_app=True, hydrate_lazily=True)
 
     @staticmethod
-    def persisted(label: str, namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, environment_name: Optional[str] = None):
+    def persisted(label: str, namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, environment_name: Optional[str] = None) -> None:
         """Deprecated! Use `Queue.from_name(name, create_if_missing=True)`."""
         deprecation_error((2024, 3, 1), _Queue.persisted.__doc__)
 
@@ -206,7 +206,7 @@ class _Queue(_Object, type_prefix="qu"):
         return obj
 
     @staticmethod
-    async def delete(label: str, *, client: Optional[_Client] = None, environment_name: Optional[str] = None):
+    async def delete(label: str, *, client: Optional[_Client] = None, environment_name: Optional[str] = None) -> None:
         obj = await _Queue.lookup(label, client=client, environment_name=environment_name)
         req = api_pb2.QueueDeleteRequest(queue_id=obj.object_id)
         await retry_transient_errors(obj._client.stub.QueueDelete, req)
@@ -363,7 +363,7 @@ class _Queue(_Object, type_prefix="qu"):
 
     async def _put_many_blocking(
         self, partition: Optional[str], partition_ttl: int, vs: List[Any], timeout: Optional[float] = None
-    ):
+    ) -> None:
         vs_encoded = [serialize(v) for v in vs]
 
         request = api_pb2.QueuePutRequest(
@@ -390,7 +390,7 @@ class _Queue(_Object, type_prefix="qu"):
             else:
                 raise exc
 
-    async def _put_many_nonblocking(self, partition: Optional[str], partition_ttl: int, vs: List[Any]):
+    async def _put_many_nonblocking(self, partition: Optional[str], partition_ttl: int, vs: List[Any]) -> None:
         vs_encoded = [serialize(v) for v in vs]
         request = api_pb2.QueuePutRequest(
             queue_id=self.object_id,

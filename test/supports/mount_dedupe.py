@@ -22,10 +22,10 @@ else:
 
 
 @app.function(mounts=explicit_mounts1)
-def foo():
+def foo() -> None:
     pass
 
 
 @app.function(mounts=explicit_mounts2)
-def bar():
+def bar() -> None:
     pass

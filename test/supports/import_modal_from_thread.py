@@ -4,7 +4,7 @@ import threading
 success = threading.Event()
 
 
-def main():
+def main() -> None:
     import modal  # noqa
 
     success.set()

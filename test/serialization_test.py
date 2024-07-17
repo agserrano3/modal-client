@@ -19,7 +19,7 @@ from .supports.skip import skip_old_py
 
 
 @pytest.mark.asyncio
-async def test_roundtrip(servicer, client):
+async def test_roundtrip(servicer, client) -> None:
     async with Queue.ephemeral(client=client) as q:
         data = serialize(q)
         # TODO: strip synchronizer reference from synchronicity entities!
@@ -38,7 +38,7 @@ async def test_roundtrip(servicer, client):
 
 @skip_old_py("random.randbytes() was introduced in python 3.9", (3, 9))
 @pytest.mark.asyncio
-async def test_asgi_roundtrip():
+async def test_asgi_roundtrip() -> None:
     rand = random.Random(42)
     for _ in range(10000):
         msg = rand_pb(api_pb2.Asgi, rand)
@@ -50,7 +50,7 @@ async def test_asgi_roundtrip():
         assert asgi_obj == asgi_obj_roundtrip
 
 
-def test_deserialization_error(client):
+def test_deserialization_error(client) -> None:
     # Curated object that we should not be able to deserialize
     obj = (
         b"\x80\x04\x95(\x00\x00\x00\x00\x00\x00\x00\x8c\x17"
@@ -72,13 +72,13 @@ def test_deserialization_error(client):
         )
     ],
 )
-def test_proto_serde_params_success(pydict, params):
+def test_proto_serde_params_success(pydict, params) -> None:
     serialized_params = serialize_proto_params(pydict, params)
     reconstructed = deserialize_proto_params(serialized_params, params)
     assert reconstructed == pydict
 
 
-def test_proto_serde_failure_incomplete_params():
+def test_proto_serde_failure_incomplete_params() -> None:
     # construct an incorrect serialization:
     incomplete_proto_params = api_pb2.ClassParameterSet(
         parameters=[api_pb2.ClassParameterValue(name="a", type=api_pb2.PARAM_TYPE_STRING, string_value="b")]

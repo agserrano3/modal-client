@@ -24,7 +24,7 @@ copyright_header_full = f"{copyright_header_start} {year}"
 
 
 @task
-def protoc(ctx):
+def protoc(ctx) -> None:
     py_protoc = (
         f"{sys.executable} -m grpc_tools.protoc"
         + " --python_out=. --grpclib_python_out=. --grpc_python_out=. --mypy_out=. --mypy_grpc_out=."
@@ -34,7 +34,7 @@ def protoc(ctx):
 
 
 @task
-def lint(ctx, fix=False):
+def lint(ctx, fix=False) -> None:
     ctx.run(f"ruff . {'--fix' if fix else ''}", pty=True)
 
 
@@ -85,7 +85,7 @@ def lint_protos(ctx):
 
 
 @task
-def type_check(ctx):
+def type_check(ctx) -> None:
     # mypy will not check the *implementation* (.py) for files that also have .pyi type stubs
     ctx.run("mypy . --exclude=playground --exclude=venv311 --exclude=venv38", pty=True)
 
@@ -109,7 +109,7 @@ def type_check(ctx):
 
 
 @task
-def check_copyright(ctx, fix=False):
+def check_copyright(ctx, fix=False) -> None:
     invalid_files = []
     d = str(Path(__file__).parent)
     for root, dirs, files in os.walk(d):
@@ -148,7 +148,7 @@ def check_copyright(ctx, fix=False):
 
 
 @task
-def publish_base_mounts(ctx, no_confirm=False):
+def publish_base_mounts(ctx, no_confirm=False) -> None:
     from urllib.parse import urlparse
 
     from modal import config
@@ -163,7 +163,7 @@ def publish_base_mounts(ctx, no_confirm=False):
 
 
 @task
-def update_build_number(ctx, new_build_number: Optional[int] = None):
+def update_build_number(ctx, new_build_number: Optional[int] = None) -> None:
     from modal_version import build_number as current_build_number
 
     new_build_number = int(new_build_number) if new_build_number else current_build_number + 1
@@ -185,7 +185,7 @@ build_number = {new_build_number}  # git: {git_sha}
 
 
 @task
-def create_alias_package(ctx):
+def create_alias_package(ctx) -> None:
     from modal_version import __version__
 
     os.makedirs("alias-package", exist_ok=True)

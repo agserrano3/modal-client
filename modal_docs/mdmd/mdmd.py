@@ -173,7 +173,7 @@ def package_filter(module_prefix: str):
     return return_filter
 
 
-def module_items(module, filter_items: Callable[[ModuleType, str], bool] = None):
+def module_items(module, filter_items: Callable[[ModuleType, str], bool] = None) -> None:
     """Returns filtered members of module"""
     if filter_items is None:
         # default filter is to only include classes and functions declared (or whose type is declared) in the file

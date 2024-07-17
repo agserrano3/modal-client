@@ -18,7 +18,7 @@ config_cli = typer.Typer(
 
 
 @config_cli.command(help="Show configuration values for the current profile (debug command).")
-def show():
+def show() -> None:
     # This is just a test command
     pprint.pprint(config.to_dict())
 
@@ -33,11 +33,11 @@ when running a command that requires an environment.
 
 
 @config_cli.command(help=SET_DEFAULT_ENV_HELP)
-def set_environment(environment_name: str):
+def set_environment(environment_name: str) -> None:
     _store_user_config({"environment": environment_name})
     typer.echo(f"New default environment for profile {_profile}: {environment_name}")
 
 
 @config_cli.command(hidden=True)
-def set(key: str, value: str):
+def set(key: str, value: str) -> None:
     _store_user_config({key: value})

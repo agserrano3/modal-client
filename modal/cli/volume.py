@@ -56,7 +56,7 @@ def create(
     name: str,
     env: Optional[str] = ENV_OPTION,
     version: Optional[int] = Option(default=None, help="VolumeFS version. (Experimental)"),
-):
+) -> None:
     env_name = ensure_env(env)
     modal.Volume.create_deployed(name, environment_name=env, version=version)
     usage_code = f"""
@@ -79,7 +79,7 @@ async def get(
     local_destination: str = Argument("."),
     force: bool = False,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Download files from a modal.Volume object.
 
     If a folder is passed for REMOTE_PATH, the contents of the folder will be downloaded
@@ -106,7 +106,7 @@ async def get(
     rich_help_panel="Management",
 )
 @synchronizer.create_blocking
-async def list(env: Optional[str] = ENV_OPTION, json: Optional[bool] = False):
+async def list(env: Optional[str] = ENV_OPTION, json: Optional[bool] = False) -> None:
     env = ensure_env(env)
     client = await _Client.from_env()
     response = await retry_transient_errors(client.stub.VolumeList, api_pb2.VolumeListRequest(environment_name=env))
@@ -129,7 +129,7 @@ async def ls(
     path: str = Argument(default="/"),
     json: bool = False,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     vol = await _Volume.lookup(volume_name, environment_name=env)
     if not isinstance(vol, _Volume):
@@ -186,7 +186,7 @@ async def put(
     remote_path: str = Argument(default="/"),
     force: bool = Option(False, "-f", "--force", help="Overwrite existing files."),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     vol = await _Volume.lookup(volume_name, environment_name=env)
     if not isinstance(vol, _Volume):
@@ -227,7 +227,7 @@ async def rm(
     remote_path: str,
     recursive: bool = Option(False, "-r", "--recursive", help="Delete directory recursively"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     volume = await _Volume.lookup(volume_name, environment_name=env)
     if not isinstance(volume, _Volume):
@@ -253,7 +253,7 @@ async def cp(
     volume_name: str,
     paths: List[str],  # accepts multiple paths, last path is treated as destination path
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     volume = await _Volume.lookup(volume_name, environment_name=env)
     if not isinstance(volume, _Volume):
@@ -273,7 +273,7 @@ async def delete(
     yes: bool = YES_OPTION,
     confirm: bool = Option(default=False, help="DEPRECATED: See `--yes` option"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     if confirm:
         deprecation_warning(
             (2024, 4, 24),

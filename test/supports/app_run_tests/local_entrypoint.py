@@ -6,12 +6,12 @@ app = modal.App()
 
 
 @app.function()
-def foo():
+def foo() -> None:
     pass
 
 
 @app.local_entrypoint()
-def main():
+def main() -> None:
     print("called locally")
     foo.remote()
     foo.remote()

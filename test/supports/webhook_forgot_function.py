@@ -3,5 +3,5 @@ from modal import web_endpoint
 
 
 @web_endpoint()
-async def absent_minded_function(x):
+async def absent_minded_function(x) -> None:
     pass

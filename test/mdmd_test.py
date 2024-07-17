@@ -11,7 +11,7 @@ from modal_docs.mdmd import mdmd
 skip_37 = pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires Python 3.8")
 
 
-def test_simple_function():
+def test_simple_function() -> None:
     def foo():
         pass
 
@@ -23,7 +23,7 @@ def bar():
     )
 
 
-def test_simple_async_function():
+def test_simple_async_function() -> None:
     async def foo():
         pass
 
@@ -35,7 +35,7 @@ async def bar():
     )
 
 
-def test_async_gen_function():
+def test_async_gen_function() -> None:
     async def foo():
         yield
 
@@ -47,7 +47,7 @@ async def bar():
     )
 
 
-def test_complex_function_signature():
+def test_complex_function_signature() -> None:
     def foo(a: str, *args, **kwargs):
         pass
 
@@ -60,7 +60,7 @@ def foo(a: str, *args, **kwargs):
 
 
 @skip_37
-def test_function_has_docstring():
+def test_function_has_docstring() -> None:
     def foo():
         """short description
 
@@ -79,7 +79,7 @@ longer description
     )
 
 
-def test_simple_class_with_docstring():
+def test_simple_class_with_docstring() -> None:
     class Foo:
         """The all important Foo"""
 
@@ -105,7 +105,7 @@ Bars the foo with the baz
     )
 
 
-def test_enum():
+def test_enum() -> None:
     class Eee(IntEnum):
         FOO = 1
         BAR = 2
@@ -127,7 +127,7 @@ The possible values are:
     assert mdmd.class_str("bar", Eee) == expected
 
 
-def test_class_with_classmethod():
+def test_class_with_classmethod() -> None:
     class Foo:
         @classmethod
         def create_foo(cls, some_arg):
@@ -150,7 +150,7 @@ def create_foo(cls, some_arg):
     )
 
 
-def test_class_with_baseclass_includes_base_methods():
+def test_class_with_baseclass_includes_base_methods() -> None:
     class Foo:
         def foo(self):
             pass
@@ -164,7 +164,7 @@ def test_class_with_baseclass_includes_base_methods():
 
 
 @skip_37
-def test_module(monkeypatch):
+def test_module(monkeypatch) -> None:
     test_data_dir = os.path.join(os.path.dirname(__file__), "mdmd_data")
     monkeypatch.chdir(test_data_dir)
     monkeypatch.syspath_prepend(test_data_dir)
@@ -173,7 +173,7 @@ def test_module(monkeypatch):
     assert mdmd.module_str("foo", test_module) == expected_output
 
 
-def test_docstring_format_reindents_code():
+def test_docstring_format_reindents_code() -> None:
     assert (
         mdmd.format_docstring(
             """```python
@@ -189,7 +189,7 @@ foo
     )
 
 
-def test_synchronicity_async_and_blocking_interfaces():
+def test_synchronicity_async_and_blocking_interfaces() -> None:
     from synchronicity import Synchronizer
 
     class Foo:
@@ -252,7 +252,7 @@ def bar(self):
     )
 
 
-def test_synchronicity_constructors():
+def test_synchronicity_constructors() -> None:
     from synchronicity import Synchronizer
 
     class Foo:
@@ -281,7 +281,7 @@ constructy mcconstructorface
     )
 
 
-def test_get_all_signature_comments():
+def test_get_all_signature_comments() -> None:
     def foo(
         # prefix comment
         one,  # one comment

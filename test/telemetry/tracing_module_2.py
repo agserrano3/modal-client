@@ -1,3 +1,3 @@
 # Copyright Modal Labs 2022
-def bar():
+def bar() -> None:
     pass

@@ -18,7 +18,7 @@ def get_winsz(fd) -> Tuple[Optional[int], Optional[int]]:
         return None, None
 
 
-def set_nonblocking(fd: int):
+def set_nonblocking(fd: int) -> None:
     import fcntl
 
     fl = fcntl.fcntl(fd, fcntl.F_GETFL)
@@ -26,7 +26,7 @@ def set_nonblocking(fd: int):
 
 
 @contextlib.contextmanager
-def raw_terminal():
+def raw_terminal() -> None:
     import termios
     import tty
 
