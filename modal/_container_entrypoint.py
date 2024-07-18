@@ -217,7 +217,7 @@ class DaemonizedThreadPool:
     # Used instead of ThreadPoolExecutor, since the latter won't allow
     # the interpreter to shut down before the currently running tasks
     # have finished
-    def __init__(self, max_threads):
+    def __init__(self, max_threads) -> None:
         self.max_threads = max_threads
 
     def __enter__(self):
@@ -226,7 +226,7 @@ class DaemonizedThreadPool:
         self.finished = threading.Event()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.finished.set()
 
         if exc_type is None:
@@ -239,7 +239,7 @@ class DaemonizedThreadPool:
                     f"inputs due to exception: {repr(exc_type)}"
                 )
 
-    def submit(self, func, *args):
+    def submit(self, func, *args) -> None:
         def worker_thread():
             while not self.finished.is_set():
                 try:
@@ -277,7 +277,7 @@ class UserCodeEventLoop:
         self.loop = asyncio.new_event_loop()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.loop.run_until_complete(self.loop.shutdown_asyncgens())
         if sys.version_info[:2] >= (3, 9):
             self.loop.run_until_complete(self.loop.shutdown_default_executor())  # Introduced in Python 3.9
@@ -328,7 +328,7 @@ def call_function(
     container_io_manager: "modal._container_io_manager.ContainerIOManager",
     finalized_functions: Dict[str, FinalizedFunction],
     input_concurrency: int,
-):
+) -> None:
     async def run_input_async(finalized_function: FinalizedFunction, local_input: LocalInput) -> None:
         started_at = time.time()
         reset_context = _set_current_context_ids(local_input.input_id, local_input.function_call_id)
@@ -688,7 +688,7 @@ def deserialize_params(serialized_params: bytes, function_def: api_pb2.Function,
     return param_args, param_kwargs
 
 
-def main(container_args: api_pb2.ContainerArguments, client: Client):
+def main(container_args: api_pb2.ContainerArguments, client: Client) -> None:
     # This is a bit weird but we need both the blocking and async versions of ContainerIOManager.
     # At some point, we should fix that by having built-in support for running "user code"
     container_io_manager = ContainerIOManager(container_args, client)

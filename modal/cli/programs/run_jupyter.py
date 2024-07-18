@@ -41,7 +41,7 @@ volume = (
 volumes = {"/root/lab/volume": volume} if volume else {}
 
 
-def wait_for_port(url: str, q: Queue):
+def wait_for_port(url: str, q: Queue) -> None:
     start_time = time.monotonic()
     while True:
         try:
@@ -65,7 +65,7 @@ def wait_for_port(url: str, q: Queue):
     concurrency_limit=1 if volume else None,
     _allow_background_volume_commits=True,
 )
-def run_jupyter(q: Queue):
+def run_jupyter(q: Queue) -> None:
     os.makedirs("/root/lab", exist_ok=True)
     token = secrets.token_urlsafe(13)
     with forward(8888) as tunnel:
@@ -90,7 +90,7 @@ def run_jupyter(q: Queue):
 
 
 @app.local_entrypoint()
-def main():
+def main() -> None:
     with Queue.ephemeral() as q:
         run_jupyter.spawn(q)
         url = q.get()

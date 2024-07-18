@@ -4,7 +4,7 @@ from modal import enter, method
 
 class BaseCls2:
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         self.x = 2
 
     @method()

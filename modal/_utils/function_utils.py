@@ -103,7 +103,7 @@ class FunctionInfo:
         serialized=False,
         name_override: Optional[str] = None,
         user_cls: Optional[Type] = None,
-    ):
+    ) -> None:
         self.raw_f = f
         self.user_cls = user_cls
 

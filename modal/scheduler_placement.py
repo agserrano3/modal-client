@@ -14,7 +14,7 @@ class SchedulerPlacement:
         region: Optional[Union[str, Sequence[str]]] = None,
         zone: Optional[str] = None,
         spot: Optional[bool] = None,
-    ):
+    ) -> None:
         """mdmd:hidden"""
         _lifecycle: Optional[str] = None
         if spot is not None:

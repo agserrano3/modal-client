@@ -9,7 +9,7 @@ d = modal.Dict.from_name("my-queue", create_if_missing=True)
 
 
 @app.function()
-def a_func():
+def a_func() -> None:
     d["foo"] = "bar"
 
 

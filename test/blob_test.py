@@ -19,7 +19,7 @@ blob_upload_file = synchronize_api(_blob_upload_file)
 
 
 @pytest.mark.asyncio
-async def test_blob_put_get(servicer, blob_server, client):
+async def test_blob_put_get(servicer, blob_server, client) -> None:
     # Upload
     blob_id = await blob_upload.aio(b"Hello, world", client.stub)
 
@@ -29,19 +29,19 @@ async def test_blob_put_get(servicer, blob_server, client):
 
 
 @pytest.mark.asyncio
-async def test_blob_put_failure(servicer, blob_server, client):
+async def test_blob_put_failure(servicer, blob_server, client) -> None:
     with pytest.raises(ExecutionError):
         await blob_upload.aio(b"FAILURE", client.stub)
 
 
 @pytest.mark.asyncio
-async def test_blob_get_failure(servicer, blob_server, client):
+async def test_blob_get_failure(servicer, blob_server, client) -> None:
     with pytest.raises(ExecutionError):
         await blob_download.aio("bl-failure", client.stub)
 
 
 @pytest.mark.asyncio
-async def test_blob_large(servicer, blob_server, client):
+async def test_blob_large(servicer, blob_server, client) -> None:
     data = b"*" * 10_000_000
     blob_id = await blob_upload.aio(data, client.stub)
     assert await blob_download.aio(blob_id, client.stub) == data
@@ -49,7 +49,7 @@ async def test_blob_large(servicer, blob_server, client):
 
 @skip_old_py("random.randbytes() was introduced in python 3.9", (3, 9))
 @pytest.mark.asyncio
-async def test_blob_multipart(servicer, blob_server, client, monkeypatch, tmp_path):
+async def test_blob_multipart(servicer, blob_server, client, monkeypatch, tmp_path) -> None:
     monkeypatch.setattr("modal._utils.blob_utils.DEFAULT_SEGMENT_CHUNK_SIZE", 128)
     multipart_threshold = 1024
     servicer.blob_multipart_threshold = multipart_threshold
@@ -68,6 +68,6 @@ async def test_blob_multipart(servicer, blob_server, client, monkeypatch, tmp_pa
     assert await blob_download.aio(blob_id, client.stub) == data
 
 
-def test_sync(blob_server, client):
+def test_sync(blob_server, client) -> None:
     # just tests that tests running blocking calls that upload to blob storage don't deadlock
     blob_upload(b"adsfadsf", client.stub)

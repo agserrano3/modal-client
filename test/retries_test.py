@@ -5,11 +5,11 @@ import modal
 from modal.exception import InvalidError
 
 
-def default_retries_from_int():
+def default_retries_from_int() -> None:
     pass
 
 
-def fixed_delay_retries():
+def fixed_delay_retries() -> None:
     pass
 
 
@@ -21,15 +21,15 @@ def exponential_with_max_delay():
     return 67
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def zero_retries():
+def zero_retries() -> None:
     pass
 
 
-def test_retries(client):
+def test_retries(client) -> None:
     app = modal.App()
 
     default_retries_from_int_modal = app.function(retries=5)(default_retries_from_int)

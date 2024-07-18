@@ -206,14 +206,14 @@ class _App:
         """The App's `name`, if available, or a fallback descriptive identifier."""
         return self._description
 
-    def set_description(self, description: str):
+    def set_description(self, description: str) -> None:
         self._description = description
 
-    def _validate_blueprint_value(self, key: str, value: Any):
+    def _validate_blueprint_value(self, key: str, value: Any) -> None:
         if not isinstance(value, _Object):
             raise InvalidError(f"App attribute `{key}` with value {value!r} is not a valid Modal object")
 
-    def _add_object(self, tag, obj):
+    def _add_object(self, tag, obj) -> None:
         if self._running_app:
             # If this is inside a container, then objects can be defined after app initialization.
             # So we may have to initialize objects once they get bound to the app.
@@ -224,7 +224,7 @@ class _App:
 
         self._indexed_objects[tag] = obj
 
-    def __getitem__(self, tag: str):
+    def __getitem__(self, tag: str) -> None:
         """App assignments of the form `app.x` or `app["x"]` are deprecated!
 
         The only use cases for these assignments is in conjunction with `.new()`, which is now
@@ -241,10 +241,10 @@ class _App:
         """
         deprecation_error((2024, 3, 25), _App.__getitem__.__doc__)
 
-    def __setitem__(self, tag: str, obj: _Object):
+    def __setitem__(self, tag: str, obj: _Object) -> None:
         deprecation_error((2024, 3, 25), _App.__getitem__.__doc__)
 
-    def __getattr__(self, tag: str):
+    def __getattr__(self, tag: str) -> None:
         # TODO(erikbern): remove this method later
         assert isinstance(tag, str)
         if tag.startswith("__"):
@@ -255,7 +255,7 @@ class _App:
             raise AttributeError(f"App has no member {tag}")
         deprecation_error((2024, 3, 25), _App.__getitem__.__doc__)
 
-    def __setattr__(self, tag: str, obj: _Object):
+    def __setattr__(self, tag: str, obj: _Object) -> None:
         # TODO(erikbern): remove this method later
         # Note that only attributes defined in __annotations__ are set on the object itself,
         # everything else is registered on the indexed_objects
@@ -274,12 +274,12 @@ class _App:
     def image(self, value):
         self._image = value
 
-    def _uncreate_all_objects(self):
+    def _uncreate_all_objects(self) -> None:
         # TODO(erikbern): this doesn't unhydrate objects that aren't tagged
         for obj in self._indexed_objects.values():
             obj._unhydrate()
 
-    def is_inside(self, image: Optional[_Image] = None):
+    def is_inside(self, image: Optional[_Image] = None) -> None:
         """Deprecated: use `Image.imports()` instead! Usage:
         ```
         my_image = modal.Image.debian_slim().pip_install("torch")
@@ -337,7 +337,7 @@ class _App:
 
         return [m for m in all_mounts if m.is_local()]
 
-    def _add_function(self, function: _Function, is_web_endpoint: bool):
+    def _add_function(self, function: _Function, is_web_endpoint: bool) -> None:
         if function.tag in self._indexed_objects:
             old_function = self._indexed_objects[function.tag]
             if isinstance(old_function, _Function):
@@ -355,7 +355,7 @@ class _App:
         if is_web_endpoint:
             self._web_endpoints.append(function.tag)
 
-    def _init_container(self, client: _Client, running_app: RunningApp):
+    def _init_container(self, client: _Client, running_app: RunningApp) -> None:
         self._app_id = running_app.app_id
         self._running_app = running_app
         self._client = client
@@ -854,7 +854,7 @@ class _App:
             client=self._client,
         )
 
-    def include(self, /, other_app: "_App"):
+    def include(self, /, other_app: "_App") -> None:
         """Include another app's objects in this one.
 
         Useful splitting up Modal apps across different self-contained files

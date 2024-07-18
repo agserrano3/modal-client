@@ -12,11 +12,11 @@ from .supports.raise_error import raise_error
 SUPPORT_MODULE = "supports.raise_error"
 
 
-def call_raise_error():
+def call_raise_error() -> None:
     raise_error()
 
 
-def test_extract_traceback():
+def test_extract_traceback() -> None:
     task_id = "ta-123"
     try:
         call_raise_error()
@@ -59,7 +59,7 @@ def test_extract_traceback():
     assert line_cache_list[2][1] == 'raise RuntimeError("Boo!")'
 
 
-def test_append_modal_tb():
+def test_append_modal_tb() -> None:
     task_id = "ta-123"
     try:
         call_raise_error()
@@ -105,7 +105,7 @@ def tb_dict_from_stack_dicts(stack: List[Dict]) -> Dict:
 
 
 @pytest.mark.parametrize("user_mode", ["script", "module"])
-def test_reduce_traceback_to_user_code(user_mode):
+def test_reduce_traceback_to_user_code(user_mode) -> None:
     if user_mode == "script":
         user_source, user_filename, user_name = ("/root/user/ai.py", "/root/user/ai.py", "train")
     elif user_mode == "module":

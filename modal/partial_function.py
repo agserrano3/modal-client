@@ -49,7 +49,7 @@ class _PartialFunction:
         webhook_config: Optional[api_pb2.WebhookConfig] = None,
         is_generator: Optional[bool] = None,
         keep_warm: Optional[int] = None,
-    ):
+    ) -> None:
         self.raw_f = raw_f
         self.flags = flags
         self.webhook_config = webhook_config
@@ -78,7 +78,7 @@ class _PartialFunction:
             # to let it be bound to a variable and become a Function later on
             return self
 
-    def __del__(self):
+    def __del__(self) -> None:
         if (self.flags & _PartialFunctionFlags.FUNCTION) and self.wrapped is False:
             logger.warning(
                 f"Method or web function {self.raw_f} was never turned into a function."

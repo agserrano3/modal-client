@@ -16,7 +16,7 @@ from .supports.skip import skip_windows
 
 
 @pytest.fixture
-def venv_path(tmp_path, repo_root):
+def venv_path(tmp_path, repo_root) -> None:
     venv_path = tmp_path
     subprocess.run([sys.executable, "-m", "venv", venv_path, "--copies", "--system-site-packages"], check=True)
     # Install Modal and a tiny package in the venv.
@@ -37,7 +37,7 @@ def path_with_symlinked_files(tmp_path):
 script_path = "pkg_a/script.py"
 
 
-def f():
+def f() -> None:
     pass
 
 
@@ -53,7 +53,7 @@ async def env_mount_files():
     return filenames
 
 
-def test_mounted_files_script(servicer, supports_dir, env_mount_files, server_url_env):
+def test_mounted_files_script(servicer, supports_dir, env_mount_files, server_url_env) -> None:
     helpers.deploy_app_externally(servicer, script_path, cwd=supports_dir)
     files = set(servicer.files_name2sha.keys()) - set(env_mount_files)
 
@@ -72,7 +72,7 @@ def test_mounted_files_script(servicer, supports_dir, env_mount_files, server_ur
 serialized_fn_path = "pkg_a/serialized_fn.py"
 
 
-def test_mounted_files_serialized(servicer, supports_dir, env_mount_files, server_url_env):
+def test_mounted_files_serialized(servicer, supports_dir, env_mount_files, server_url_env) -> None:
     helpers.deploy_app_externally(servicer, serialized_fn_path, cwd=supports_dir)
     files = set(servicer.files_name2sha.keys()) - set(env_mount_files)
 
@@ -92,7 +92,7 @@ def test_mounted_files_serialized(servicer, supports_dir, env_mount_files, serve
     }
 
 
-def test_mounted_files_package(supports_dir, env_mount_files, servicer, server_url_env):
+def test_mounted_files_package(supports_dir, env_mount_files, servicer, server_url_env) -> None:
     p = subprocess.run(["modal", "run", "pkg_a.package"], cwd=supports_dir)
     assert p.returncode == 0
 
@@ -113,7 +113,7 @@ def test_mounted_files_package(supports_dir, env_mount_files, servicer, server_u
     }
 
 
-def test_mounted_files_package_no_automount(supports_dir, env_mount_files, servicer, server_url_env):
+def test_mounted_files_package_no_automount(supports_dir, env_mount_files, servicer, server_url_env) -> None:
     # when triggered like a module, the target module should be put at the correct package path
     p = subprocess.run(
         ["modal", "run", "pkg_a.package"],
@@ -130,7 +130,7 @@ def test_mounted_files_package_no_automount(supports_dir, env_mount_files, servi
 
 
 @skip_windows("venvs behave differently on Windows.")
-def test_mounted_files_sys_prefix(servicer, supports_dir, venv_path, env_mount_files, server_url_env):
+def test_mounted_files_sys_prefix(servicer, supports_dir, venv_path, env_mount_files, server_url_env) -> None:
     # Run with venv activated, so it's on sys.prefix, and modal is dev-installed in the VM
     subprocess.run(
         [venv_path / "bin" / "modal", "run", script_path],
@@ -150,7 +150,7 @@ def test_mounted_files_sys_prefix(servicer, supports_dir, venv_path, env_mount_f
 
 
 @pytest.fixture
-def symlinked_python_installation_venv_path(tmp_path, repo_root):
+def symlinked_python_installation_venv_path(tmp_path, repo_root) -> None:
     # sets up a symlink to the python *installation* (not just the python binary)
     # and initialize the virtualenv using a path via that symlink
     # This makes the file paths of any stdlib modules use the symlinked path
@@ -184,14 +184,14 @@ def symlinked_python_installation_venv_path(tmp_path, repo_root):
 @skip_windows("venvs behave differently on Windows.")
 def test_mounted_files_symlinked_python_install(
     symlinked_python_installation_venv_path, supports_dir, server_url_env, servicer
-):
+) -> None:
     subprocess.check_call(
         [symlinked_python_installation_venv_path / "bin" / "modal", "run", supports_dir / "imports_ast.py"]
     )
     assert "/root/ast.py" not in servicer.files_name2sha
 
 
-def test_mounted_files_config(servicer, supports_dir, env_mount_files, server_url_env):
+def test_mounted_files_config(servicer, supports_dir, env_mount_files, server_url_env) -> None:
     p = subprocess.run(
         ["modal", "run", "pkg_a/script.py"], cwd=supports_dir, env={**os.environ, "MODAL_AUTOMOUNT": "0"}
     )
@@ -202,7 +202,7 @@ def test_mounted_files_config(servicer, supports_dir, env_mount_files, server_ur
     }
 
 
-def test_e2e_modal_run_py_file_mounts(servicer, supports_dir):
+def test_e2e_modal_run_py_file_mounts(servicer, supports_dir) -> None:
     helpers.deploy_app_externally(servicer, "hello.py", cwd=supports_dir)
     # Reactivate the following mount assertions when we remove auto-mounting of dev-installed packages
     # assert len(servicer.files_name2sha) == 1
@@ -211,7 +211,7 @@ def test_e2e_modal_run_py_file_mounts(servicer, supports_dir):
     assert "/root/hello.py" in servicer.files_name2sha
 
 
-def test_e2e_modal_run_py_module_mounts(servicer, supports_dir):
+def test_e2e_modal_run_py_module_mounts(servicer, supports_dir) -> None:
     helpers.deploy_app_externally(servicer, "hello", cwd=supports_dir)
     # Reactivate the following mount assertions when we remove auto-mounting of dev-installed packages
     # assert len(servicer.files_name2sha) == 1
@@ -220,7 +220,7 @@ def test_e2e_modal_run_py_module_mounts(servicer, supports_dir):
     assert "/root/hello.py" in servicer.files_name2sha
 
 
-def foo():
+def foo() -> None:
     pass
 
 
@@ -252,7 +252,7 @@ def test_mounts_are_not_traversed_on_declaration(test_dir, monkeypatch, client, 
     assert __file__ in files  # this test file should have been included
 
 
-def test_mount_dedupe(servicer, test_dir, server_url_env):
+def test_mount_dedupe(servicer, test_dir, server_url_env) -> None:
     supports_dir = test_dir / "supports"
     normally_not_included_file = supports_dir / "pkg_a" / "normally_not_included.pyc"
     normally_not_included_file.touch(exist_ok=True)
@@ -273,7 +273,7 @@ def test_mount_dedupe(servicer, test_dir, server_url_env):
     assert "/root/pkg_a/normally_not_included.pyc" not in pkg_a_mount.keys()
 
 
-def test_mount_dedupe_explicit(servicer, test_dir, server_url_env):
+def test_mount_dedupe_explicit(servicer, test_dir, server_url_env) -> None:
     supports_dir = test_dir / "supports"
     normally_not_included_file = supports_dir / "pkg_a" / "normally_not_included.pyc"
     normally_not_included_file.touch(exist_ok=True)
@@ -311,7 +311,7 @@ def test_mount_dedupe_explicit(servicer, test_dir, server_url_env):
 
 
 @skip_windows("pip-installed pdm seems somewhat broken on windows")
-def test_pdm_cache_automount_exclude(tmp_path, monkeypatch, supports_dir, servicer, server_url_env):
+def test_pdm_cache_automount_exclude(tmp_path, monkeypatch, supports_dir, servicer, server_url_env) -> None:
     # check that `pdm`'s cached packages are not included in automounts
     project_dir = Path(__file__).parent.parent
     monkeypatch.chdir(tmp_path)
@@ -331,7 +331,7 @@ def test_pdm_cache_automount_exclude(tmp_path, monkeypatch, supports_dir, servic
     }
 
 
-def test_mount_directory_with_symlinked_file(path_with_symlinked_files, servicer, server_url_env):
+def test_mount_directory_with_symlinked_file(path_with_symlinked_files, servicer, server_url_env) -> None:
     path, files = path_with_symlinked_files
     mount = Mount.from_local_dir(path)
     mount._deploy("mo-1")

@@ -40,14 +40,14 @@ class ClientSessionRegistry:
         return ClientSessionRegistry._client_session
 
     @staticmethod
-    async def close_session():
+    async def close_session() -> None:
         if ClientSessionRegistry._client_session_active:
             await ClientSessionRegistry._client_session.close()
             ClientSessionRegistry._client_session_active = False
 
 
 @contextlib.asynccontextmanager
-async def run_temporary_http_server(app: Application):
+async def run_temporary_http_server(app: Application) -> None:
     # Allocates a random port, runs a server in a context manager
     # This is used in various tests
     sock = socket.socket()

@@ -33,17 +33,17 @@ def _get_config(env={}):
     return eval(stdout)
 
 
-def test_config():
+def test_config() -> None:
     config = _get_config()
     assert config["server_url"]
 
 
-def test_config_env_override():
+def test_config_env_override() -> None:
     config = _get_config(env={"MODAL_SERVER_URL": "xyz.corp"})
     assert config["server_url"] == "xyz.corp"
 
 
-def test_config_store_user(servicer, modal_config):
+def test_config_store_user(servicer, modal_config) -> None:
     with modal_config(show_on_error=True) as config_file_path:
         env = {"MODAL_SERVER_URL": servicer.client_addr}
 
@@ -118,7 +118,7 @@ def test_config_store_user(servicer, modal_config):
                 assert "active" not in profile_config
 
 
-def test_config_env_override_arbitrary_env():
+def test_config_env_override_arbitrary_env() -> None:
     """config.override_locally() replaces existing env var if not part of config."""
     key = "NVIDIA_VISIBLE_DEVICES"
     value = "0,1"
@@ -132,13 +132,13 @@ def test_config_env_override_arbitrary_env():
 
 
 @pytest.mark.asyncio
-async def test_workspace_lookup(servicer, server_url_env):
+async def test_workspace_lookup(servicer, server_url_env) -> None:
     resp = await _lookup_workspace(servicer.client_addr, "ak-abc", "as-xyz")
     assert resp.username == "test-username"
 
 
 @pytest.mark.parametrize("automount", ["false", "'false'", "'False'", "'0'", 0, "''"])
-def test_config_boolean(modal_config, automount):
+def test_config_boolean(modal_config, automount) -> None:
     modal_toml = f"""
     [prof-1]
     token_id = 'ak-abc'

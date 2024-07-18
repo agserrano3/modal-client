@@ -31,7 +31,7 @@ class TelemetryConsumer:
     events: queue.Queue
     tmp: tempfile.TemporaryDirectory
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.stopped = False
         self.events = queue.Queue()
 
@@ -39,10 +39,10 @@ class TelemetryConsumer:
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.stop()
 
-    def start(self):
+    def start(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.socket_filename = Path(self.tmp.name) / "telemetry.sock"
         self.connections = set()
@@ -52,7 +52,7 @@ class TelemetryConsumer:
         listener = threading.Thread(target=self._listen, daemon=True)
         listener.start()
 
-    def stop(self):
+    def stop(self) -> None:
         self.stopped = True
         self.server.close()
         for conn in list(self.connections):
@@ -94,7 +94,7 @@ class TelemetryConsumer:
             self.connections.remove(conn)
 
 
-def test_import_tracing(monkeypatch):
+def test_import_tracing(monkeypatch) -> None:
     if not supported_platform():
         pytest.skip(f"unsupported platform: {sys.platform}")
 
@@ -131,7 +131,7 @@ def generate_import_telemetry(telemetry_socket):
 
 
 # For manual testing
-def main():
+def main() -> None:
     telemetry_socket = os.environ.get("MODAL_TELEMETRY_SOCKET")
     if telemetry_socket:
         latency = generate_import_telemetry(telemetry_socket)

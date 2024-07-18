@@ -22,7 +22,7 @@ MESSAGE_HEADER_LEN = 4
 
 
 class InterceptedModuleLoader(importlib.abc.Loader):
-    def __init__(self, name, loader, interceptor):
+    def __init__(self, name, loader, interceptor) -> None:
         self.name = name
         self.loader = loader
         self.interceptor = interceptor
@@ -53,7 +53,7 @@ class ImportInterceptor(importlib.abc.MetaPathFinder):
         tracing_socket.connect(socket_filename)
         return cls(tracing_socket)
 
-    def __init__(self, tracing_socket: socket.socket):
+    def __init__(self, tracing_socket: socket.socket) -> None:
         self.loading = {}
         self.tracing_socket = tracing_socket
         self.events = queue.Queue(maxsize=16 * 1024)
@@ -71,7 +71,7 @@ class ImportInterceptor(importlib.abc.MetaPathFinder):
         spec.loader = InterceptedModuleLoader(fullname, spec.loader, self)
         return spec
 
-    def load_start(self, name):
+    def load_start(self, name) -> None:
         t0 = time.monotonic()
         span_id = str(uuid.uuid4())
         self.emit(
@@ -96,13 +96,13 @@ class ImportInterceptor(importlib.abc.MetaPathFinder):
             }
         )
 
-    def emit(self, event):
+    def emit(self, event) -> None:
         try:
             self.events.put_nowait(event)
         except queue.Full:
             logger.debug("failed to emit event: queue full")
 
-    def _send(self):
+    def _send(self) -> None:
         while True:
             event = self.events.get()
             try:
@@ -116,16 +116,16 @@ class ImportInterceptor(importlib.abc.MetaPathFinder):
             except OSError as e:
                 logger.debug(f"failed to send event: {e}")
 
-    def install(self):
+    def install(self) -> None:
         sys.meta_path = [self] + sys.meta_path  # type: ignore
 
-    def remove(self):
+    def remove(self) -> None:
         sys.meta_path.remove(self)  # type: ignore
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.install()
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.remove()
 
 
@@ -137,7 +137,7 @@ def _instrument_imports(socket_filename: str):
     interceptor.install()
 
 
-def instrument_imports(socket_filename: str):
+def instrument_imports(socket_filename: str) -> None:
     try:
         _instrument_imports(socket_filename)
     except BaseException as e:

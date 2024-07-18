@@ -31,7 +31,7 @@ APP_STATE_TO_MESSAGE = {
 
 @app_cli.command("list")
 @synchronizer.create_blocking
-async def list(env: Optional[str] = ENV_OPTION, json: bool = False):
+async def list(env: Optional[str] = ENV_OPTION, json: bool = False) -> None:
     """List Modal apps that are currently deployed/running or recently stopped."""
     env = ensure_env(env)
 
@@ -83,7 +83,7 @@ def logs(
     *,
     name: str = Option("", "-n", "--name", help="Look up a deployed App by its name"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Show App logs, streaming while active.
 
     **Examples:**
@@ -116,7 +116,7 @@ async def stop(
     *,
     name: str = Option("", "-n", "--name", help="Look up a deployed App by its name"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Stop an app."""
     client = await _Client.from_env()
     if not app_id:

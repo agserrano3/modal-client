@@ -9,7 +9,7 @@ from modal.exception import InvalidError, NotFoundError
 from .supports.skip import skip_macos, skip_windows
 
 
-def test_queue(servicer, client):
+def test_queue(servicer, client) -> None:
     q = Queue.lookup("some-random-queue", create_if_missing=True, client=client)
     assert isinstance(q, Queue)
     assert q.len() == 0
@@ -32,7 +32,7 @@ def test_queue(servicer, client):
         Queue.lookup("some-random-queue", client=client)
 
 
-def test_queue_ephemeral(servicer, client):
+def test_queue_ephemeral(servicer, client) -> None:
     with Queue.ephemeral(client=client, _heartbeat_sleep=1) as q:
         q.put("hello")
         assert q.len() == 1
@@ -53,7 +53,7 @@ def test_queue_ephemeral(servicer, client):
         (None, 0, 0),  # no timeout causes zero exceptions
     ],
 )
-def test_queue_blocking_put(put_timeout_secs, min_queue_full_exc_count, max_queue_full_exc_count, servicer, client):
+def test_queue_blocking_put(put_timeout_secs, min_queue_full_exc_count, max_queue_full_exc_count, servicer, client) -> None:
     import queue
     import threading
 
@@ -93,7 +93,7 @@ def test_queue_blocking_put(put_timeout_secs, min_queue_full_exc_count, max_queu
         assert queue_full_exceptions <= max_queue_full_exc_count
 
 
-def test_queue_nonblocking_put(servicer, client):
+def test_queue_nonblocking_put(servicer, client) -> None:
     with Queue.ephemeral(client=client) as q:
         # Non-blocking PUTs don't tolerate a full queue and will raise exception.
         with pytest.raises(queue.Full) as excinfo:
@@ -104,18 +104,18 @@ def test_queue_nonblocking_put(servicer, client):
     assert i == servicer.queue_max_len
 
 
-def test_queue_deploy(servicer, client):
+def test_queue_deploy(servicer, client) -> None:
     d = Queue.lookup("xyz", create_if_missing=True, client=client)
     d.put(123)
 
 
-def test_queue_lazy_hydrate_from_name(set_env_client):
+def test_queue_lazy_hydrate_from_name(set_env_client) -> None:
     q = Queue.from_name("foo", create_if_missing=True)
     q.put(123)
     assert q.get() == 123
 
 
 @pytest.mark.parametrize("name", ["has space", "has/slash", "a" * 65])
-def test_invalid_name(servicer, client, name):
+def test_invalid_name(servicer, client, name) -> None:
     with pytest.raises(InvalidError, match="Invalid Queue name"):
         Queue.lookup(name)

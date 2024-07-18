@@ -7,7 +7,7 @@ from .cli.import_refs import _CliUserExecutionError
 from .config import config
 
 
-def main():
+def main() -> None:
     # Setup rich tracebacks, but only on user's end, when using the Modal CLI.
     setup_rich_traceback()
     highlight_modal_deprecation_warnings()

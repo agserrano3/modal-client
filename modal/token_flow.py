@@ -18,7 +18,7 @@ from .exception import AuthError
 
 
 class _TokenFlow:
-    def __init__(self, client: _Client):
+    def __init__(self, client: _Client) -> None:
         self.stub = client.stub
 
     @asynccontextmanager
@@ -72,7 +72,7 @@ async def _new_token(
     verify: bool = True,
     source: Optional[str] = None,
     next_url: Optional[str] = None,
-):
+) -> None:
     server_url = config.get("server_url", profile=profile)
 
     console = Console()
@@ -124,7 +124,7 @@ async def _set_token(
     profile: Optional[str] = None,
     activate: bool = True,
     verify: bool = True,
-):
+) -> None:
     # TODO add server_url as a parameter for verification?
     server_url = config.get("server_url", profile=profile)
     console = Console()

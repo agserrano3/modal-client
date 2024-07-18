@@ -235,7 +235,7 @@ class _ImageRegistryConfig:
         # TODO: change to _PUBLIC after worker starts handling it.
         registry_auth_type: int = api_pb2.REGISTRY_AUTH_TYPE_UNSPECIFIED,
         secret: Optional[_Secret] = None,
-    ):
+    ) -> None:
         self.registry_auth_type = registry_auth_type
         self.secret = secret
 
@@ -263,10 +263,10 @@ class _Image(_Object, type_prefix="im"):
     force_build: bool
     inside_exceptions: List[Exception]
 
-    def _initialize_from_empty(self):
+    def _initialize_from_empty(self) -> None:
         self.inside_exceptions = []
 
-    def _hydrate_metadata(self, message: Optional[Message]):
+    def _hydrate_metadata(self, message: Optional[Message]) -> None:
         env_image_id = config.get("image_id")
         if env_image_id == self.object_id:
             for exc in self.inside_exceptions:
@@ -1637,7 +1637,7 @@ class _Image(_Object, type_prefix="im"):
     # Live handle methods
 
     @contextlib.contextmanager
-    def imports(self):
+    def imports(self) -> None:
         """
         Used to import packages in global scope that are only available when running remotely.
         By using this context manager you can avoid an `ImportError` due to not having certain
@@ -1664,7 +1664,7 @@ class _Image(_Object, type_prefix="im"):
             if not isinstance(exc, ImportError):
                 warnings.warn(f"Warning: caught a non-ImportError exception in an `imports()` block: {repr(exc)}")
 
-    def run_inside(self):
+    def run_inside(self) -> None:
         """`Image.run_inside` is deprecated - use `Image.imports` instead.
 
         **Usage:**

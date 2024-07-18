@@ -8,14 +8,14 @@ from modal.exception import InvalidError
 from .supports.skip import skip_windows_unix_socket
 
 
-def test_tunnel_outside_container(client):
+def test_tunnel_outside_container(client) -> None:
     with pytest.raises(InvalidError):
         with forward(8000, client=client):
             pass
 
 
 @skip_windows_unix_socket
-def test_invalid_port_numbers(container_client):
+def test_invalid_port_numbers(container_client) -> None:
     for port in (-1, 0, 65536):
         with pytest.raises(InvalidError):
             with forward(port, client=container_client):
@@ -23,7 +23,7 @@ def test_invalid_port_numbers(container_client):
 
 
 @skip_windows_unix_socket
-def test_create_tunnel(container_client):
+def test_create_tunnel(container_client) -> None:
     with forward(8000, client=container_client) as tunnel:
         assert tunnel.host == "8000.modal.test"
         assert tunnel.url == "https://8000.modal.test"

@@ -10,5 +10,5 @@ print(f"app.description: {app.description}")
 
 
 @app.function()
-def foo():
+def foo() -> None:
     pass

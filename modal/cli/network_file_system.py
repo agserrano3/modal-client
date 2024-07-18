@@ -29,7 +29,7 @@ nfs_cli = Typer(name="nfs", help="Read and edit `modal.NetworkFileSystem` file s
 
 @nfs_cli.command(name="list", help="List the names of all network file systems.", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def list(env: Optional[str] = ENV_OPTION, json: Optional[bool] = False):
+async def list(env: Optional[str] = ENV_OPTION, json: Optional[bool] = False) -> None:
     env = ensure_env(env)
 
     client = await _Client.from_env()
@@ -62,7 +62,7 @@ def some_func():
 def create(
     name: str,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     modal.NetworkFileSystem.create_deployed(name, environment_name=env)
     console = Console()
@@ -90,7 +90,7 @@ async def ls(
     volume_name: str,
     path: str = typer.Argument(default="/"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     volume = await _volume_from_name(volume_name)
     try:
@@ -134,7 +134,7 @@ async def put(
     local_path: str,
     remote_path: str = typer.Argument(default="/"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     volume = await _volume_from_name(volume_name)
     if remote_path.endswith("/"):
@@ -161,7 +161,7 @@ async def put(
 
 
 class CliError(Exception):
-    def __init__(self, message):
+    def __init__(self, message) -> None:
         self.message = message
 
 
@@ -173,7 +173,7 @@ async def get(
     local_destination: str = typer.Argument("."),
     force: bool = False,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Download a file from a network file system.
 
     Specifying a glob pattern (using any `*` or `**` patterns) as the `remote_path` will download
@@ -206,7 +206,7 @@ async def rm(
     remote_path: str,
     recursive: bool = typer.Option(False, "-r", "--recursive", help="Delete directory recursively"),
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     ensure_env(env)
     volume = await _volume_from_name(volume_name)
     try:

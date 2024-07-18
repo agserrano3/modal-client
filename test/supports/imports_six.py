@@ -7,5 +7,5 @@ app = modal.App("imports_six")
 
 
 @app.function()
-def some_func():
+def some_func() -> None:
     pass

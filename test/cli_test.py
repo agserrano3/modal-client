@@ -57,7 +57,7 @@ def _run(args: List[str], expected_exit_code: int = 0, expected_stderr: str = ""
     return res
 
 
-def test_app_deploy_success(servicer, mock_dir, set_env_client):
+def test_app_deploy_success(servicer, mock_dir, set_env_client) -> None:
     with mock_dir({"myapp.py": dummy_app_file, "other_module.py": dummy_other_module_file}):
         # Deploy as a script in cwd
         _run(["deploy", "myapp.py"])
@@ -71,14 +71,14 @@ def test_app_deploy_success(servicer, mock_dir, set_env_client):
     assert "my_app" in servicer.deployed_apps
 
 
-def test_app_deploy_with_name(servicer, mock_dir, set_env_client):
+def test_app_deploy_with_name(servicer, mock_dir, set_env_client) -> None:
     with mock_dir({"myapp.py": dummy_app_file, "other_module.py": dummy_other_module_file}):
         _run(["deploy", "myapp.py", "--name", "my_app_foo"])
 
     assert "my_app_foo" in servicer.deployed_apps
 
 
-def test_secret_create(servicer, set_env_client):
+def test_secret_create(servicer, set_env_client) -> None:
     # fail without any keys
     _run(["secret", "create", "foo"], 2, None)
 
@@ -92,7 +92,7 @@ def test_secret_create(servicer, set_env_client):
     _run(["secret", "create", "foo", "bar=baz", "--force"])
 
 
-def test_secret_list(servicer, set_env_client):
+def test_secret_list(servicer, set_env_client) -> None:
     res = _run(["secret", "list"])
     assert "dummy-secret-0" not in res.stdout
 
@@ -107,19 +107,19 @@ def test_secret_list(servicer, set_env_client):
     assert "dummy-secret-3" not in res.stdout
 
 
-def test_app_token_new(servicer, set_env_client, server_url_env, modal_config):
+def test_app_token_new(servicer, set_env_client, server_url_env, modal_config) -> None:
     with modal_config() as config_file_path:
         _run(["token", "new", "--profile", "_test"])
         assert "_test" in toml.load(config_file_path)
 
 
-def test_app_setup(servicer, set_env_client, server_url_env, modal_config):
+def test_app_setup(servicer, set_env_client, server_url_env, modal_config) -> None:
     with modal_config() as config_file_path:
         _run(["setup", "--profile", "_test"])
         assert "_test" in toml.load(config_file_path)
 
 
-def test_run(servicer, set_env_client, test_dir):
+def test_run(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     _run(["run", app_file.as_posix()])
     _run(["run", app_file.as_posix() + "::app"])
@@ -131,7 +131,7 @@ def test_run(servicer, set_env_client, test_dir):
     _run(["run", file_with_entrypoint.as_posix() + "::app.main"])
 
 
-def test_run_stub(servicer, set_env_client, test_dir):
+def test_run_stub(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "app_was_once_stub.py"
     with pytest.warns(match="App"):
         _run(["run", app_file.as_posix()])
@@ -139,7 +139,7 @@ def test_run_stub(servicer, set_env_client, test_dir):
         _run(["run", app_file.as_posix() + "::foo"])
 
 
-def test_run_stub_2(servicer, set_env_client, test_dir):
+def test_run_stub_2(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "app_was_once_stub_2.py"
     with pytest.warns(match="`app`"):
         _run(["run", app_file.as_posix()])
@@ -147,7 +147,7 @@ def test_run_stub_2(servicer, set_env_client, test_dir):
     _run(["run", app_file.as_posix() + "::foo"])
 
 
-def test_run_stub_with_app(servicer, set_env_client, test_dir):
+def test_run_stub_with_app(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "app_and_stub.py"
     with pytest.warns(match="`app`"):
         _run(["run", app_file.as_posix()])
@@ -155,7 +155,7 @@ def test_run_stub_with_app(servicer, set_env_client, test_dir):
     _run(["run", app_file.as_posix() + "::foo"])
 
 
-def test_run_async(servicer, set_env_client, test_dir):
+def test_run_async(servicer, set_env_client, test_dir) -> None:
     sync_fn = test_dir / "supports" / "app_run_tests" / "local_entrypoint.py"
     res = _run(["run", sync_fn.as_posix()])
     assert "called locally" in res.stdout
@@ -165,13 +165,13 @@ def test_run_async(servicer, set_env_client, test_dir):
     assert "called locally (async)" in res.stdout
 
 
-def test_run_generator(servicer, set_env_client, test_dir):
+def test_run_generator(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "generator.py"
     result = _run(["run", app_file.as_posix()], expected_exit_code=1)
     assert "generator functions" in str(result.exception)
 
 
-def test_help_message_unspecified_function(servicer, set_env_client, test_dir):
+def test_help_message_unspecified_function(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "app_with_multiple_functions.py"
     result = _run(["run", app_file.as_posix()], expected_exit_code=2, expected_stderr=None)
 
@@ -187,7 +187,7 @@ def test_help_message_unspecified_function(servicer, set_env_client, test_dir):
     assert "bar" in result.stderr
 
 
-def test_run_states(servicer, set_env_client, test_dir):
+def test_run_states(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     _run(["run", app_file.as_posix()])
     assert servicer.app_state_history["ap-1"] == [
@@ -197,26 +197,26 @@ def test_run_states(servicer, set_env_client, test_dir):
     ]
 
 
-def test_run_detach(servicer, set_env_client, test_dir):
+def test_run_detach(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     _run(["run", "--detach", app_file.as_posix()])
     assert servicer.app_state_history["ap-1"] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_DETACHED]
 
 
-def test_run_quiet(servicer, set_env_client, test_dir):
+def test_run_quiet(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     # Just tests that the command runs without error for now (tests end up defaulting to `show_progress=False` anyway,
     # without a TTY).
     _run(["run", "--quiet", app_file.as_posix()])
 
 
-def test_deploy(servicer, set_env_client, test_dir):
+def test_deploy(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     _run(["deploy", "--name=deployment_name", app_file.as_posix()])
     assert servicer.app_state_history["ap-1"] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_DEPLOYED]
 
 
-def test_run_custom_app(servicer, set_env_client, test_dir):
+def test_run_custom_app(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "custom_app.py"
     res = _run(["run", app_file.as_posix() + "::app"], expected_exit_code=1, expected_stderr=None)
     assert "Could not find" in res.stderr
@@ -226,13 +226,13 @@ def test_run_custom_app(servicer, set_env_client, test_dir):
     _run(["run", app_file.as_posix() + "::foo"])
 
 
-def test_run_aiofunc(servicer, set_env_client, test_dir):
+def test_run_aiofunc(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "async_app.py"
     _run(["run", app_file.as_posix()])
     assert len(servicer.client_calls) == 1
 
 
-def test_run_local_entrypoint(servicer, set_env_client, test_dir):
+def test_run_local_entrypoint(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "local_entrypoint.py"
 
     res = _run(["run", app_file.as_posix() + "::app.main"])  # explicit name
@@ -244,7 +244,7 @@ def test_run_local_entrypoint(servicer, set_env_client, test_dir):
     assert len(servicer.client_calls) == 4
 
 
-def test_run_local_entrypoint_invalid_with_app_run(servicer, set_env_client, test_dir):
+def test_run_local_entrypoint_invalid_with_app_run(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "local_entrypoint_invalid.py"
 
     res = _run(["run", app_file.as_posix()], expected_exit_code=1)
@@ -253,7 +253,7 @@ def test_run_local_entrypoint_invalid_with_app_run(servicer, set_env_client, tes
     assert len(servicer.client_calls) == 0
 
 
-def test_run_parse_args_entrypoint(servicer, set_env_client, test_dir):
+def test_run_parse_args_entrypoint(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "cli_args.py"
     res = _run(["run", app_file.as_posix()], expected_exit_code=2, expected_stderr=None)
     assert "You need to specify a Modal function or local entrypoint to run" in res.stderr
@@ -298,7 +298,7 @@ def test_run_parse_args_entrypoint(servicer, set_env_client, test_dir):
         assert "Unable to generate command line interface for app entrypoint." in str(res.exception)
 
 
-def test_run_parse_args_function(servicer, set_env_client, test_dir):
+def test_run_parse_args_function(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "cli_args.py"
     res = _run(["run", app_file.as_posix()], expected_exit_code=2, expected_stderr=None)
     assert "You need to specify a Modal function or local entrypoint to run" in res.stderr
@@ -319,14 +319,14 @@ def test_run_parse_args_function(servicer, set_env_client, test_dir):
         assert expected in res.stdout
 
 
-def test_run_user_script_exception(servicer, set_env_client, test_dir):
+def test_run_user_script_exception(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "raises_error.py"
     res = _run(["run", app_file.as_posix()], expected_exit_code=1)
     assert res.exc_info[1].user_source == str(app_file.resolve())
 
 
 @pytest.fixture
-def fresh_main_thread_assertion_module(test_dir):
+def fresh_main_thread_assertion_module(test_dir) -> None:
     modules_to_unload = [n for n in sys.modules.keys() if "main_thread_assertion" in n]
     assert len(modules_to_unload) <= 1
     for mod in modules_to_unload:
@@ -334,20 +334,20 @@ def fresh_main_thread_assertion_module(test_dir):
     yield test_dir / "supports" / "app_run_tests" / "main_thread_assertion.py"
 
 
-def test_no_user_code_in_synchronicity_run(servicer, set_env_client, test_dir, fresh_main_thread_assertion_module):
+def test_no_user_code_in_synchronicity_run(servicer, set_env_client, test_dir, fresh_main_thread_assertion_module) -> None:
     pytest._did_load_main_thread_assertion = False  # type: ignore
     _run(["run", fresh_main_thread_assertion_module.as_posix()])
     assert pytest._did_load_main_thread_assertion  # type: ignore
     print()
 
 
-def test_no_user_code_in_synchronicity_deploy(servicer, set_env_client, test_dir, fresh_main_thread_assertion_module):
+def test_no_user_code_in_synchronicity_deploy(servicer, set_env_client, test_dir, fresh_main_thread_assertion_module) -> None:
     pytest._did_load_main_thread_assertion = False  # type: ignore
     _run(["deploy", "--name", "foo", fresh_main_thread_assertion_module.as_posix()])
     assert pytest._did_load_main_thread_assertion  # type: ignore
 
 
-def test_serve(servicer, set_env_client, server_url_env, test_dir):
+def test_serve(servicer, set_env_client, server_url_env, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "webhook.py"
     _run(["serve", app_file.as_posix(), "--timeout", "3"], expected_exit_code=0)
 
@@ -397,7 +397,7 @@ def mock_shell_pty():
 
 
 @skip_windows("modal shell is not supported on Windows.")
-def test_shell(servicer, set_env_client, test_dir, mock_shell_pty):
+def test_shell(servicer, set_env_client, test_dir, mock_shell_pty) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     webhook_app_file = test_dir / "supports" / "app_run_tests" / "webhook.py"
     cls_app_file = test_dir / "supports" / "app_run_tests" / "cls.py"
@@ -431,7 +431,7 @@ def test_shell(servicer, set_env_client, test_dir, mock_shell_pty):
 
 
 @skip_windows("modal shell is not supported on Windows.")
-def test_shell_cmd(servicer, set_env_client, test_dir, mock_shell_pty):
+def test_shell_cmd(servicer, set_env_client, test_dir, mock_shell_pty) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "default_app.py"
     _, captured_out = mock_shell_pty
     _run(["shell", "--cmd", "pwd", app_file.as_posix() + "::foo"])
@@ -440,7 +440,7 @@ def test_shell_cmd(servicer, set_env_client, test_dir, mock_shell_pty):
     assert captured_out == [(1, shell_prompt), (1, expected_output)]
 
 
-def test_shell_unsuported_cmds_fails_on_windows(servicer, set_env_client, mock_shell_pty):
+def test_shell_unsuported_cmds_fails_on_windows(servicer, set_env_client, mock_shell_pty) -> None:
     expected_exit_code = 1 if platform.system() == "Windows" else 0
     res = _run(["shell"], expected_exit_code=expected_exit_code)
 
@@ -448,7 +448,7 @@ def test_shell_unsuported_cmds_fails_on_windows(servicer, set_env_client, mock_s
         assert re.search("Windows", str(res.exception)), "exception message does not match expected string"
 
 
-def test_app_descriptions(servicer, server_url_env, test_dir):
+def test_app_descriptions(servicer, server_url_env, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "prints_desc_app.py"
     _run(["run", "--detach", app_file.as_posix() + "::foo"])
 
@@ -468,7 +468,7 @@ def test_app_descriptions(servicer, server_url_env, test_dir):
     assert "--timeout 0.0" not in description
 
 
-def test_logs(servicer, server_url_env, set_env_client, mock_dir):
+def test_logs(servicer, server_url_env, set_env_client, mock_dir) -> None:
     async def app_done(self, stream):
         await stream.recv_message()
         log = api_pb2.TaskLogs(data="hello\n", file_descriptor=api_pb2.FILE_DESCRIPTOR_STDOUT)
@@ -498,7 +498,7 @@ def test_logs(servicer, server_url_env, set_env_client, mock_dir):
     )
 
 
-def test_app_stop(servicer, mock_dir, set_env_client):
+def test_app_stop(servicer, mock_dir, set_env_client) -> None:
     with mock_dir({"myapp.py": dummy_app_file, "other_module.py": dummy_other_module_file}):
         # Deploy as a module
         _run(["deploy", "myapp"])
@@ -514,7 +514,7 @@ def test_app_stop(servicer, mock_dir, set_env_client):
     assert not re.search("my_app .+ deployed", res.stdout)
 
 
-def test_nfs_get(set_env_client, servicer):
+def test_nfs_get(set_env_client, servicer) -> None:
     nfs_name = "my-shared-nfs"
     _run(["nfs", "create", nfs_name])
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -529,11 +529,11 @@ def test_nfs_get(set_env_client, servicer):
             assert f.read() == "foo bar baz"
 
 
-def test_volume_cli(set_env_client):
+def test_volume_cli(set_env_client) -> None:
     _run(["volume", "--help"])
 
 
-def test_volume_get(servicer, set_env_client):
+def test_volume_get(servicer, set_env_client) -> None:
     vol_name = "my-test-vol"
     _run(["volume", "create", vol_name])
     file_path = "test.txt"
@@ -560,7 +560,7 @@ def test_volume_get(servicer, set_env_client):
             assert f.read() == file_contents
 
 
-def test_volume_put_force(servicer, set_env_client):
+def test_volume_put_force(servicer, set_env_client) -> None:
     vol_name = "my-test-vol"
     _run(["volume", "create", vol_name])
     file_path = "test.txt"
@@ -590,7 +590,7 @@ def test_volume_put_force(servicer, set_env_client):
             assert not ctx.pop_request("VolumePutFiles").disallow_overwrite_existing_files
 
 
-def test_volume_rm(servicer, set_env_client):
+def test_volume_rm(servicer, set_env_client) -> None:
     vol_name = "my-test-vol"
     _run(["volume", "create", vol_name])
     file_path = "test.txt"
@@ -610,7 +610,7 @@ def test_volume_rm(servicer, set_env_client):
         _run(["volume", "get", vol_name, file_path], expected_exit_code=1, expected_stderr=None)
 
 
-def test_volume_ls(servicer, set_env_client):
+def test_volume_ls(servicer, set_env_client) -> None:
     vol_name = "my-test-vol"
     _run(["volume", "create", vol_name])
 
@@ -637,7 +637,7 @@ def test_volume_ls(servicer, set_env_client):
         assert entry["Type"] == "file"
 
 
-def test_volume_create_delete(servicer, server_url_env, set_env_client):
+def test_volume_create_delete(servicer, server_url_env, set_env_client) -> None:
     vol_name = "test-delete-vol"
     _run(["volume", "create", vol_name])
     assert vol_name in _run(["volume", "list"]).stdout
@@ -648,7 +648,7 @@ def test_volume_create_delete(servicer, server_url_env, set_env_client):
 @pytest.mark.parametrize("command", [["run"], ["deploy"], ["serve", "--timeout=1"], ["shell"]])
 @pytest.mark.usefixtures("set_env_client", "mock_shell_pty")
 @skip_windows("modal shell is not supported on Windows.")
-def test_environment_flag(test_dir, servicer, command):
+def test_environment_flag(test_dir, servicer, command) -> None:
     @servicer.function_body
     def nothing(
         arg=None,
@@ -680,7 +680,7 @@ def test_environment_flag(test_dir, servicer, command):
 @pytest.mark.parametrize("command", [["run"], ["deploy"], ["serve", "--timeout=1"], ["shell"]])
 @pytest.mark.usefixtures("set_env_client", "mock_shell_pty")
 @skip_windows("modal shell is not supported on Windows.")
-def test_environment_noflag(test_dir, servicer, command, monkeypatch):
+def test_environment_noflag(test_dir, servicer, command, monkeypatch) -> None:
     monkeypatch.setenv("MODAL_ENVIRONMENT", "some_weird_default_env")
 
     @servicer.function_body
@@ -712,14 +712,14 @@ def test_environment_noflag(test_dir, servicer, command, monkeypatch):
     assert app_create.environment_name == "some_weird_default_env"
 
 
-def test_cls(servicer, set_env_client, test_dir):
+def test_cls(servicer, set_env_client, test_dir) -> None:
     app_file = test_dir / "supports" / "app_run_tests" / "cls.py"
 
     _run(["run", app_file.as_posix(), "--x", "42", "--y", "1000"])
     _run(["run", f"{app_file.as_posix()}::AParametrized.some_method", "--x", "42", "--y", "1000"])
 
 
-def test_profile_list(servicer, server_url_env, modal_config):
+def test_profile_list(servicer, server_url_env, modal_config) -> None:
     config = """
     [test-profile]
     token_id = "ak-abc"
@@ -763,7 +763,7 @@ def test_profile_list(servicer, server_url_env, modal_config):
                 del os.environ["MODAL_TOKEN_SECRET"]
 
 
-def test_list_apps(servicer, mock_dir, set_env_client):
+def test_list_apps(servicer, mock_dir, set_env_client) -> None:
     res = _run(["app", "list"])
     assert "my_app_foo" not in res.stdout
 
@@ -781,7 +781,7 @@ def test_list_apps(servicer, mock_dir, set_env_client):
     assert "my-vol" not in res.stdout
 
 
-def test_dict_create_list_delete(servicer, server_url_env, set_env_client):
+def test_dict_create_list_delete(servicer, server_url_env, set_env_client) -> None:
     _run(["dict", "create", "foo-dict"])
     _run(["dict", "create", "bar-dict"])
     res = _run(["dict", "list"])
@@ -794,7 +794,7 @@ def test_dict_create_list_delete(servicer, server_url_env, set_env_client):
     assert "bar-dict" not in res.stdout
 
 
-def test_dict_show_get_clear(servicer, server_url_env, set_env_client):
+def test_dict_show_get_clear(servicer, server_url_env, set_env_client) -> None:
     # Kind of hacky to be modifying the attributes on the servicer like this
     key = ("baz-dict", api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, os.environ.get("MODAL_ENVIRONMENT", "main"))
     dict_id = "di-abc123"
@@ -825,7 +825,7 @@ def test_dict_show_get_clear(servicer, server_url_env, set_env_client):
     assert servicer.dicts[dict_id] == {}
 
 
-def test_queue_create_list_delete(servicer, server_url_env, set_env_client):
+def test_queue_create_list_delete(servicer, server_url_env, set_env_client) -> None:
     _run(["queue", "create", "foo-queue"])
     _run(["queue", "create", "bar-queue"])
     res = _run(["queue", "list"])
@@ -839,7 +839,7 @@ def test_queue_create_list_delete(servicer, server_url_env, set_env_client):
     assert "bar-queue" not in res.stdout
 
 
-def test_queue_peek_len_clear(servicer, server_url_env, set_env_client):
+def test_queue_peek_len_clear(servicer, server_url_env, set_env_client) -> None:
     # Kind of hacky to be modifying the attributes on the servicer like this
     name = "queue-who"
     key = (name, api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, os.environ.get("MODAL_ENVIRONMENT", "main"))
@@ -866,7 +866,7 @@ def test_queue_peek_len_clear(servicer, server_url_env, set_env_client):
 
 
 @pytest.mark.parametrize("name", [".main", "_main", "'-main'", "main/main", "main:main"])
-def test_create_environment_name_invalid(servicer, set_env_client, name):
+def test_create_environment_name_invalid(servicer, set_env_client, name) -> None:
     assert isinstance(
         _run(
             ["environment", "create", name],
@@ -877,7 +877,7 @@ def test_create_environment_name_invalid(servicer, set_env_client, name):
 
 
 @pytest.mark.parametrize("name", ["main", "main_-123."])
-def test_create_environment_name_valid(servicer, set_env_client, name):
+def test_create_environment_name_valid(servicer, set_env_client, name) -> None:
     assert (
         "Environment created"
         in _run(
@@ -888,7 +888,7 @@ def test_create_environment_name_valid(servicer, set_env_client, name):
 
 
 @pytest.mark.parametrize(("name", "set_name"), (("main", "main/main"), ("main", "'-main'")))
-def test_update_environment_name_invalid(servicer, set_env_client, name, set_name):
+def test_update_environment_name_invalid(servicer, set_env_client, name, set_name) -> None:
     assert isinstance(
         _run(
             ["environment", "update", name, "--set-name", set_name],
@@ -899,7 +899,7 @@ def test_update_environment_name_invalid(servicer, set_env_client, name, set_nam
 
 
 @pytest.mark.parametrize(("name", "set_name"), (("main", "main_-123."), ("main:main", "main2")))
-def test_update_environment_name_valid(servicer, set_env_client, name, set_name):
+def test_update_environment_name_valid(servicer, set_env_client, name, set_name) -> None:
     assert (
         "Environment updated"
         in _run(
@@ -909,5 +909,5 @@ def test_update_environment_name_valid(servicer, set_env_client, name, set_name)
     )
 
 
-def test_call_update_environment_suffix(servicer, set_env_client):
+def test_call_update_environment_suffix(servicer, set_env_client) -> None:
     _run(["environment", "update", "main", "--set-web-suffix", "_"])

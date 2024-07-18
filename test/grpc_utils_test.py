@@ -11,7 +11,7 @@ from .supports.skip import skip_windows_unix_socket
 
 
 @pytest.mark.asyncio
-async def test_http_channel(servicer):
+async def test_http_channel(servicer) -> None:
     assert servicer.client_addr.startswith("http://")
     channel = create_channel(servicer.client_addr)
     client_stub = api_grpc.ModalClientStub(channel)
@@ -25,7 +25,7 @@ async def test_http_channel(servicer):
 
 @skip_windows_unix_socket
 @pytest.mark.asyncio
-async def test_unix_channel(servicer):
+async def test_unix_channel(servicer) -> None:
     assert servicer.container_addr.startswith("unix://")
     channel = create_channel(servicer.container_addr)
     client_stub = api_grpc.ModalClientStub(channel)
@@ -38,7 +38,7 @@ async def test_unix_channel(servicer):
 
 
 @pytest.mark.asyncio
-async def test_retry_transient_errors(servicer):
+async def test_retry_transient_errors(servicer) -> None:
     channel = create_channel(servicer.client_addr)
     client_stub = api_grpc.ModalClientStub(channel)
 

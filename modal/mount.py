@@ -102,7 +102,7 @@ class _MountFile(_MountEntry):
     def description(self) -> str:
         return str(self.local_file)
 
-    def get_files_to_upload(self):
+    def get_files_to_upload(self) -> None:
         local_file = self.local_file.expanduser().absolute()
         if not local_file.exists():
             raise FileNotFoundError(local_file)
@@ -128,7 +128,7 @@ class _MountDir(_MountEntry):
     def description(self):
         return str(self.local_dir.expanduser().absolute())
 
-    def get_files_to_upload(self):
+    def get_files_to_upload(self) -> None:
         local_dir = self.local_dir.expanduser().absolute()
 
         if not local_dir.exists():
@@ -277,7 +277,7 @@ class _Mount(_Object, type_prefix="mo"):
             raise NonLocalMountError()
         return self._entries
 
-    def _hydrate_metadata(self, handle_metadata: Optional[Message]):
+    def _hydrate_metadata(self, handle_metadata: Optional[Message]) -> None:
         assert isinstance(handle_metadata, api_pb2.MountHandleMetadata)
         self._content_checksum_sha256_hex = handle_metadata.content_checksum_sha256_hex
 

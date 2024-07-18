@@ -2,11 +2,11 @@
 import modal
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def test_volume_mount(client, servicer):
+def test_volume_mount(client, servicer) -> None:
     app = modal.App()
     secret = modal.Secret.from_dict({"AWS_ACCESS_KEY_ID": "1", "AWS_SECRET_ACCESS_KEY": "2"})
     cld_bckt_mnt = modal.CloudBucketMount(

@@ -13,7 +13,7 @@ from modal.mount import Mount, _Mount
 
 
 @pytest.mark.asyncio
-async def test__watch_args_from_mounts(monkeypatch, test_dir):
+async def test__watch_args_from_mounts(monkeypatch, test_dir) -> None:
     paths, watch_filter = _watch_args_from_mounts(
         mounts=[
             _Mount.from_local_file("/x/foo.py", remote_path="/foo.py"),
@@ -32,12 +32,12 @@ async def test__watch_args_from_mounts(monkeypatch, test_dir):
     assert not watch_filter(Change.modified, "/one/two/bucklemyshoe/.DS_Store")
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
 @pytest.fixture()
-def clean_sys_modules(monkeypatch):
+def clean_sys_modules(monkeypatch) -> None:
     # run test assuming no user-defined modules have been loaded
     module_names = set()
     for name, mod in sys.modules.items():
@@ -50,7 +50,7 @@ def clean_sys_modules(monkeypatch):
 
 @pytest.mark.usefixtures("clean_sys_modules")
 @pytest.mark.skip("not working in ci for some reason. deactivating for now")  # TODO(elias) fix
-def test_watch_mounts_ignore_local():
+def test_watch_mounts_ignore_local() -> None:
     app = modal.App()
     app.function(mounts=[Mount.from_name("some-published-mount")])(dummy)
 

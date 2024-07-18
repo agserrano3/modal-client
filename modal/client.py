@@ -89,7 +89,7 @@ class _Client:
         client_type: int,
         credentials: Optional[Tuple[str, str]],
         version: str = __version__,
-    ):
+    ) -> None:
         """The Modal client object is not intended to be instantiated directly by users."""
         self.server_url = server_url
         self.client_type = client_type
@@ -119,13 +119,13 @@ class _Client:
             self._credentials = (config["task_id"], config["task_secret"])
         return self._credentials
 
-    async def _open(self):
+    async def _open(self) -> None:
         assert self._stub is None
         metadata = _get_metadata(self.client_type, self._credentials, self.version)
         self._channel = create_channel(self.server_url, metadata=metadata)
         self._stub = api_grpc.ModalClientStub(self._channel)  # type: ignore
 
-    async def _close(self, forget_credentials: bool = False):
+    async def _close(self, forget_credentials: bool = False) -> None:
         if self._pre_stop is not None:
             logger.debug("Client: running pre-stop coroutine before shutting down")
             await self._pre_stop()  # type: ignore
@@ -139,7 +139,7 @@ class _Client:
         # Remove cached client.
         self.set_env_client(None)
 
-    def set_pre_stop(self, pre_stop: Callable[[], Awaitable[None]]):
+    def set_pre_stop(self, pre_stop: Callable[[], Awaitable[None]]) -> None:
         """mdmd:hidden"""
         # hack: stub.serve() gets into a losing race with the `on_shutdown` client
         # teardown when an interrupt signal is received (eg. KeyboardInterrupt).
@@ -149,7 +149,7 @@ class _Client:
         # ref: github.com/modal-labs/modal-client/pull/108
         self._pre_stop = pre_stop
 
-    async def _init(self):
+    async def _init(self) -> None:
         """Connect to server and retrieve version information; raise appropriate error for various failures."""
         logger.debug("Client: Starting")
         _check_config()
@@ -188,7 +188,7 @@ class _Client:
             raise
         return self
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         await self._close()
 
     @classmethod
@@ -286,7 +286,7 @@ class _Client:
             pass  # Will call ClientHello RPC and possibly raise AuthError or ConnectionError
 
     @classmethod
-    def set_env_client(cls, client: Optional["_Client"]):
+    def set_env_client(cls, client: Optional["_Client"]) -> None:
         """mdmd:hidden"""
         # Just used from tests.
         cls._client_from_env = client

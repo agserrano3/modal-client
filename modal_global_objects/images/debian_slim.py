@@ -5,11 +5,11 @@ import sys
 from modal import App, Image
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-async def main(client=None, python_version=None):
+async def main(client=None, python_version=None) -> None:
     app = App(image=Image.debian_slim(python_version))
     app.function()(dummy)
     async with app.run.aio(client=client):

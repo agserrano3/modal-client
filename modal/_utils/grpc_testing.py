@@ -93,30 +93,30 @@ def patch_mock_servicer(cls):
 
 
 class ResponseNotConsumed(Exception):
-    def __init__(self, unconsumed_requests: List[str]):
+    def __init__(self, unconsumed_requests: List[str]) -> None:
         self.unconsumed_requests = unconsumed_requests
         request_count = Counter(unconsumed_requests)
         super().__init__(f"Expected but did not receive the following requests: {request_count}")
 
 
 class InterceptionContext:
-    def __init__(self):
+    def __init__(self) -> None:
         self.calls: List[Tuple[str, Any]] = []  # List[Tuple[method_name, message]]
         self.custom_responses: Dict[str, List[Tuple[Callable[[Any], bool], List[Any]]]] = defaultdict(list)
         self.custom_defaults: Dict[str, Callable[["MockClientServicer", grpclib.server.Stream], Awaitable[None]]] = {}
 
-    def add_recv(self, method_name: str, msg):
+    def add_recv(self, method_name: str, msg) -> None:
         self.calls.append((method_name, msg))
 
     def add_response(
         self, method_name: str, first_payload, *, request_filter: Callable[[Any], bool] = lambda req: True
-    ):
+    ) -> None:
         # adds one response to a queue of responses for requests of the specified type
         self.custom_responses[method_name].append((request_filter, [first_payload]))
 
     def set_responder(
         self, method_name: str, responder: Callable[["MockClientServicer", grpclib.server.Stream], Awaitable[None]]
-    ):
+    ) -> None:
         """Replace the default responder method. E.g.
 
         ```python notest
@@ -159,7 +159,7 @@ class InterceptionContext:
 
         return responder
 
-    def assert_responses_consumed(self):
+    def assert_responses_consumed(self) -> None:
         unconsumed = []
         for method_name, queued_responses in self.custom_responses.items():
             unconsumed += [method_name] * len(queued_responses)
@@ -183,7 +183,7 @@ class InterceptionContext:
 
 
 class InterceptedStream:
-    def __init__(self, interception_context, method_name, stream):
+    def __init__(self, interception_context, method_name, stream) -> None:
         self.interception_context = interception_context
         self.method_name = method_name
         self.stream = stream
@@ -203,7 +203,7 @@ class InterceptedStream:
         self.interception_context.add_recv(self.method_name, msg)
         return msg
 
-    async def send_message(self, msg):
+    async def send_message(self, msg) -> None:
         await self.stream.send_message(msg)
 
     def __getattr__(self, attr):

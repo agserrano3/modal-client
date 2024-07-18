@@ -16,13 +16,13 @@ from .supports.skip import skip_windows, skip_windows_unix_socket
 TEST_TIMEOUT = 4.0  # align this with the container client timeout in client.py
 
 
-def test_client_type(servicer, client):
+def test_client_type(servicer, client) -> None:
     assert len(servicer.requests) == 1
     assert isinstance(servicer.requests[0], Empty)
     assert servicer.client_create_metadata["x-modal-client-type"] == str(api_pb2.CLIENT_TYPE_CLIENT)
 
 
-def test_client_platform_string(servicer, client):
+def test_client_platform_string(servicer, client) -> None:
     platform_str = servicer.client_create_metadata["x-modal-platform"]
     system, release, machine = platform_str.split("-")
     if platform.system() == "Darwin":
@@ -35,7 +35,7 @@ def test_client_platform_string(servicer, client):
 
 
 @pytest.mark.asyncio
-async def test_container_client_type(servicer, container_client):
+async def test_container_client_type(servicer, container_client) -> None:
     assert len(servicer.requests) == 1  # no heartbeat, just ClientHello
     assert isinstance(servicer.requests[0], Empty)
     assert servicer.client_create_metadata["x-modal-client-type"] == str(api_pb2.CLIENT_TYPE_CONTAINER)
@@ -43,7 +43,7 @@ async def test_container_client_type(servicer, container_client):
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(TEST_TIMEOUT)
-async def test_client_dns_failure():
+async def test_client_dns_failure() -> None:
     with pytest.raises(ConnectionError) as excinfo:
         async with Client("https://xyz.invalid", api_pb2.CLIENT_TYPE_CONTAINER, None):
             pass
@@ -53,7 +53,7 @@ async def test_client_dns_failure():
 @pytest.mark.asyncio
 @pytest.mark.timeout(TEST_TIMEOUT)
 @skip_windows("Windows test crashes on connection failure")
-async def test_client_connection_failure():
+async def test_client_connection_failure() -> None:
     with pytest.raises(ConnectionError) as excinfo:
         async with Client("https://localhost:443", api_pb2.CLIENT_TYPE_CONTAINER, None):
             pass
@@ -63,7 +63,7 @@ async def test_client_connection_failure():
 @pytest.mark.asyncio
 @pytest.mark.timeout(TEST_TIMEOUT)
 @skip_windows_unix_socket
-async def test_client_connection_failure_unix_socket():
+async def test_client_connection_failure_unix_socket() -> None:
     with pytest.raises(ConnectionError) as excinfo:
         async with Client("unix:/tmp/xyz.txt", api_pb2.CLIENT_TYPE_CONTAINER, None):
             pass
@@ -72,7 +72,7 @@ async def test_client_connection_failure_unix_socket():
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(TEST_TIMEOUT)
-async def test_client_connection_timeout(servicer, monkeypatch):
+async def test_client_connection_timeout(servicer, monkeypatch) -> None:
     monkeypatch.setattr("modal.client.CLIENT_CREATE_ATTEMPT_TIMEOUT", 1.0)
     monkeypatch.setattr("modal.client.CLIENT_CREATE_TOTAL_TIMEOUT", 3.0)
     with pytest.raises(ConnectionError) as excinfo:
@@ -85,7 +85,7 @@ async def test_client_connection_timeout(servicer, monkeypatch):
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(TEST_TIMEOUT)
-async def test_client_server_error(servicer):
+async def test_client_server_error(servicer) -> None:
     with pytest.raises(ConnectionError) as excinfo:
         async with Client("https://github.com", api_pb2.CLIENT_TYPE_CLIENT, None):
             pass
@@ -94,14 +94,14 @@ async def test_client_server_error(servicer):
 
 
 @pytest.mark.asyncio
-async def test_client_old_version(servicer):
+async def test_client_old_version(servicer) -> None:
     with pytest.raises(VersionError):
         async with Client(servicer.client_addr, api_pb2.CLIENT_TYPE_CLIENT, ("foo-id", "foo-secret"), version="0.0.0"):
             pass
 
 
 @pytest.mark.asyncio
-async def test_client_deprecated(servicer):
+async def test_client_deprecated(servicer) -> None:
     with pytest.warns(modal.exception.DeprecationError):
         async with Client(
             servicer.client_addr, api_pb2.CLIENT_TYPE_CLIENT, ("foo-id", "foo-secret"), version="deprecated"
@@ -110,7 +110,7 @@ async def test_client_deprecated(servicer):
 
 
 @pytest.mark.asyncio
-async def test_client_unauthenticated(servicer):
+async def test_client_unauthenticated(servicer) -> None:
     with pytest.raises(AuthError):
         async with Client(servicer.client_addr, api_pb2.CLIENT_TYPE_CLIENT, None, version="unauthenticated"):
             pass
@@ -127,7 +127,7 @@ def client_from_env(client_addr):
     return Client.from_env(_override_config=_override_config)
 
 
-def test_client_from_env(servicer):
+def test_client_from_env(servicer) -> None:
     try:
         # First, a failing one
         with pytest.raises(ConnectionError):
@@ -153,7 +153,7 @@ def test_client_from_env(servicer):
         Client.set_env_client(None)
 
 
-def test_multiple_profile_error(servicer, modal_config):
+def test_multiple_profile_error(servicer, modal_config) -> None:
     config = """
     [prof-1]
     token_id = 'ak-abc'
@@ -170,7 +170,7 @@ def test_multiple_profile_error(servicer, modal_config):
             Client.verify(servicer.client_addr, None)
 
 
-def test_implicit_default_profile_warning(servicer, modal_config):
+def test_implicit_default_profile_warning(servicer, modal_config) -> None:
     config = """
     [default]
     token_id = 'ak-abc'
@@ -194,7 +194,7 @@ def test_implicit_default_profile_warning(servicer, modal_config):
         Client.verify(servicer.client_addr, None)
 
 
-def test_import_modal_from_thread(supports_dir):
+def test_import_modal_from_thread(supports_dir) -> None:
     # this mainly ensures that we don't make any assumptions about which thread *imports* modal
     # For example, in Python <3.10, creating loop-bound asyncio primitives in global scope would
     # trigger an exception if there is no event loop in the thread (and it's not the main thread)

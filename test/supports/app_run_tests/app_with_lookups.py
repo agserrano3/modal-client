@@ -7,5 +7,5 @@ nfs = modal.NetworkFileSystem.lookup("volume_app")
 
 
 @app.function()
-def foo():
+def foo() -> None:
     print("foo")
