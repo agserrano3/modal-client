@@ -240,7 +240,7 @@ class RunGroup(click.Group):
 @click.option("-i", "--interactive", is_flag=True, help="Run the app in interactive mode.")
 @click.option("-e", "--env", help=ENV_OPTION_HELP, default=None)
 @click.pass_context
-def run(ctx, detach, quiet, interactive, env):
+def run(ctx, detach, quiet, interactive, env) -> None:
     """Run a Modal function or local entrypoint.
 
     `FUNC_REF` should be of the format `{file or module}::{function name}`.
@@ -282,7 +282,7 @@ def deploy(
     env: str = ENV_OPTION,
     stream_logs: bool = typer.Option(False, help="Stream logs from the app upon deployment."),
     tag: str = typer.Option(None, help="Tag the deployment with a version."),
-):
+) -> None:
     # this ensures that `modal.lookup()` without environment specification uses the same env as specified
     env = ensure_env(env)
 
@@ -302,7 +302,7 @@ def serve(
     app_ref: str = typer.Argument(..., help="Path to a Python file with an app."),
     timeout: Optional[float] = None,
     env: str = ENV_OPTION,
-):
+) -> None:
     """Run a web endpoint(s) associated with a Modal app and hot-reload code.
 
     **Examples:**
@@ -365,7 +365,7 @@ def shell(
             "Can be a single region or a comma-separated list to choose from (if not using FUNC_REF)."
         ),
     ),
-):
+) -> None:
     """Run an interactive shell inside a Modal image.
 
     **Examples:**

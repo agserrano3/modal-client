@@ -16,7 +16,7 @@ finally:
     assert isinstance(exc, DeprecationError)  # If you see this, try running `pytest client/client_test`
 
 
-def test_deprecation():
+def test_deprecation() -> None:
     # See conftest.py in the root of the repo
     # All deprecation warnings in modal during tests will trigger exceptions
     with pytest.raises(DeprecationError):

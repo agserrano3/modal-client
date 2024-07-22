@@ -37,11 +37,11 @@ async def async_foo(p, q):
     return p + q + 12
 
 
-def dummy():
+def dummy() -> None:
     pass  # not actually used in test (servicer returns sum of square of all args)
 
 
-def test_run_function(client, servicer):
+def test_run_function(client, servicer) -> None:
     assert len(servicer.cleared_function_calls) == 0
     with app.run(client=client):
         assert foo.remote(2, 4) == 20
@@ -49,7 +49,7 @@ def test_run_function(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_call_function_locally(client, servicer):
+async def test_call_function_locally(client, servicer) -> None:
     assert foo.local(22, 44) == 77  # call it locally
     assert await async_foo.local(22, 44) == 78
 
@@ -61,7 +61,7 @@ async def test_call_function_locally(client, servicer):
 
 @pytest.mark.parametrize("slow_put_inputs", [False, True])
 @pytest.mark.timeout(120)
-def test_map(client, servicer, slow_put_inputs):
+def test_map(client, servicer, slow_put_inputs) -> None:
     servicer.slow_put_inputs = slow_put_inputs
 
     app = App()
@@ -76,7 +76,7 @@ def test_map(client, servicer, slow_put_inputs):
 
 
 @pytest.mark.asyncio
-async def test_map_async_generator(client):
+async def test_map_async_generator(client) -> None:
     app = App()
     dummy_modal = app.function()(dummy)
 
@@ -111,7 +111,7 @@ def synchronicity_loop_delay_tracker():
     done = True
 
 
-def test_map_blocking_iterator_blocking_synchronicity_loop(client):
+def test_map_blocking_iterator_blocking_synchronicity_loop(client) -> None:
     app = App()
     SLEEP_DUR = 0.5
 
@@ -133,7 +133,7 @@ def test_map_blocking_iterator_blocking_synchronicity_loop(client):
 
 
 @pytest.mark.asyncio
-async def test_map_blocking_iterator_blocking_synchronicity_loop_async(client):
+async def test_map_blocking_iterator_blocking_synchronicity_loop_async(client) -> None:
     app = App()
     SLEEP_DUR = 0.5
 
@@ -157,12 +157,12 @@ async def test_map_blocking_iterator_blocking_synchronicity_loop_async(client):
 _side_effect_count = 0
 
 
-def side_effect(_):
+def side_effect(_) -> None:
     global _side_effect_count
     _side_effect_count += 1
 
 
-def test_for_each(client, servicer):
+def test_for_each(client, servicer) -> None:
     app = App()
     side_effect_modal = app.function()(servicer.function_body(side_effect))
     assert _side_effect_count == 0
@@ -177,7 +177,7 @@ def custom_function(x):
         return x
 
 
-def test_map_none_values(client, servicer):
+def test_map_none_values(client, servicer) -> None:
     app = App()
 
     custom_function_modal = app.function()(servicer.function_body(custom_function))
@@ -186,7 +186,7 @@ def test_map_none_values(client, servicer):
         assert list(custom_function_modal.map(range(4))) == [0, None, 2, None]
 
 
-def test_starmap(client):
+def test_starmap(client) -> None:
     app = App()
 
     dummy_modal = app.function()(dummy)
@@ -194,12 +194,12 @@ def test_starmap(client):
         assert list(dummy_modal.starmap([[5, 2], [4, 3]])) == [29, 25]
 
 
-def test_function_memory_request(client):
+def test_function_memory_request(client) -> None:
     app = App()
     app.function(memory=2048)(dummy)
 
 
-def test_function_memory_limit(client):
+def test_function_memory_limit(client) -> None:
     app = App()
     f = app.function(memory=(2048, 4096))(dummy)
 
@@ -211,17 +211,17 @@ def test_function_memory_limit(client):
         g.remote()
 
 
-def test_function_cpu_request(client):
+def test_function_cpu_request(client) -> None:
     app = App()
     app.function(cpu=2.0)(dummy)
 
 
-def test_function_disk_request(client):
+def test_function_disk_request(client) -> None:
     app = App()
     app.function(ephemeral_disk=1_000_000)(dummy)
 
 
-def test_idle_timeout_must_be_positive():
+def test_idle_timeout_must_be_positive() -> None:
     app = App()
     with pytest.raises(InvalidError, match="must be > 0"):
         app.function(container_idle_timeout=0)(dummy)
@@ -231,7 +231,7 @@ def later():
     return "hello"
 
 
-def test_function_future(client, servicer):
+def test_function_future(client, servicer) -> None:
     app = App()
 
     later_modal = app.function()(servicer.function_body(later))
@@ -261,7 +261,7 @@ def test_function_future(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_function_future_async(client, servicer):
+async def test_function_future_async(client, servicer) -> None:
     app = App()
 
     later_modal = app.function()(servicer.function_body(later))
@@ -278,16 +278,16 @@ async def test_function_future_async(client, servicer):
         assert future.object_id not in servicer.cleared_function_calls  # keep results around a bit longer for futures
 
 
-def later_gen():
+def later_gen() -> None:
     yield "foo"
 
 
-async def async_later_gen():
+async def async_later_gen() -> None:
     yield "foo"
 
 
 @pytest.mark.asyncio
-async def test_generator(client, servicer):
+async def test_generator(client, servicer) -> None:
     app = App()
 
     later_gen_modal = app.function()(later_gen)
@@ -312,7 +312,7 @@ async def test_generator(client, servicer):
         assert len(servicer.cleared_function_calls) == 1
 
 
-def test_generator_map_invalid(client, servicer):
+def test_generator_map_invalid(client, servicer) -> None:
     app = App()
 
     later_gen_modal = app.function()(later_gen)
@@ -333,7 +333,7 @@ def test_generator_map_invalid(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_generator_async(client, servicer):
+async def test_generator_async(client, servicer) -> None:
     app = App()
 
     later_gen_modal = app.function()(async_later_gen)
@@ -359,7 +359,7 @@ async def test_generator_async(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_generator_future(client, servicer):
+async def test_generator_future(client, servicer) -> None:
     app = App()
 
     later_gen_modal = app.function()(later_gen)
@@ -367,7 +367,7 @@ async def test_generator_future(client, servicer):
         assert later_gen_modal.spawn() is None  # until we have a nice interface for polling generator futures
 
 
-def gen_with_arg(i):
+def gen_with_arg(i) -> None:
     yield "foo"
 
 
@@ -378,7 +378,7 @@ async def slo1(sleep_seconds):
     return sleep_seconds
 
 
-def test_sync_parallelism(client, servicer):
+def test_sync_parallelism(client, servicer) -> None:
     app = App()
 
     slo1_modal = app.function()(servicer.function_body(slo1))
@@ -391,7 +391,7 @@ def test_sync_parallelism(client, servicer):
         assert t1 - t0 < 0.6  # less than the combined runtime, make sure they run in parallel
 
 
-def test_proxy(client, servicer):
+def test_proxy(client, servicer) -> None:
     app = App()
 
     app.function(proxy=Proxy.from_name("my-proxy"))(dummy)
@@ -403,11 +403,11 @@ class CustomException(Exception):
     pass
 
 
-def failure():
+def failure() -> None:
     raise CustomException("foo!")
 
 
-def test_function_exception(client, servicer):
+def test_function_exception(client, servicer) -> None:
     app = App()
 
     failure_modal = app.function()(servicer.function_body(failure))
@@ -418,7 +418,7 @@ def test_function_exception(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_function_exception_async(client, servicer):
+async def test_function_exception_async(client, servicer) -> None:
     app = App()
 
     failure_modal = app.function()(servicer.function_body(failure))
@@ -438,7 +438,7 @@ def custom_exception_function(x):
     return x * x
 
 
-def test_map_exceptions(client, servicer):
+def test_map_exceptions(client, servicer) -> None:
     app = App()
 
     custom_function_modal = app.function()(servicer.function_body(custom_exception_function))
@@ -455,11 +455,11 @@ def test_map_exceptions(client, servicer):
         assert type(res[4]) == UserCodeException and "bad" in str(res[4])
 
 
-def import_failure():
+def import_failure() -> None:
     raise ImportError("attempted relative import with no known parent package")
 
 
-def test_function_relative_import_hint(client, servicer):
+def test_function_relative_import_hint(client, servicer) -> None:
     app = App()
 
     import_failure_modal = app.function()(servicer.function_body(import_failure))
@@ -470,7 +470,7 @@ def test_function_relative_import_hint(client, servicer):
         assert "HINT" in str(excinfo.value)
 
 
-def test_nonglobal_function():
+def test_nonglobal_function() -> None:
     app = App()
 
     with pytest.raises(InvalidError) as excinfo:
@@ -482,7 +482,7 @@ def test_nonglobal_function():
     assert "global scope" in str(excinfo.value)
 
 
-def test_non_global_serialized_function():
+def test_non_global_serialized_function() -> None:
     app = App()
 
     @app.function(serialized=True)
@@ -513,12 +513,12 @@ def test_closure_valued_serialized_function(client, servicer):
     assert functions["ret_bar"]() == "bar"
 
 
-def test_new_hydrated_internal(client, servicer):
+def test_new_hydrated_internal(client, servicer) -> None:
     obj = FunctionCall._new_hydrated("fc-123", client, None)
     assert obj.object_id == "fc-123"
 
 
-def test_from_id(client, servicer):
+def test_from_id(client, servicer) -> None:
     app = App()
 
     @app.function(serialized=True)
@@ -547,7 +547,7 @@ def f(x):
     return x**2
 
 
-def test_allow_cross_region_volumes(client, servicer):
+def test_allow_cross_region_volumes(client, servicer) -> None:
     app = App()
     vol1 = NetworkFileSystem.from_name("xyz-1", create_if_missing=True)
     vol2 = NetworkFileSystem.from_name("xyz-2", create_if_missing=True)
@@ -562,7 +562,7 @@ def test_allow_cross_region_volumes(client, servicer):
                 assert svm.allow_cross_region
 
 
-def test_allow_cross_region_volumes_webhook(client, servicer):
+def test_allow_cross_region_volumes_webhook(client, servicer) -> None:
     # TODO(erikbern): this test seems a bit redundant
     app = App()
     vol1 = NetworkFileSystem.from_name("xyz-1", create_if_missing=True)
@@ -580,7 +580,7 @@ def test_allow_cross_region_volumes_webhook(client, servicer):
                 assert svm.allow_cross_region
 
 
-def test_serialize_deserialize_function_handle(servicer, client):
+def test_serialize_deserialize_function_handle(servicer, client) -> None:
     from modal._serialization import deserialize, serialize
 
     app = App()
@@ -602,7 +602,7 @@ def test_serialize_deserialize_function_handle(servicer, client):
         assert rehydrated_function_handle.web_url == "http://xyz.internal"
 
 
-def test_default_cloud_provider(client, servicer, monkeypatch):
+def test_default_cloud_provider(client, servicer, monkeypatch) -> None:
     app = App()
 
     monkeypatch.setenv("MODAL_DEFAULT_CLOUD", "oci")
@@ -614,7 +614,7 @@ def test_default_cloud_provider(client, servicer, monkeypatch):
     assert f.cloud_provider == api_pb2.CLOUD_PROVIDER_OCI
 
 
-def test_not_hydrated():
+def test_not_hydrated() -> None:
     with pytest.raises(ExecutionError):
         assert foo.remote(2, 4) == 20
 
@@ -643,12 +643,12 @@ def test_invalid_large_serialization(client):
             pass
 
 
-def test_call_unhydrated_function():
+def test_call_unhydrated_function() -> None:
     with pytest.raises(ExecutionError, match="hydrated"):
         foo.remote(123)
 
 
-def test_deps_explicit(client, servicer):
+def test_deps_explicit(client, servicer) -> None:
     app = App()
 
     image = Image.debian_slim()
@@ -670,7 +670,7 @@ def assert_is_wrapped_dict(some_arg):
     return some_arg
 
 
-def test_calls_should_not_unwrap_modal_objects(servicer, client):
+def test_calls_should_not_unwrap_modal_objects(servicer, client) -> None:
     some_modal_object = modal.Dict.lookup("blah", create_if_missing=True, client=client)
 
     app = App()
@@ -691,12 +691,12 @@ def test_calls_should_not_unwrap_modal_objects(servicer, client):
     assert len(servicer.client_calls) == 5
 
 
-def assert_is_wrapped_dict_gen(some_arg):
+def assert_is_wrapped_dict_gen(some_arg) -> None:
     assert type(some_arg) == modal.Dict  # this should not be a modal._Dict unwrapped instance!
     yield some_arg
 
 
-def test_calls_should_not_unwrap_modal_objects_gen(servicer, client):
+def test_calls_should_not_unwrap_modal_objects_gen(servicer, client) -> None:
     some_modal_object = modal.Dict.lookup("blah", create_if_missing=True, client=client)
 
     app = App()
@@ -711,7 +711,7 @@ def test_calls_should_not_unwrap_modal_objects_gen(servicer, client):
     assert len(servicer.client_calls) == 2
 
 
-def test_mount_deps_have_ids(client, servicer, monkeypatch, test_dir):
+def test_mount_deps_have_ids(client, servicer, monkeypatch, test_dir) -> None:
     # This test can possibly break if a function's deps diverge between
     # local and remote environments
     monkeypatch.syspath_prepend(test_dir / "supports")
@@ -727,7 +727,7 @@ def test_mount_deps_have_ids(client, servicer, monkeypatch, test_dir):
         assert dep.object_id
 
 
-def test_no_state_reuse(client, servicer, supports_dir):
+def test_no_state_reuse(client, servicer, supports_dir) -> None:
     # two separate instances of the same mount content - triggers deduplication logic
     mount_instance_1 = Mount.from_local_file(supports_dir / "pyproject.toml")
     mount_instance_2 = Mount.from_local_file(supports_dir / "pyproject.toml")
@@ -746,7 +746,7 @@ def test_no_state_reuse(client, servicer, supports_dir):
 
 
 @pytest.mark.asyncio
-async def test_map_large_inputs(client, servicer, monkeypatch, blob_server):
+async def test_map_large_inputs(client, servicer, monkeypatch, blob_server) -> None:
     # TODO: tests making use of mock blob server currently have to be async, since the
     #  blob server runs as an async pytest fixture which will have its event loop blocked
     #  by the test itself otherwise... Should move to its own thread.
@@ -765,7 +765,7 @@ async def test_map_large_inputs(client, servicer, monkeypatch, blob_server):
 
 
 @pytest.mark.asyncio
-async def test_non_aio_map_in_async_caller_error(client):
+async def test_non_aio_map_in_async_caller_error(client) -> None:
     dummy_function = app.function()(dummy)
 
     with app.run(client=client):
@@ -783,7 +783,7 @@ async def test_non_aio_map_in_async_caller_error(client):
         assert res == [1, 4, 16]
 
 
-def test_warn_on_local_volume_mount(client, servicer):
+def test_warn_on_local_volume_mount(client, servicer) -> None:
     vol = modal.Volume.from_name("my-vol")
     dummy_function = app.function(volumes={"/foo": vol})(dummy)
 
@@ -793,11 +793,11 @@ def test_warn_on_local_volume_mount(client, servicer):
 
 
 class X:
-    def f(self):
+    def f(self) -> None:
         ...
 
 
-def test_function_decorator_on_method():
+def test_function_decorator_on_method() -> None:
     app = modal.App()
 
     with pytest.raises(InvalidError, match="@app.cls"):

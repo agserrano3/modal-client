@@ -113,7 +113,7 @@ class _CliUserExecutionError(Exception):
     the CLI at this stage will have tracebacks printed.
     """
 
-    def __init__(self, user_source: str):
+    def __init__(self, user_source: str) -> None:
         # `user_source` should be the filepath for the user code that is the source of the exception.
         # This is used by our exception handler to show the traceback starting from that point.
         self.user_source = user_source
@@ -128,7 +128,7 @@ def _is_internal_frame(frame):
     return module in _INTERNAL_MODULES
 
 
-def deprecation_error(deprecated_on: Tuple[int, int, int], msg: str):
+def deprecation_error(deprecated_on: Tuple[int, int, int], msg: str) -> None:
     raise DeprecationError(f"Deprecated on {date(*deprecated_on)}: {msg}")
 
 
@@ -158,12 +158,12 @@ def deprecation_warning(
     warnings.warn_explicit(f"{date(*deprecated_on)}: {msg}", warning_cls, filename, lineno)
 
 
-def _simulate_preemption_interrupt(signum, frame):
+def _simulate_preemption_interrupt(signum, frame) -> None:
     signal.alarm(30)  # simulate a SIGKILL after 30s
     raise KeyboardInterrupt("Simulated preemption interrupt from modal-client!")
 
 
-def simulate_preemption(wait_seconds: int, jitter_seconds: int = 0):
+def simulate_preemption(wait_seconds: int, jitter_seconds: int = 0) -> None:
     """
     Utility for simulating a preemption interrupt after `wait_seconds` seconds.
     The first interrupt is the SIGINT signal. After 30 seconds, a second

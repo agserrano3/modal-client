@@ -64,7 +64,7 @@ async def _watch_paths(paths: Set[Path], watch_filter: AppFilesFilter) -> AsyncG
         pass
 
 
-def _print_watched_paths(paths: Set[Path]):
+def _print_watched_paths(paths: Set[Path]) -> None:
     msg = "️️⚡️ Serving... hit Ctrl-C to stop!"
 
     output_tree = Tree(msg, guide_style="gray50")

@@ -23,7 +23,7 @@ dict_cli = Typer(
 
 @dict_cli.command(name="create", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def create(name: str, *, env: Optional[str] = ENV_OPTION):
+async def create(name: str, *, env: Optional[str] = ENV_OPTION) -> None:
     """Create a named Dict object.
 
     Note: This is a no-op when the Dict already exists.
@@ -36,7 +36,7 @@ async def create(name: str, *, env: Optional[str] = ENV_OPTION):
 
 @dict_cli.command(name="list", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION):
+async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION) -> None:
     """List all named Dicts."""
     env = ensure_env(env)
     client = await _Client.from_env()
@@ -49,7 +49,7 @@ async def list(*, json: bool = False, env: Optional[str] = ENV_OPTION):
 
 @dict_cli.command("clear", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def clear(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION):
+async def clear(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION) -> None:
     """Clear the contents of a named Dict by deleting all of its data."""
     d = await _Dict.lookup(name, environment_name=env)
     if not yes:
@@ -63,7 +63,7 @@ async def clear(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_O
 
 @dict_cli.command(name="delete", rich_help_panel="Management")
 @synchronizer.create_blocking
-async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION):
+async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_OPTION) -> None:
     """Delete a named Dict and all of its data."""
     # Lookup first to validate the name, even though delete is a staticmethod
     await _Dict.lookup(name, environment_name=env)
@@ -78,7 +78,7 @@ async def delete(name: str, *, yes: bool = YES_OPTION, env: Optional[str] = ENV_
 
 @dict_cli.command(name="get", rich_help_panel="Inspection")
 @synchronizer.create_blocking
-async def get(name: str, key: str, *, env: Optional[str] = ENV_OPTION):
+async def get(name: str, key: str, *, env: Optional[str] = ENV_OPTION) -> None:
     """Print the value for a specific key.
 
     Note: When using the CLI, keys are always interpreted as having a string type.
@@ -99,7 +99,7 @@ async def items(
     use_repr: bool = Option(False, "-r", "--repr", help="Display items using `repr()` to see more details"),
     json: bool = False,
     env: Optional[str] = ENV_OPTION,
-):
+) -> None:
     """Print the contents of a Dict.
 
     Note: By default, this command truncates the contents. Use the `N` argument to control the

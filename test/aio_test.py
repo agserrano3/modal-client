@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_new(servicer, client):
+async def test_new(servicer, client) -> None:
     from modal import App
 
     app = App()

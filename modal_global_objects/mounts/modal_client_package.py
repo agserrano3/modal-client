@@ -7,7 +7,7 @@ from modal.mount import (
 from modal_proto import api_pb2
 
 
-def publish_client_mount(client):
+def publish_client_mount(client) -> None:
     mount = create_client_mount()
     name = client_mount_name()
     profile_environment = config.get("environment")
@@ -21,7 +21,7 @@ def publish_client_mount(client):
     print(f"✅ Deployed client mount {name} to global namespace.")
 
 
-def main(client=None):
+def main(client=None) -> None:
     publish_client_mount(client)
 
 

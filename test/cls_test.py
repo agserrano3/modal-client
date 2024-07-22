@@ -47,7 +47,7 @@ class Foo:
         return x**3
 
 
-def test_run_class(client, servicer):
+def test_run_class(client, servicer) -> None:
     assert servicer.n_functions == 0
     with app.run(client=client):
         method_id = Foo.bar.object_id
@@ -68,7 +68,7 @@ def test_run_class(client, servicer):
     assert servicer.app_functions[class_function_id].is_class
 
 
-def test_call_class_sync(client, servicer):
+def test_call_class_sync(client, servicer) -> None:
     with servicer.intercept() as ctx:
         with app.run(client=client):
             assert len(ctx.get_requests("FunctionCreate")) == 2  # one for base function, one for the method
@@ -94,7 +94,7 @@ def test_call_class_sync(client, servicer):
     assert function_map_request.function_id == service_function_id
 
 
-def test_class_with_options(client, servicer):
+def test_class_with_options(client, servicer) -> None:
     with app.run(client=client):
         foo = Foo.with_options(cpu=48, retries=5)()  # type: ignore
         res = foo.bar.remote(2)
@@ -122,14 +122,14 @@ class FooRemote:
         return z**3
 
 
-def test_call_cls_remote_sync(client):
+def test_call_cls_remote_sync(client) -> None:
     with app_remote.run(client=client):
         foo_remote: FooRemote = FooRemote(3, "hello")
         ret: float = foo_remote.bar.remote(8)
         assert ret == 64  # Mock servicer just squares the argument
 
 
-def test_call_cls_remote_invalid_type(client):
+def test_call_cls_remote_invalid_type(client) -> None:
     with app_remote.run(client=client):
 
         def my_function():
@@ -142,7 +142,7 @@ def test_call_cls_remote_invalid_type(client):
         assert "function" in str(exc)
 
 
-def test_call_cls_remote_modal_type(client):
+def test_call_cls_remote_modal_type(client) -> None:
     with app_remote.run(client=client):
         with Queue.ephemeral(client) as q:
             FooRemote(42, q)  # type: ignore
@@ -159,7 +159,7 @@ class Bar:
 
 
 @pytest.mark.asyncio
-async def test_call_class_async(client, servicer):
+async def test_call_class_async(client, servicer) -> None:
     async with app_2.run(client=client):
         bar = Bar()
         assert await bar.baz.remote.aio(42) == 1764
@@ -205,7 +205,7 @@ class BarRemote:
 
 
 @pytest.mark.asyncio
-async def test_call_cls_remote_async(client):
+async def test_call_cls_remote_async(client) -> None:
     async with app_remote_2.run(client=client):
         bar_remote = BarRemote(3, "hello")
         assert await bar_remote.baz.remote.aio(8) == 64  # Mock servicer just squares the argument
@@ -216,15 +216,15 @@ app_local = App()
 
 @app_local.cls(cpu=42, enable_memory_snapshot=True)
 class FooLocal:
-    def __init__(self):
+    def __init__(self) -> None:
         self.side_effects = ["__init__"]
 
     @enter(snap=True)
-    def presnap(self):
+    def presnap(self) -> None:
         self.side_effects.append("presnap")
 
     @enter()
-    def postsnap(self):
+    def postsnap(self) -> None:
         self.side_effects.append("postsnap")
 
     @method()
@@ -236,7 +236,7 @@ class FooLocal:
         return self.bar.local(y + 1)
 
 
-def test_can_call_locally(client):
+def test_can_call_locally(client) -> None:
     foo = FooLocal()
     assert foo.bar.local(4) == 64
     assert foo.baz.local(4) == 125
@@ -245,7 +245,7 @@ def test_can_call_locally(client):
         assert foo.side_effects == ["__init__", "presnap", "postsnap"]
 
 
-def test_can_call_remotely_from_local(client):
+def test_can_call_remotely_from_local(client) -> None:
     with app_local.run(client=client):
         foo = FooLocal()
         # remote calls use the mockservicer func impl
@@ -267,7 +267,7 @@ class NoArgRemote:
         return z**3
 
 
-def test_call_cls_remote_no_args(client):
+def test_call_cls_remote_no_args(client) -> None:
     with app_remote_3.run(client=client):
         foo_remote = NoArgRemote()
         assert foo_remote.baz.remote(8) == 64  # Mock servicer just squares the argument
@@ -279,7 +279,7 @@ if TYPE_CHECKING:
     assert_type(Foo().bar, Function)
 
 
-def test_lookup(client, servicer):
+def test_lookup(client, servicer) -> None:
     deploy_app(app, "my-cls-app", client=client)
 
     cls: Cls = Cls.lookup("my-cls-app", "Foo", client=client)
@@ -302,7 +302,7 @@ def test_lookup(client, servicer):
         assert obj.bar.local(1, 2)
 
 
-def test_lookup_lazy_remote(client, servicer):
+def test_lookup_lazy_remote(client, servicer) -> None:
     # See #972 (PR) and #985 (revert PR): adding unit test to catch regression
     deploy_app(app, "my-cls-app", client=client)
     cls: Cls = Cls.lookup("my-cls-app", "Foo", client=client)
@@ -310,7 +310,7 @@ def test_lookup_lazy_remote(client, servicer):
     assert obj.bar.remote(42, 77) == 7693
 
 
-def test_lookup_lazy_spawn(client, servicer):
+def test_lookup_lazy_spawn(client, servicer) -> None:
     # See #1071
     deploy_app(app, "my-cls-app", client=client)
     cls: Cls = Cls.lookup("my-cls-app", "Foo", client=client)
@@ -324,14 +324,14 @@ baz_app = App()
 
 @baz_app.cls()
 class Baz:
-    def __init__(self, x):
+    def __init__(self, x) -> None:
         self.x = x
 
     def not_modal_method(self, y: int) -> int:
         return self.x * y
 
 
-def test_call_not_modal_method():
+def test_call_not_modal_method() -> None:
     baz: Baz = Baz(5)
     assert baz.x == 5
     assert baz.not_modal_method(7) == 35
@@ -346,14 +346,14 @@ def get_thread_id():
 
 @cls_with_enter_app.cls()
 class ClsWithEnter:
-    def __init__(self, thread_id):
+    def __init__(self, thread_id) -> None:
         self.inited = True
         self.entered = False
         self.thread_id = thread_id
         assert get_thread_id() == self.thread_id
 
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         self.entered = True
         assert get_thread_id() == self.thread_id
 
@@ -365,7 +365,7 @@ class ClsWithEnter:
         return y**2
 
 
-def test_dont_enter_on_local_access():
+def test_dont_enter_on_local_access() -> None:
     obj = ClsWithEnter(get_thread_id())
     with pytest.raises(AttributeError):
         obj.doesnt_exist  # type: ignore
@@ -373,14 +373,14 @@ def test_dont_enter_on_local_access():
     assert not obj.entered
 
 
-def test_dont_enter_on_local_non_modal_call():
+def test_dont_enter_on_local_non_modal_call() -> None:
     obj = ClsWithEnter(get_thread_id())
     assert obj.not_modal_method(7) == 49
     assert obj.inited
     assert not obj.entered
 
 
-def test_enter_on_local_modal_call():
+def test_enter_on_local_modal_call() -> None:
     obj = ClsWithEnter(get_thread_id())
     assert obj.modal_method.local(7) == 49
     assert obj.inited
@@ -389,12 +389,12 @@ def test_enter_on_local_modal_call():
 
 @cls_with_enter_app.cls()
 class ClsWithAsyncEnter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.inited = True
         self.entered = False
 
     @enter()
-    async def enter(self):
+    async def enter(self) -> None:
         self.entered = True
 
     @method()
@@ -403,7 +403,7 @@ class ClsWithAsyncEnter:
 
 
 @pytest.mark.asyncio
-async def test_async_enter_on_local_modal_call():
+async def test_async_enter_on_local_modal_call() -> None:
     obj = ClsWithAsyncEnter()
     assert await obj.modal_method.local(7) == 49
     assert obj.inited
@@ -415,7 +415,7 @@ inheritance_app = App()
 
 class BaseCls:
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         self.x = 2
 
     @method()
@@ -428,7 +428,7 @@ class DerivedCls(BaseCls):
     pass
 
 
-def test_derived_cls(client, servicer):
+def test_derived_cls(client, servicer) -> None:
     with inheritance_app.run(client=client):
         # default servicer fn just squares the number
         assert DerivedCls().run.remote(3) == 9
@@ -442,13 +442,13 @@ class DerivedCls2(BaseCls2):
     pass
 
 
-def test_derived_cls_external_file(client, servicer):
+def test_derived_cls_external_file(client, servicer) -> None:
     with inheritance_app_2.run(client=client):
         # default servicer fn just squares the number
         assert DerivedCls2().run.remote(3) == 9
 
 
-def test_rehydrate(client, servicer, reset_container_app):
+def test_rehydrate(client, servicer, reset_container_app) -> None:
     # Issue introduced in #922 - brief description in #931
 
     # Sanity check that local calls work
@@ -475,11 +475,11 @@ app_unhydrated = App()
 @app_unhydrated.cls()
 class FooUnhydrated:
     @method()
-    def bar(self):
+    def bar(self) -> None:
         ...
 
 
-def test_unhydrated():
+def test_unhydrated() -> None:
     foo = FooUnhydrated()
     with pytest.raises(ExecutionError, match="hydrated"):
         foo.bar.remote(42)
@@ -491,15 +491,15 @@ app_method_args = App()
 @app_method_args.cls(keep_warm=5)
 class XYZ:
     @method()  # warns - keep_warm is not supported on methods anymore
-    def foo(self):
+    def foo(self) -> None:
         ...
 
     @method()  # warns - keep_warm is not supported on methods anymore
-    def bar(self):
+    def bar(self) -> None:
         ...
 
 
-def test_method_args(servicer, client):
+def test_method_args(servicer, client) -> None:
     with app_method_args.run(client=client):
         funcs = servicer.app_functions.values()
         assert {f.function_name for f in funcs} == {"XYZ.*", "XYZ.foo", "XYZ.bar"}
@@ -509,7 +509,7 @@ def test_method_args(servicer, client):
         assert set(warm_pools.values()) == {0}  # methods don't have warm pools themselves
 
 
-def test_keep_warm_depr(client, set_env_client):
+def test_keep_warm_depr(client, set_env_client) -> None:
     app = App()
 
     with pytest.warns(PendingDeprecationError, match="keep_warm"):
@@ -529,7 +529,7 @@ def test_keep_warm_depr(client, set_env_client):
             ClsWithKeepWarmMethod().bar.keep_warm(2)  # should not be usable on methods
 
 
-def test_cls_keep_warm(client, servicer):
+def test_cls_keep_warm(client, servicer) -> None:
     app = App()
 
     @app.cls(serialized=True)
@@ -566,28 +566,28 @@ def test_cls_keep_warm(client, servicer):
 
 class ClsWithHandlers:
     @build()
-    def my_build(self):
+    def my_build(self) -> None:
         pass
 
     @enter(snap=True)
-    def my_memory_snapshot(self):
+    def my_memory_snapshot(self) -> None:
         pass
 
     @enter()
-    def my_enter(self):
+    def my_enter(self) -> None:
         pass
 
     @build()
     @enter()
-    def my_build_and_enter(self):
+    def my_build_and_enter(self) -> None:
         pass
 
     @exit()
-    def my_exit(self):
+    def my_exit(self) -> None:
         pass
 
 
-def test_handlers():
+def test_handlers() -> None:
     pfs: Dict[str, _PartialFunction]
 
     pfs = _find_partial_methods_for_user_cls(ClsWithHandlers, _PartialFunctionFlags.BUILD)
@@ -609,15 +609,15 @@ web_app_app = App()
 @web_app_app.cls()
 class WebCls:
     @web_endpoint()
-    def endpoint(self):
+    def endpoint(self) -> None:
         pass
 
     @asgi_app()
-    def asgi(self):
+    def asgi(self) -> None:
         pass
 
 
-def test_web_cls(client):
+def test_web_cls(client) -> None:
     with web_app_app.run(client=client):
         c = WebCls()
         assert c.endpoint.web_url == "http://xyz.internal"
@@ -633,15 +633,15 @@ image = Image.debian_slim().pip_install("xyz")
 @handler_app.cls(image=image)
 class ClsWithBuild:
     @build()
-    def build(self):
+    def build(self) -> None:
         pass
 
     @method()
-    def method(self):
+    def method(self) -> None:
         pass
 
 
-def test_build_image(client, servicer):
+def test_build_image(client, servicer) -> None:
     with handler_app.run(client=client):
         service_function = servicer.function_by_name("ClsWithBuild.*")
         # The function image should have added a new layer with original image as the parent
@@ -650,7 +650,7 @@ def test_build_image(client, servicer):
 
 
 @pytest.mark.parametrize("decorator", [build, enter, exit])
-def test_disallow_lifecycle_decorators_with_method(decorator):
+def test_disallow_lifecycle_decorators_with_method(decorator) -> None:
     name = decorator.__name__.split("_")[-1]  # remove synchronicity prefix
     with pytest.raises(InvalidError, match=f"Cannot use `@{name}` decorator with `@method`."):
 
@@ -718,15 +718,15 @@ async def test_deprecated_async_methods():
 
 class HasSnapMethod:
     @enter(snap=True)
-    def enter(self):
+    def enter(self) -> None:
         pass
 
     @method()
-    def f(self):
+    def f(self) -> None:
         pass
 
 
-def test_snap_method_without_snapshot_enabled():
+def test_snap_method_without_snapshot_enabled() -> None:
     with pytest.raises(InvalidError, match="A class must have `enable_memory_snapshot=True`"):
         app.cls(enable_memory_snapshot=False)(HasSnapMethod)
 
@@ -773,7 +773,7 @@ def test_partial_function_descriptors(client):
     assert synchronizer._translate_in(revived_class.web).webhook_config.type == api_pb2.WEBHOOK_TYPE_FUNCTION
 
 
-def test_cross_process_userclass_serde(supports_dir):
+def test_cross_process_userclass_serde(supports_dir) -> None:
     res = subprocess.check_output([sys.executable, supports_dir / "serialize_class.py"])
     assert len(res) < 2000  # should be ~1300 bytes as of 2024-06-05
     revived_cls = deserialize(res, None)
@@ -782,7 +782,7 @@ def test_cross_process_userclass_serde(supports_dir):
     assert revived_cls().method() == "a"  # this should be bound to the object
 
 
-def test_cls_strict_parameters_added_to_definition(client, servicer, monkeypatch):
+def test_cls_strict_parameters_added_to_definition(client, servicer, monkeypatch) -> None:
     monkeypatch.setenv("MODAL_STRICT_PARAMETERS", "1")
     monkeypatch.setenv("MODAL_AUTOMOUNT", "0")
 
@@ -807,7 +807,7 @@ def test_cls_strict_parameters_added_to_definition(client, servicer, monkeypatch
     )
 
 
-def test_cls_strict_parameters_unsupported_type(client, servicer, monkeypatch):
+def test_cls_strict_parameters_unsupported_type(client, servicer, monkeypatch) -> None:
     monkeypatch.setenv("MODAL_STRICT_PARAMETERS", "1")
     monkeypatch.setenv("MODAL_AUTOMOUNT", "0")
 
@@ -822,7 +822,7 @@ def test_cls_strict_parameters_unsupported_type(client, servicer, monkeypatch):
         deploy_app(strict_param_cls_app, "my-cls-app", client=client)
 
 
-def test_cls_strict_parameters_without_type(client, servicer, monkeypatch):
+def test_cls_strict_parameters_without_type(client, servicer, monkeypatch) -> None:
     monkeypatch.setenv("MODAL_STRICT_PARAMETERS", "1")
     monkeypatch.setenv("MODAL_AUTOMOUNT", "0")
 
@@ -838,21 +838,21 @@ def test_cls_strict_parameters_without_type(client, servicer, monkeypatch):
 
 
 class ParameterizedClass1:
-    def __init__(self, a):
+    def __init__(self, a) -> None:
         pass
 
 
 class ParameterizedClass2:
-    def __init__(self, a: int = 1):
+    def __init__(self, a: int = 1) -> None:
         pass
 
 
 class ParameterizedClass3:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
-def test_disabled_parameterized_snap_cls():
+def test_disabled_parameterized_snap_cls() -> None:
     with pytest.raises(InvalidError, match="Cannot use class parameterization in class"):
         app.cls(enable_memory_snapshot=True)(ParameterizedClass1)
 

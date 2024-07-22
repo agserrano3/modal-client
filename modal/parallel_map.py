@@ -34,13 +34,13 @@ class _SynchronizedQueue:
     """mdmd:hidden"""
 
     # small wrapper around asyncio.Queue to make it cross-thread compatible through synchronicity
-    async def init(self):
+    async def init(self) -> None:
         # in Python 3.8 the asyncio.Queue is bound to the event loop on creation
         # so it needs to be created in a synchronicity-wrapped init method
         self.q = asyncio.Queue()
 
     @synchronizer.no_io_translation
-    async def put(self, item):
+    async def put(self, item) -> None:
         await self.q.put(item)
 
     @synchronizer.no_io_translation
@@ -339,7 +339,7 @@ async def _map_async(
         feed_input_task.cancel()  # should only be needed in case of exceptions
 
 
-def _for_each_sync(self, *input_iterators, kwargs={}, ignore_exceptions: bool = False):
+def _for_each_sync(self, *input_iterators, kwargs={}, ignore_exceptions: bool = False) -> None:
     """Execute function for all inputs, ignoring outputs.
 
     Convenient alias for `.map()` in cases where the function just needs to be called.
@@ -351,7 +351,7 @@ def _for_each_sync(self, *input_iterators, kwargs={}, ignore_exceptions: bool = 
         pass
 
 
-async def _for_each_async(self, *input_iterators, kwargs={}, ignore_exceptions: bool = False):
+async def _for_each_async(self, *input_iterators, kwargs={}, ignore_exceptions: bool = False) -> None:
     async for _ in self.map.aio(  # type: ignore
         *input_iterators, kwargs=kwargs, order_outputs=False, return_exceptions=ignore_exceptions
     ):

@@ -6,18 +6,18 @@ from modal.exception import DeprecationError, InvalidError
 from modal_proto import api_pb2
 
 
-def dummy():
+def dummy() -> None:
     pass  # not actually used in test (servicer returns sum of square of all args)
 
 
-def test_gpu_true_function(client, servicer):
+def test_gpu_true_function(client, servicer) -> None:
     app = App()
 
     with pytest.raises(DeprecationError):
         app.function(gpu=True)(dummy)
 
 
-def test_gpu_any_function(client, servicer):
+def test_gpu_any_function(client, servicer) -> None:
     app = App()
 
     app.function(gpu="any")(dummy)
@@ -30,7 +30,7 @@ def test_gpu_any_function(client, servicer):
     assert func_def.resources.gpu_config.type == api_pb2.GPU_TYPE_ANY
 
 
-def test_gpu_string_config(client, servicer):
+def test_gpu_string_config(client, servicer) -> None:
     app = App()
 
     # Invalid enum value.
@@ -47,7 +47,7 @@ def test_gpu_string_config(client, servicer):
     assert func_def.resources.gpu_config.type == api_pb2.GPU_TYPE_A100
 
 
-def test_gpu_string_count_config(client, servicer):
+def test_gpu_string_count_config(client, servicer) -> None:
     app = App()
 
     # Invalid count values.
@@ -66,7 +66,7 @@ def test_gpu_string_count_config(client, servicer):
     assert func_def.resources.gpu_config.type == api_pb2.GPU_TYPE_A10G
 
 
-def test_gpu_config_function(client, servicer):
+def test_gpu_config_function(client, servicer) -> None:
     import modal
 
     app = App()
@@ -81,7 +81,7 @@ def test_gpu_config_function(client, servicer):
     assert func_def.resources.gpu_config.type == api_pb2.GPU_TYPE_A100
 
 
-def test_cloud_provider_selection(client, servicer):
+def test_cloud_provider_selection(client, servicer) -> None:
     import modal
 
     app = App()
@@ -109,7 +109,7 @@ def test_cloud_provider_selection(client, servicer):
         ("80GB", api_pb2.GPU_TYPE_A100_80GB, 80),
     ],
 )
-def test_memory_selection_gpu_variant(client, servicer, memory_arg, gpu_type, memory_gb):
+def test_memory_selection_gpu_variant(client, servicer, memory_arg, gpu_type, memory_gb) -> None:
     import modal
 
     app = App()
@@ -128,7 +128,7 @@ def test_memory_selection_gpu_variant(client, servicer, memory_arg, gpu_type, me
     assert func_def.resources.gpu_config.memory == memory_gb
 
 
-def test_gpu_unsupported_config():
+def test_gpu_unsupported_config() -> None:
     import modal
 
     app = App()
@@ -141,7 +141,7 @@ def test_gpu_unsupported_config():
 
 
 @pytest.mark.parametrize("count", [1, 2, 3, 4])
-def test_gpu_type_selection_from_count(client, servicer, count):
+def test_gpu_type_selection_from_count(client, servicer, count) -> None:
     import modal
 
     app = App()

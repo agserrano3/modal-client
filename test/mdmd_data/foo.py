@@ -9,11 +9,11 @@ some_dict = {}  # type: ignore
 class Foo:
     """A class that foos"""
 
-    def bar(self):
+    def bar(self) -> None:
         pass
 
 
-def funky():
+def funky() -> None:
     """funks the baz
 
     **Usage**
@@ -28,7 +28,7 @@ def funky():
     pass
 
 
-def hidden():
+def hidden() -> None:
     """mdmd:hidden
 
     This is marked as hidden in docs and shouldn't be shown"""

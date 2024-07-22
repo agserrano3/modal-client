@@ -6,7 +6,7 @@ from modal.exception import ExecutionError, NotFoundError
 from modal.runner import deploy_app
 
 
-def test_persistent_object(servicer, client):
+def test_persistent_object(servicer, client) -> None:
     volume_id = Volume.create_deployed("my-volume", client=client)
 
     v: Volume = Volume.lookup("my-volume", client=client)
@@ -17,12 +17,12 @@ def test_persistent_object(servicer, client):
         Volume.lookup("bazbazbaz", client=client)
 
 
-def square(x):
+def square(x) -> None:
     # This function isn't deployed anyway
     pass
 
 
-def test_lookup_function(servicer, client):
+def test_lookup_function(servicer, client) -> None:
     app = App()
 
     app.function()(square)
@@ -46,7 +46,7 @@ def test_lookup_function(servicer, client):
         assert f.local(2, 4) == 20
 
 
-def test_webhook_lookup(servicer, client):
+def test_webhook_lookup(servicer, client) -> None:
     app = App()
     app.function()(web_endpoint(method="POST")(square))
     deploy_app(app, "my-webhook", client=client)
@@ -55,7 +55,7 @@ def test_webhook_lookup(servicer, client):
     assert f.web_url
 
 
-def test_deploy_exists(servicer, client):
+def test_deploy_exists(servicer, client) -> None:
     with pytest.raises(NotFoundError):
         Volume.lookup("my-volume", client=client)
     Volume.create_deployed("my-volume", client=client)
@@ -64,7 +64,7 @@ def test_deploy_exists(servicer, client):
     assert v1.object_id == v2.object_id
 
 
-def test_create_if_missing(servicer, client):
+def test_create_if_missing(servicer, client) -> None:
     v1: Volume = Volume.lookup("my-volume", create_if_missing=True, client=client)
     v2: Volume = Volume.lookup("my-volume", client=client)
     assert v1.object_id == v2.object_id

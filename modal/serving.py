@@ -25,7 +25,7 @@ else:
     _App = TypeVar("_App")
 
 
-def _run_serve(app_ref: str, existing_app_id: str, is_ready: Event, environment_name: str):
+def _run_serve(app_ref: str, existing_app_id: str, is_ready: Event, environment_name: str) -> None:
     # subprocess entrypoint
     _app = import_app(app_ref)
     blocking_app = synchronizer._translate_out(_app, Interface.BLOCKING)
@@ -67,7 +67,7 @@ async def _run_watch_loop(
     app_id: str,
     watcher: AsyncGenerator[Set[str], None],
     environment_name: str,
-):
+) -> None:
     unsupported_msg = None
     if platform.system() == "Windows":
         unsupported_msg = "Live-reload skipped. This feature is currently unsupported on Windows"

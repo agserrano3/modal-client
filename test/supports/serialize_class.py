@@ -8,7 +8,7 @@ from modal._serialization import serialize
 
 class UserCls:
     @enter()
-    def enter(self):
+    def enter(self) -> None:
         pass
 
     @method()
@@ -16,7 +16,7 @@ class UserCls:
         return "a"
 
     @web_endpoint()
-    def web_endpoint(self):
+    def web_endpoint(self) -> None:
         pass
 
 

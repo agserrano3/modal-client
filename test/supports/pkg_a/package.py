@@ -13,5 +13,5 @@ app = modal.App()
 
 
 @app.function()
-def f():
+def f() -> None:
     pass

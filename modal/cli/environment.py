@@ -28,7 +28,7 @@ environment_cli = typer.Typer(name="environment", help=ENVIRONMENT_HELP_TEXT, no
 
 
 class RenderableBool:
-    def __init__(self, value: bool):
+    def __init__(self, value: bool) -> None:
         self.value = value
 
     def __rich__(self):
@@ -36,7 +36,7 @@ class RenderableBool:
 
 
 @environment_cli.command(name="list", help="List all environments in the current workspace")
-def list(json: Optional[bool] = False):
+def list(json: Optional[bool] = False) -> None:
     envs = environments.list_environments()
     table_data = []
     for item in envs:
@@ -50,7 +50,7 @@ ENVIRONMENT_CREATE_HELP = """Create a new environment in the current workspace""
 
 
 @environment_cli.command(name="create", help=ENVIRONMENT_CREATE_HELP)
-def create(name: Annotated[str, typer.Argument(help="Name of the new environment. Must be unique. Case sensitive")]):
+def create(name: Annotated[str, typer.Argument(help="Name of the new environment. Must be unique. Case sensitive")]) -> None:
     check_environment_name(name)
 
     try:
@@ -72,7 +72,7 @@ Deletes all apps in the selected environment and deletes the environment irrevoc
 def delete(
     name: str = typer.Argument(help="Name of the environment to be deleted. Case sensitive"),
     confirm: bool = typer.Option(default=False, help="Set this flag to delete without prompting for confirmation"),
-):
+) -> None:
     if not confirm:
         typer.confirm(
             (
@@ -97,7 +97,7 @@ def update(
     set_web_suffix: Optional[str] = typer.Option(
         default=None, help="New web suffix of environment (empty string is no suffix)"
     ),
-):
+) -> None:
     if set_name is None and set_web_suffix is None:
         raise UsageError("You need to at least one new property (using --set-name or --set-web-suffix)")
 

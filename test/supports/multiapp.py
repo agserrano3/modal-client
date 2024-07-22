@@ -5,7 +5,7 @@ a = modal.App()
 
 
 @a.function()
-def a_func(i):
+def a_func(i) -> None:
     assert a_func.is_hydrated
     assert not b_func.is_hydrated
 
@@ -14,6 +14,6 @@ b = modal.App()
 
 
 @b.function()
-def b_func(i):
+def b_func(i) -> None:
     assert b_func.is_hydrated
     assert not a_func.is_hydrated

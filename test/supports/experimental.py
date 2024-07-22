@@ -14,7 +14,7 @@ app = App()
 @app.cls()
 class StopFetching:
     @enter()
-    def init(self):
+    def init(self) -> None:
         self.counter = 0
 
     @method()

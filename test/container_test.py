@@ -302,7 +302,7 @@ def _unwrap_asgi(ret: ContainerResult):
 
 
 @skip_github_non_linux
-def test_success(servicer, event_loop):
+def test_success(servicer, event_loop) -> None:
     t0 = time.time()
     ret = _run_container(servicer, "test.supports.functions", "square")
     assert 0 <= time.time() - t0 < EXTRA_TOLERANCE_DELAY
@@ -310,7 +310,7 @@ def test_success(servicer, event_loop):
 
 
 @skip_github_non_linux
-def test_generator_success(servicer, event_loop):
+def test_generator_success(servicer, event_loop) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -324,7 +324,7 @@ def test_generator_success(servicer, event_loop):
 
 
 @skip_github_non_linux
-def test_generator_failure(servicer, capsys):
+def test_generator_failure(servicer, capsys) -> None:
     inputs = _get_inputs(((10, 5), {}))
     ret = _run_container(
         servicer,
@@ -341,7 +341,7 @@ def test_generator_failure(servicer, capsys):
 
 
 @skip_github_non_linux
-def test_async(servicer):
+def test_async(servicer) -> None:
     t0 = time.time()
     ret = _run_container(servicer, "test.supports.functions", "square_async")
     assert SLEEP_DELAY <= time.time() - t0 < SLEEP_DELAY + EXTRA_TOLERANCE_DELAY
@@ -349,27 +349,27 @@ def test_async(servicer):
 
 
 @skip_github_non_linux
-def test_failure(servicer, capsys):
+def test_failure(servicer, capsys) -> None:
     ret = _run_container(servicer, "test.supports.functions", "raises")
     assert _unwrap_exception(ret) == "Exception('Failure!')"
     assert 'raise Exception("Failure!")' in capsys.readouterr().err  # traceback
 
 
 @skip_github_non_linux
-def test_raises_base_exception(servicer, capsys):
+def test_raises_base_exception(servicer, capsys) -> None:
     ret = _run_container(servicer, "test.supports.functions", "raises_sysexit")
     assert _unwrap_exception(ret) == "SystemExit(1)"
     assert "raise SystemExit(1)" in capsys.readouterr().err  # traceback
 
 
 @skip_github_non_linux
-def test_keyboardinterrupt(servicer):
+def test_keyboardinterrupt(servicer) -> None:
     with pytest.raises(KeyboardInterrupt):
         _run_container(servicer, "test.supports.functions", "raises_keyboardinterrupt")
 
 
 @skip_github_non_linux
-def test_rate_limited(servicer, event_loop):
+def test_rate_limited(servicer, event_loop) -> None:
     t0 = time.time()
     servicer.rate_limit_sleep_duration = 0.25
     ret = _run_container(servicer, "test.supports.functions", "square")
@@ -378,7 +378,7 @@ def test_rate_limited(servicer, event_loop):
 
 
 @skip_github_non_linux
-def test_grpc_failure(servicer, event_loop):
+def test_grpc_failure(servicer, event_loop) -> None:
     # An error in "Modal code" should cause the entire container to fail
     with pytest.raises(GRPCError):
         _run_container(
@@ -393,7 +393,7 @@ def test_grpc_failure(servicer, event_loop):
 
 
 @skip_github_non_linux
-def test_missing_main_conditional(servicer, capsys):
+def test_missing_main_conditional(servicer, capsys) -> None:
     _run_container(servicer, "test.supports.missing_main_conditional", "square")
     output = capsys.readouterr()
     assert "Can not run an app from within a container" in output.err
@@ -406,7 +406,7 @@ def test_missing_main_conditional(servicer, capsys):
 
 
 @skip_github_non_linux
-def test_startup_failure(servicer, capsys):
+def test_startup_failure(servicer, capsys) -> None:
     _run_container(servicer, "test.supports.startup_failure", "f")
 
     assert servicer.task_result.status == api_pb2.GenericResult.GENERIC_STATUS_FAILURE
@@ -417,7 +417,7 @@ def test_startup_failure(servicer, capsys):
 
 
 @skip_github_non_linux
-def test_from_local_python_packages_inside_container(servicer):
+def test_from_local_python_packages_inside_container(servicer) -> None:
     """`from_local_python_packages` shouldn't actually collect modules inside the container, because it's possible
     that there are modules that were present locally for the user that didn't get mounted into
     all the containers."""
@@ -439,7 +439,7 @@ def _get_web_inputs(path="/", method_name=""):
 
 # needs to be synchronized so the asyncio.Queue gets used from the same event loop as the servicer
 @async_utils.synchronize_api
-async def _put_web_body(servicer, body: bytes):
+async def _put_web_body(servicer, body: bytes) -> None:
     asgi = {"type": "http.request", "body": body, "more_body": False}
     data = serialize_data_format(asgi, api_pb2.DATA_FORMAT_ASGI)
 
@@ -448,7 +448,7 @@ async def _put_web_body(servicer, body: bytes):
 
 
 @skip_github_non_linux
-def test_webhook(servicer):
+def test_webhook(servicer) -> None:
     inputs = _get_web_inputs()
     _put_web_body(servicer, b"")
     ret = _run_container(
@@ -473,7 +473,7 @@ def test_webhook(servicer):
 
 
 @skip_github_non_linux
-def test_webhook_setup_failure(servicer):
+def test_webhook_setup_failure(servicer) -> None:
     inputs = _get_web_inputs()
     _put_web_body(servicer, b"")
     with servicer.intercept() as ctx:
@@ -533,7 +533,7 @@ def test_webhook_serialized(servicer):
 
 
 @skip_github_non_linux
-def test_function_returning_generator(servicer):
+def test_function_returning_generator(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -545,7 +545,7 @@ def test_function_returning_generator(servicer):
 
 
 @skip_github_non_linux
-def test_asgi(servicer):
+def test_asgi(servicer) -> None:
     inputs = _get_web_inputs(path="/foo")
     _put_web_body(servicer, b"")
     ret = _run_container(
@@ -569,7 +569,7 @@ def test_asgi(servicer):
 
 
 @skip_github_non_linux
-def test_wsgi(servicer):
+def test_wsgi(servicer) -> None:
     inputs = _get_web_inputs(path="/")
     _put_web_body(servicer, b"my wsgi body")
     ret = _run_container(
@@ -596,7 +596,7 @@ def test_wsgi(servicer):
 
 
 @skip_github_non_linux
-def test_webhook_streaming_sync(servicer):
+def test_webhook_streaming_sync(servicer) -> None:
     inputs = _get_web_inputs()
     _put_web_body(servicer, b"")
     ret = _run_container(
@@ -613,7 +613,7 @@ def test_webhook_streaming_sync(servicer):
 
 
 @skip_github_non_linux
-def test_webhook_streaming_async(servicer):
+def test_webhook_streaming_async(servicer) -> None:
     inputs = _get_web_inputs()
     _put_web_body(servicer, b"")
     ret = _run_container(
@@ -631,7 +631,7 @@ def test_webhook_streaming_async(servicer):
 
 
 @skip_github_non_linux
-def test_cls_function(servicer):
+def test_cls_function(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -643,7 +643,7 @@ def test_cls_function(servicer):
 
 
 @skip_github_non_linux
-def test_lifecycle_enter_sync(servicer):
+def test_lifecycle_enter_sync(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -655,7 +655,7 @@ def test_lifecycle_enter_sync(servicer):
 
 
 @skip_github_non_linux
-def test_lifecycle_enter_async(servicer):
+def test_lifecycle_enter_async(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -667,7 +667,7 @@ def test_lifecycle_enter_async(servicer):
 
 
 @skip_github_non_linux
-def test_param_cls_function(servicer):
+def test_param_cls_function(servicer) -> None:
     serialized_params = pickle.dumps(([111], {"y": "foo"}))
     ret = _run_container(
         servicer,
@@ -681,7 +681,7 @@ def test_param_cls_function(servicer):
 
 
 @skip_github_non_linux
-def test_param_cls_function_strict_params(servicer):
+def test_param_cls_function_strict_params(servicer) -> None:
     schema = [
         api_pb2.ClassParameterSpec(name="x", type=api_pb2.PARAM_TYPE_INT),
         api_pb2.ClassParameterSpec(name="y", type=api_pb2.PARAM_TYPE_STRING),
@@ -706,7 +706,7 @@ def test_param_cls_function_strict_params(servicer):
 
 
 @skip_github_non_linux
-def test_cls_web_endpoint(servicer):
+def test_cls_web_endpoint(servicer) -> None:
     inputs = _get_web_inputs(method_name="web")
     ret = _run_container(
         servicer,
@@ -721,7 +721,7 @@ def test_cls_web_endpoint(servicer):
 
 
 @skip_github_non_linux
-def test_cls_web_asgi_construction(servicer):
+def test_cls_web_asgi_construction(servicer) -> None:
     servicer.app_objects.setdefault("ap-1", {}).setdefault("square", "fu-2")
     servicer.app_functions["fu-2"] = api_pb2.FunctionHandleMetadata()
 
@@ -771,7 +771,7 @@ def test_serialized_cls(servicer):
 
 
 @skip_github_non_linux
-def test_cls_generator(servicer):
+def test_cls_generator(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -786,7 +786,7 @@ def test_cls_generator(servicer):
 
 
 @skip_github_non_linux
-def test_checkpointing_cls_function(servicer):
+def test_checkpointing_cls_function(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -803,7 +803,7 @@ def test_checkpointing_cls_function(servicer):
 
 
 @skip_github_non_linux
-def test_cls_enter_uses_event_loop(servicer):
+def test_cls_enter_uses_event_loop(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -815,7 +815,7 @@ def test_cls_enter_uses_event_loop(servicer):
 
 
 @skip_github_non_linux
-def test_container_heartbeats(servicer):
+def test_container_heartbeats(servicer) -> None:
     _run_container(servicer, "test.supports.functions", "square")
     assert any(isinstance(request, api_pb2.ContainerHeartbeatRequest) for request in servicer.requests)
 
@@ -824,7 +824,7 @@ def test_container_heartbeats(servicer):
 
 
 @skip_github_non_linux
-def test_cli(servicer):
+def test_cli(servicer) -> None:
     # This tests the container being invoked as a subprocess (the if __name__ == "__main__" block)
 
     # Build up payload we pass through sys args
@@ -865,14 +865,14 @@ def test_cli(servicer):
 
 
 @skip_github_non_linux
-def test_function_sibling_hydration(servicer):
+def test_function_sibling_hydration(servicer) -> None:
     deploy_app_externally(servicer, "test.supports.functions", "app", capture_output=False)
     ret = _run_container(servicer, "test.supports.functions", "check_sibling_hydration")
     assert _unwrap_scalar(ret) is None
 
 
 @skip_github_non_linux
-def test_multiapp(servicer, caplog):
+def test_multiapp(servicer, caplog) -> None:
     deploy_app_externally(servicer, "test.supports.multiapp", "a")
     ret = _run_container(servicer, "test.supports.multiapp", "a_func")
     assert _unwrap_scalar(ret) is None
@@ -882,7 +882,7 @@ def test_multiapp(servicer, caplog):
 
 
 @skip_github_non_linux
-def test_multiapp_privately_decorated(servicer, caplog):
+def test_multiapp_privately_decorated(servicer, caplog) -> None:
     # function handle does not override the original function, so we can't find the app
     # and the two apps are not named
     ret = _run_container(servicer, "test.supports.multiapp_privately_decorated", "foo")
@@ -891,7 +891,7 @@ def test_multiapp_privately_decorated(servicer, caplog):
 
 
 @skip_github_non_linux
-def test_multiapp_privately_decorated_named_app(servicer, caplog):
+def test_multiapp_privately_decorated_named_app(servicer, caplog) -> None:
     # function handle does not override the original function, so we can't find the app
     # but we can use the names of the apps to determine the active app
     ret = _run_container(
@@ -905,7 +905,7 @@ def test_multiapp_privately_decorated_named_app(servicer, caplog):
 
 
 @skip_github_non_linux
-def test_multiapp_same_name_warning(servicer, caplog, capsys):
+def test_multiapp_same_name_warning(servicer, caplog, capsys) -> None:
     # function handle does not override the original function, so we can't find the app
     # two apps with the same name - warn since we won't know which one to hydrate
     ret = _run_container(
@@ -938,7 +938,7 @@ def test_multiapp_serialized_func(servicer, caplog):
 
 
 @skip_github_non_linux
-def test_image_run_function_no_warn(servicer, caplog):
+def test_image_run_function_no_warn(servicer, caplog) -> None:
     # builder functions currently aren't tied to any modal app,
     # so they shouldn't need to warn if they can't determine which app to use
     ret = _run_container(
@@ -976,7 +976,7 @@ def _unwrap_concurrent_input_outputs(n_inputs: int, n_parallel: int, ret: Contai
 
 @skip_github_non_linux
 @pytest.mark.timeout(5)
-def test_concurrent_inputs_sync_function(servicer):
+def test_concurrent_inputs_sync_function(servicer) -> None:
     n_inputs = 18
     n_parallel = 6
 
@@ -999,7 +999,7 @@ def test_concurrent_inputs_sync_function(servicer):
 
 
 @skip_github_non_linux
-def test_concurrent_inputs_async_function(servicer):
+def test_concurrent_inputs_async_function(servicer) -> None:
     n_inputs = 18
     n_parallel = 6
 
@@ -1022,13 +1022,13 @@ def test_concurrent_inputs_async_function(servicer):
 
 
 @skip_github_non_linux
-def test_unassociated_function(servicer):
+def test_unassociated_function(servicer) -> None:
     ret = _run_container(servicer, "test.supports.functions", "unassociated_function")
     assert _unwrap_scalar(ret) == 58
 
 
 @skip_github_non_linux
-def test_param_cls_function_calling_local(servicer):
+def test_param_cls_function_calling_local(servicer) -> None:
     serialized_params = pickle.dumps(([111], {"y": "foo"}))
     ret = _run_container(
         servicer,
@@ -1042,7 +1042,7 @@ def test_param_cls_function_calling_local(servicer):
 
 
 @skip_github_non_linux
-def test_derived_cls(servicer):
+def test_derived_cls(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -1054,7 +1054,7 @@ def test_derived_cls(servicer):
 
 
 @skip_github_non_linux
-def test_call_function_that_calls_function(servicer):
+def test_call_function_that_calls_function(servicer) -> None:
     deploy_app_externally(servicer, "test.supports.functions", "app")
     ret = _run_container(
         servicer,
@@ -1066,7 +1066,7 @@ def test_call_function_that_calls_function(servicer):
 
 
 @skip_github_non_linux
-def test_call_function_that_calls_method(servicer, set_env_client):
+def test_call_function_that_calls_method(servicer, set_env_client) -> None:
     # TODO (elias): Remove set_env_client fixture dependency - shouldn't need an env client here?
     deploy_app_externally(servicer, "test.supports.functions", "app")
     ret = _run_container(
@@ -1079,7 +1079,7 @@ def test_call_function_that_calls_method(servicer, set_env_client):
 
 
 @skip_github_non_linux
-def test_checkpoint_and_restore_success(servicer):
+def test_checkpoint_and_restore_success(servicer) -> None:
     """Functions send a checkpointing request and continue to execute normally,
     simulating a restore operation."""
     ret = _run_container(
@@ -1097,7 +1097,7 @@ def test_checkpoint_and_restore_success(servicer):
 
 
 @skip_github_non_linux
-def test_volume_commit_on_exit(servicer):
+def test_volume_commit_on_exit(servicer) -> None:
     volume_mounts = [
         api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-123", allow_background_commits=True),
         api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-456", allow_background_commits=True),
@@ -1115,7 +1115,7 @@ def test_volume_commit_on_exit(servicer):
 
 
 @skip_github_non_linux
-def test_volume_commit_on_error(servicer, capsys):
+def test_volume_commit_on_error(servicer, capsys) -> None:
     volume_mounts = [
         api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-foo", allow_background_commits=True),
         api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-bar", allow_background_commits=True),
@@ -1132,7 +1132,7 @@ def test_volume_commit_on_error(servicer, capsys):
 
 
 @skip_github_non_linux
-def test_no_volume_commit_on_exit(servicer):
+def test_no_volume_commit_on_exit(servicer) -> None:
     volume_mounts = [api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-999", allow_background_commits=False)]
     ret = _run_container(
         servicer,
@@ -1146,7 +1146,7 @@ def test_no_volume_commit_on_exit(servicer):
 
 
 @skip_github_non_linux
-def test_volume_commit_on_exit_doesnt_fail_container(servicer):
+def test_volume_commit_on_exit_doesnt_fail_container(servicer) -> None:
     volume_mounts = [
         api_pb2.VolumeMount(mount_path="/var/foo", volume_id="vo-999", allow_background_commits=True),
         api_pb2.VolumeMount(
@@ -1168,7 +1168,7 @@ def test_volume_commit_on_exit_doesnt_fail_container(servicer):
 
 
 @skip_github_non_linux
-def test_build_decorator_cls(servicer):
+def test_build_decorator_cls(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -1186,7 +1186,7 @@ def test_build_decorator_cls(servicer):
 
 
 @skip_github_non_linux
-def test_multiple_build_decorator_cls(servicer):
+def test_multiple_build_decorator_cls(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.functions",
@@ -1202,7 +1202,7 @@ def test_multiple_build_decorator_cls(servicer):
 
 @skip_github_non_linux
 @pytest.mark.timeout(10.0)
-def test_function_io_doesnt_inspect_args_or_return_values(monkeypatch, servicer):
+def test_function_io_doesnt_inspect_args_or_return_values(monkeypatch, servicer) -> None:
     synchronizer = async_utils.synchronizer
 
     # set up spys to track synchronicity calls to _translate_scalar_in/out
@@ -1286,7 +1286,7 @@ def _run_container_process(
 )
 def test_cancellation_aborts_current_input_on_match(
     servicer, function_name, input_args, cancelled_input_ids, expected_container_output, live_cancellations
-):
+) -> None:
     # NOTE: for a cancellation to actually happen in this test, it needs to be
     #    triggered while the relevant input is being processed. A future input
     #    would not be cancelled, since those are expected to be handled by
@@ -1332,7 +1332,7 @@ def test_cancellation_aborts_current_input_on_match(
     ["function_name"],
     [("delay",), ("delay_async",)],
 )
-def test_cancellation_stops_task_with_concurrent_inputs(servicer, function_name):
+def test_cancellation_stops_task_with_concurrent_inputs(servicer, function_name) -> None:
     with servicer.input_lockstep() as input_lock:
         container_process = _run_container_process(
             servicer,
@@ -1359,7 +1359,7 @@ def test_cancellation_stops_task_with_concurrent_inputs(servicer, function_name)
 
 @skip_github_non_linux
 @pytest.mark.usefixtures("server_url_env")
-def test_lifecycle_full(servicer):
+def test_lifecycle_full(servicer) -> None:
     # Sync and async container lifecycle methods on a sync function.
     container_process = _run_container_process(
         servicer,
@@ -1391,7 +1391,7 @@ def test_lifecycle_full(servicer):
 
 
 @skip_github_non_linux
-def test_stop_fetching_inputs(servicer):
+def test_stop_fetching_inputs(servicer) -> None:
     ret = _run_container(
         servicer,
         "test.supports.experimental",
@@ -1405,7 +1405,7 @@ def test_stop_fetching_inputs(servicer):
 
 
 @skip_github_non_linux
-def test_container_heartbeat_survives_grpc_deadlines(servicer, caplog, monkeypatch):
+def test_container_heartbeat_survives_grpc_deadlines(servicer, caplog, monkeypatch) -> None:
     monkeypatch.setattr("modal._container_io_manager.HEARTBEAT_INTERVAL", 0.01)
     num_heartbeats = 0
 
@@ -1434,7 +1434,7 @@ def test_container_heartbeat_survives_grpc_deadlines(servicer, caplog, monkeypat
 
 
 @skip_github_non_linux
-def test_container_heartbeat_survives_local_exceptions(servicer, caplog, monkeypatch):
+def test_container_heartbeat_survives_local_exceptions(servicer, caplog, monkeypatch) -> None:
     numcalls = 0
 
     async def custom_heartbeater(self):
@@ -1462,7 +1462,7 @@ def test_container_heartbeat_survives_local_exceptions(servicer, caplog, monkeyp
 
 @skip_github_non_linux
 @pytest.mark.usefixtures("server_url_env")
-def test_container_doesnt_send_large_exceptions(servicer):
+def test_container_doesnt_send_large_exceptions(servicer) -> None:
     # Tests that large exception messages (>2mb are trimmed)
     ret = _run_container(
         servicer,
@@ -1480,7 +1480,7 @@ def test_container_doesnt_send_large_exceptions(servicer):
 
 @skip_github_non_linux
 @pytest.mark.usefixtures("server_url_env")
-def test_sigint_termination_input_concurrent(servicer):
+def test_sigint_termination_input_concurrent(servicer) -> None:
     # Sync and async container lifecycle methods on a sync function.
     with servicer.input_lockstep() as input_barrier:
         container_process = _run_container_process(
@@ -1515,7 +1515,7 @@ def test_sigint_termination_input_concurrent(servicer):
 @skip_github_non_linux
 @pytest.mark.usefixtures("server_url_env")
 @pytest.mark.parametrize("method", ["delay", "delay_async"])
-def test_sigint_termination_input(servicer, method):
+def test_sigint_termination_input(servicer, method) -> None:
     # Sync and async container lifecycle methods on a sync function.
     with servicer.input_lockstep() as input_barrier:
         container_process = _run_container_process(
@@ -1547,7 +1547,7 @@ def test_sigint_termination_input(servicer, method):
 @pytest.mark.usefixtures("server_url_env")
 @pytest.mark.parametrize("enter_type", ["sync_enter", "async_enter"])
 @pytest.mark.parametrize("method", ["delay", "delay_async"])
-def test_sigint_termination_enter_handler(servicer, method, enter_type):
+def test_sigint_termination_enter_handler(servicer, method, enter_type) -> None:
     # Sync and async container lifecycle methods on a sync function.
     container_process = _run_container_process(
         servicer,
@@ -1578,7 +1578,7 @@ def test_sigint_termination_enter_handler(servicer, method, enter_type):
 @skip_github_non_linux
 @pytest.mark.usefixtures("server_url_env")
 @pytest.mark.parametrize("exit_type", ["sync_exit", "async_exit"])
-def test_sigint_termination_exit_handler(servicer, exit_type):
+def test_sigint_termination_exit_handler(servicer, exit_type) -> None:
     # Sync and async container lifecycle methods on a sync function.
     with servicer.output_lockstep() as outputs:
         container_process = _run_container_process(
@@ -1603,13 +1603,13 @@ def test_sigint_termination_exit_handler(servicer, exit_type):
 
 
 @skip_github_non_linux
-def test_sandbox(servicer, event_loop):
+def test_sandbox(servicer, event_loop) -> None:
     ret = _run_container(servicer, "test.supports.functions", "sandbox_f")
     assert _unwrap_scalar(ret) == "sb-123"
 
 
 @skip_github_non_linux
-def test_is_local(servicer, event_loop):
+def test_is_local(servicer, event_loop) -> None:
     assert is_local() == True
 
     ret = _run_container(servicer, "test.supports.functions", "is_local_f")
@@ -1617,11 +1617,11 @@ def test_is_local(servicer, event_loop):
 
 
 class Foo:
-    def __init__(self, x):
+    def __init__(self, x) -> None:
         self.x = x
 
     @enter()
-    def some_enter(self):
+    def some_enter(self) -> None:
         self.x += "_enter"
 
     @method()
@@ -1634,7 +1634,7 @@ class Foo:
 
 
 @skip_github_non_linux
-def test_class_as_service_serialized(servicer):
+def test_class_as_service_serialized(servicer) -> None:
     # TODO(elias): refactor once the loading code is merged
 
     app = modal.App()
@@ -1664,7 +1664,7 @@ def test_class_as_service_serialized(servicer):
 
 
 @skip_github_non_linux
-def test_function_lazy_resolution(servicer, set_env_client):
+def test_function_lazy_resolution(servicer, set_env_client) -> None:
     # Deploy some global objects
     Volume.from_name("my-vol", create_if_missing=True).resolve()
     Queue.from_name("my-queue", create_if_missing=True).resolve()
@@ -1676,7 +1676,7 @@ def test_function_lazy_resolution(servicer, set_env_client):
 
 
 @skip_github_non_linux
-def test_no_warn_on_remote_local_volume_mount(client, servicer, recwarn, set_env_client):
+def test_no_warn_on_remote_local_volume_mount(client, servicer, recwarn, set_env_client) -> None:
     _run_container(
         servicer,
         "test.supports.volume_local",

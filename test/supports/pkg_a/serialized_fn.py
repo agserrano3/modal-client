@@ -12,5 +12,5 @@ app = modal.App()
 
 
 @app.function(serialized=True)
-def f():
+def f() -> None:
     pass

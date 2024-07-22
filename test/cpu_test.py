@@ -5,11 +5,11 @@ from modal import App
 from modal.exception import InvalidError
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def test_cpu_lower_bound(client, servicer):
+def test_cpu_lower_bound(client, servicer) -> None:
     app = App()
 
     app.function(cpu=0.0)(dummy)

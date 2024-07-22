@@ -10,7 +10,7 @@ from modal.object import _Object
 
 @pytest.mark.flaky(max_runs=2)
 @pytest.mark.asyncio
-async def test_multi_resolve_sequential_loads_once():
+async def test_multi_resolve_sequential_loads_once() -> None:
     resolver = Resolver(None, environment_name="", app_id=None)
 
     load_count = 0
@@ -35,7 +35,7 @@ async def test_multi_resolve_sequential_loads_once():
 
 
 @pytest.mark.asyncio
-async def test_multi_resolve_concurrent_loads_once():
+async def test_multi_resolve_concurrent_loads_once() -> None:
     resolver = Resolver(None, environment_name="", app_id=None)
 
     load_count = 0

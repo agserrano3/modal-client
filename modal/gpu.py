@@ -32,7 +32,7 @@ class T4(_GPUConfig):
     def __init__(
         self,
         count: int = 1,  # Number of GPUs per container. Defaults to 1.
-    ):
+    ) -> None:
         super().__init__(api_pb2.GPU_TYPE_T4, count, 0)
 
     def __repr__(self):
@@ -50,7 +50,7 @@ class L4(_GPUConfig):
     def __init__(
         self,
         count: int = 1,  # Number of GPUs per container. Defaults to 1.
-    ):
+    ) -> None:
         super().__init__(api_pb2.GPU_TYPE_L4, count, 0)
 
     def __repr__(self):
@@ -70,7 +70,7 @@ class A100(_GPUConfig):
         count: int = 1,  # Number of GPUs per container. Defaults to 1.
         memory: Optional[int] = None,  # Deprecated. Use `size` instead.
         size: Union[str, None] = None,  # Select GiB configuration of GPU device: "40GB" or "80GB". Defaults to "40GB".
-    ):
+    ) -> None:
         allowed_memory_values = {40, 80}
         allowed_size_values = {"40GB", "80GB"}
 
@@ -125,7 +125,7 @@ class A10G(_GPUConfig):
         # Number of GPUs per container. Defaults to 1.
         # Useful if you have very large models that don't fit on a single GPU.
         count: int = 1,
-    ):
+    ) -> None:
         super().__init__(api_pb2.GPU_TYPE_A10G, count)
 
     def __repr__(self):
@@ -147,7 +147,7 @@ class H100(_GPUConfig):
         # Number of GPUs per container. Defaults to 1.
         # Useful if you have very large models that don't fit on a single GPU.
         count: int = 1,
-    ):
+    ) -> None:
         super().__init__(api_pb2.GPU_TYPE_H100, count)
 
     def __repr__(self):
@@ -157,7 +157,7 @@ class H100(_GPUConfig):
 class Any(_GPUConfig):
     """Selects any one of the GPU classes available within Modal, according to availability."""
 
-    def __init__(self, *, count: int = 1):
+    def __init__(self, *, count: int = 1) -> None:
         super().__init__(api_pb2.GPU_TYPE_ANY, count)
 
     def __repr__(self):

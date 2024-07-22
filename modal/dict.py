@@ -57,14 +57,14 @@ class _Dict(_Object, type_prefix="di"):
     """
 
     @staticmethod
-    def new(data: Optional[dict] = None):
+    def new(data: Optional[dict] = None) -> None:
         """`Dict.new` is deprecated.
 
         Please use `Dict.from_name` (for persisted) or `Dict.ephemeral` (for ephemeral) dicts.
         """
         deprecation_error((2024, 3, 19), Dict.new.__doc__)
 
-    def __init__(self, data={}):
+    def __init__(self, data={}) -> None:
         """mdmd:hidden"""
         raise RuntimeError(
             "`Dict(...)` constructor is not allowed. Please use `Dict.from_name` or `Dict.ephemeral` instead"
@@ -143,7 +143,7 @@ class _Dict(_Object, type_prefix="di"):
         return _Dict._from_loader(_load, "Dict()", is_another_app=True, hydrate_lazily=True)
 
     @staticmethod
-    def persisted(label: str, namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, environment_name: Optional[str] = None):
+    def persisted(label: str, namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE, environment_name: Optional[str] = None) -> None:
         """Deprecated! Use `Dict.from_name(name, create_if_missing=True)`."""
         deprecation_error((2024, 3, 1), _Dict.persisted.__doc__)
 
@@ -184,7 +184,7 @@ class _Dict(_Object, type_prefix="di"):
         *,
         client: Optional[_Client] = None,
         environment_name: Optional[str] = None,
-    ):
+    ) -> None:
         obj = await _Dict.lookup(label, client=client, environment_name=environment_name)
         req = api_pb2.DictDeleteRequest(dict_id=obj.object_id)
         await retry_transient_errors(obj._client.stub.DictDelete, req)

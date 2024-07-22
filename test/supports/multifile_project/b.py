@@ -7,7 +7,7 @@ app = modal.App()
 
 
 @app.function(secrets=[modal.Secret.from_dict({"foo": "bar"})])
-def b_func():
+def b_func() -> None:
     pass
 
 

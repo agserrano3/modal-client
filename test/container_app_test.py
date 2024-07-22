@@ -16,7 +16,7 @@ from modal.running_app import RunningApp
 from modal_proto import api_pb2
 
 
-def my_f_1(x):
+def my_f_1(x) -> None:
     pass
 
 def temp_restore_path(tmpdir):
@@ -36,7 +36,7 @@ def temp_restore_path(tmpdir):
 
 
 @pytest.mark.asyncio
-async def test_container_function_lazily_imported(container_client):
+async def test_container_function_lazily_imported(container_client) -> None:
     tag_to_object_id: Dict[str, str] = {
         "my_f_1": "fu-123",
         "my_d": "di-123",
@@ -58,7 +58,7 @@ async def test_container_function_lazily_imported(container_client):
 
 
 @pytest.mark.asyncio
-async def test_container_snapshot_restore(container_client, tmpdir, servicer):
+async def test_container_snapshot_restore(container_client, tmpdir, servicer) -> None:
     # Get a reference to a Client instance in memory
     old_client = container_client
     io_manager = ContainerIOManager(api_pb2.ContainerArguments(), container_client)
@@ -72,7 +72,7 @@ async def test_container_snapshot_restore(container_client, tmpdir, servicer):
 
 
 @pytest.mark.asyncio
-async def test_container_snapshot_restore_heartbeats(tmpdir, servicer):
+async def test_container_snapshot_restore_heartbeats(tmpdir, servicer) -> None:
     client = _Client(servicer.container_addr, api_pb2.CLIENT_TYPE_CONTAINER, ("ta-123", "task-secret"))
     async with client as async_client:
         io_manager = _ContainerIOManager(api_pb2.ContainerArguments(), async_client)
@@ -98,7 +98,7 @@ async def test_container_snapshot_restore_heartbeats(tmpdir, servicer):
 
 
 @pytest.mark.asyncio
-async def test_container_debug_snapshot(container_client, tmpdir, servicer):
+async def test_container_debug_snapshot(container_client, tmpdir, servicer) -> None:
     # Get an IO manager, where restore takes place
     io_manager = ContainerIOManager(api_pb2.ContainerArguments(), container_client)
     restore_path = tmpdir.join("fake-restore-state.json")
@@ -119,7 +119,7 @@ async def test_container_debug_snapshot(container_client, tmpdir, servicer):
 
 
 @pytest.fixture(scope="function")
-def fake_torch_module():
+def fake_torch_module() -> None:
     module_path = os.path.join(os.getcwd(), "torch.py")
     with open(module_path, "w") as f:
         f.write(
@@ -140,7 +140,7 @@ cuda = CUDA()
 
 
 @pytest.fixture(scope="function")
-def weird_torch_module():
+def weird_torch_module() -> None:
     module_path = os.path.join(os.getcwd(), "torch.py")
     with open(module_path, "w") as f:
         f.write("IM_WEIRD = 42\n")
@@ -151,7 +151,7 @@ def weird_torch_module():
 
 
 @pytest.mark.asyncio
-async def test_container_snapshot_patching(fake_torch_module, container_client, tmpdir, servicer):
+async def test_container_snapshot_patching(fake_torch_module, container_client, tmpdir, servicer) -> None:
     io_manager = ContainerIOManager(api_pb2.ContainerArguments(), container_client)
 
     # bring fake torch into scope and call the utility fn
@@ -171,7 +171,7 @@ async def test_container_snapshot_patching(fake_torch_module, container_client, 
 
 
 @pytest.mark.asyncio
-async def test_container_snapshot_patching_err(weird_torch_module, container_client, tmpdir, servicer):
+async def test_container_snapshot_patching_err(weird_torch_module, container_client, tmpdir, servicer) -> None:
     io_manager = ContainerIOManager(api_pb2.ContainerArguments(), container_client)
     restore_path = temp_restore_path(tmpdir)
 
@@ -186,7 +186,7 @@ async def test_container_snapshot_patching_err(weird_torch_module, container_cli
         io_manager.memory_snapshot()  # should not crash
 
 
-def test_interact(container_client, servicer):
+def test_interact(container_client, servicer) -> None:
     # Initialize container singleton
     ContainerIOManager(api_pb2.ContainerArguments(), container_client)
     with servicer.intercept() as ctx:

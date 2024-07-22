@@ -8,5 +8,5 @@ if not modal.is_local():
 
 
 @app.function()
-def f(i):
+def f(i) -> None:
     pass

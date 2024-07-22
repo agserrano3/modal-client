@@ -2,7 +2,7 @@
 from ._container_io_manager import _ContainerIOManager
 
 
-def stop_fetching_inputs():
+def stop_fetching_inputs() -> None:
     """Don't fetch any more inputs from the server, after the current one.
     The container will exit gracefully after the current input is processed."""
 

@@ -16,7 +16,7 @@ skip_non_linux = pytest.mark.skipif(platform.system() != "Linux", reason="sandbo
 
 
 @skip_non_linux
-def test_sandbox(client, servicer):
+def test_sandbox(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "echo bye >&2 && sleep 1 && echo hi && exit 42", timeout=600, client=client)
 
     assert sb.poll() is None
@@ -37,7 +37,7 @@ def test_sandbox(client, servicer):
 
 
 @skip_non_linux
-def test_sandbox_mount(client, servicer, tmpdir):
+def test_sandbox_mount(client, servicer, tmpdir) -> None:
     tmpdir.join("a.py").write(b"foo")
 
     sb = Sandbox.create("echo", "hi", mounts=[Mount.from_local_dir(Path(tmpdir), remote_path="/m")], client=client)
@@ -48,7 +48,7 @@ def test_sandbox_mount(client, servicer, tmpdir):
 
 
 @skip_non_linux
-def test_sandbox_image(client, servicer, tmpdir):
+def test_sandbox_image(client, servicer, tmpdir) -> None:
     tmpdir.join("a.py").write(b"foo")
 
     sb = Sandbox.create("echo", "hi", image=Image.debian_slim().pip_install("foo", "bar", "potato"), client=client)
@@ -61,7 +61,7 @@ def test_sandbox_image(client, servicer, tmpdir):
 
 
 @skip_non_linux
-def test_sandbox_secret(client, servicer, tmpdir):
+def test_sandbox_secret(client, servicer, tmpdir) -> None:
     sb = Sandbox.create("echo", "$FOO", secrets=[Secret.from_dict({"FOO": "BAR"})], client=client)
     sb.wait()
 
@@ -69,7 +69,7 @@ def test_sandbox_secret(client, servicer, tmpdir):
 
 
 @skip_non_linux
-def test_sandbox_nfs(client, servicer, tmpdir):
+def test_sandbox_nfs(client, servicer, tmpdir) -> None:
     with NetworkFileSystem.ephemeral(client=client) as nfs:
         with pytest.raises(InvalidError):
             Sandbox.create("echo", "foo > /cache/a.txt", network_file_systems={"/": nfs}, client=client)
@@ -80,7 +80,7 @@ def test_sandbox_nfs(client, servicer, tmpdir):
 
 
 @skip_non_linux
-def test_sandbox_from_id(client, servicer):
+def test_sandbox_from_id(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "echo foo && exit 42", timeout=600, client=client)
     sb.wait()
 
@@ -90,7 +90,7 @@ def test_sandbox_from_id(client, servicer):
 
 
 @skip_non_linux
-def test_sandbox_terminate(client, servicer):
+def test_sandbox_terminate(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "sleep 10000", client=client)
     sb.terminate()
 
@@ -99,7 +99,7 @@ def test_sandbox_terminate(client, servicer):
 
 @skip_non_linux
 @pytest.mark.asyncio
-async def test_sandbox_stdin_async(client, servicer):
+async def test_sandbox_stdin_async(client, servicer) -> None:
     sb = await Sandbox.create.aio("bash", "-c", "while read line; do echo $line; done && exit 13", client=client)
 
     sb.stdin.write(b"foo\n")
@@ -116,7 +116,7 @@ async def test_sandbox_stdin_async(client, servicer):
 
 
 @skip_non_linux
-def test_sandbox_stdin(client, servicer):
+def test_sandbox_stdin(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "while read line; do echo $line; done && exit 13", client=client)
 
     sb.stdin.write(b"foo\n")
@@ -133,14 +133,14 @@ def test_sandbox_stdin(client, servicer):
 
 
 @skip_non_linux
-def test_sandbox_stdin_invalid_write(client, servicer):
+def test_sandbox_stdin_invalid_write(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "echo foo", client=client)
     with pytest.raises(TypeError):
         sb.stdin.write("foo\n")  # type: ignore
 
 
 @skip_non_linux
-def test_sandbox_stdin_write_after_eof(client, servicer):
+def test_sandbox_stdin_write_after_eof(client, servicer) -> None:
     sb = Sandbox.create("bash", "-c", "echo foo", client=client)
     sb.stdin.write_eof()
     with pytest.raises(EOFError):
@@ -149,7 +149,7 @@ def test_sandbox_stdin_write_after_eof(client, servicer):
 
 @skip_non_linux
 @pytest.mark.asyncio
-async def test_sandbox_async_for(client, servicer):
+async def test_sandbox_async_for(client, servicer) -> None:
     sb = await Sandbox.create.aio("bash", "-c", "echo hello && echo world && echo bye >&2", client=client)
 
     out = ""
@@ -176,7 +176,7 @@ async def test_sandbox_async_for(client, servicer):
 
 
 @skip_non_linux
-def test_app_sandbox(client, servicer):
+def test_app_sandbox(client, servicer) -> None:
     image = Image.debian_slim().pip_install("xyz")
     secret = Secret.from_dict({"FOO": "bar"})
     mount = Mount.from_local_file(__file__, "/xyz")

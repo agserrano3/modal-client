@@ -19,7 +19,7 @@ from .supports import module_1, module_2
 
 
 @pytest.mark.asyncio
-async def test_attrs(servicer, client):
+async def test_attrs(servicer, client) -> None:
     app = App()
     with pytest.raises(DeprecationError):
         app.d = Dict.from_name("xyz")
@@ -30,7 +30,7 @@ def square(x):
 
 
 @pytest.mark.asyncio
-async def test_redeploy(servicer, client):
+async def test_redeploy(servicer, client) -> None:
     app = App(image=Image.debian_slim().pip_install("pandas"))
     app.function()(square)
 
@@ -57,13 +57,13 @@ async def test_redeploy(servicer, client):
     assert servicer.app_state_history[res.app_id] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_DEPLOYED]
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
 # Should exit without waiting for the "logs_timeout" grace period.
 @pytest.mark.timeout(5)
-def test_create_object_exception(servicer, client):
+def test_create_object_exception(servicer, client) -> None:
     servicer.function_create_error = True
 
     app = App()
@@ -76,20 +76,20 @@ def test_create_object_exception(servicer, client):
     assert excinfo.value.status == Status.INTERNAL
 
 
-def test_deploy_falls_back_to_app_name(servicer, client):
+def test_deploy_falls_back_to_app_name(servicer, client) -> None:
     named_app = App(name="foo_app")
     deploy_app(named_app, client=client)
     assert "foo_app" in servicer.deployed_apps
 
 
-def test_deploy_uses_deployment_name_if_specified(servicer, client):
+def test_deploy_uses_deployment_name_if_specified(servicer, client) -> None:
     named_app = App(name="foo_app")
     deploy_app(named_app, "bar_app", client=client)
     assert "bar_app" in servicer.deployed_apps
     assert "foo_app" not in servicer.deployed_apps
 
 
-def test_run_function_without_app_error():
+def test_run_function_without_app_error() -> None:
     app = App()
     dummy_modal = app.function()(dummy)
 
@@ -99,13 +99,13 @@ def test_run_function_without_app_error():
     assert "hydrated" in str(excinfo.value)
 
 
-def test_is_inside_basic():
+def test_is_inside_basic() -> None:
     app = App()
     with pytest.raises(DeprecationError, match="imports()"):
         app.is_inside()
 
 
-def test_missing_attr():
+def test_missing_attr() -> None:
     """Trying to call a non-existent function on the App should produce
     an understandable error message."""
 
@@ -114,7 +114,7 @@ def test_missing_attr():
         app.fun()  # type: ignore
 
 
-def test_same_function_name(caplog):
+def test_same_function_name(caplog) -> None:
     app = App()
 
     # Add first function
@@ -131,26 +131,26 @@ def test_same_function_name(caplog):
     assert "square" in caplog.text
 
 
-def test_run_state(client, servicer):
+def test_run_state(client, servicer) -> None:
     app = App()
     with app.run(client=client):
         assert servicer.app_state_history[app.app_id] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_EPHEMERAL]
 
 
-def test_deploy_state(client, servicer):
+def test_deploy_state(client, servicer) -> None:
     app = App()
     res = deploy_app(app, "foobar", client=client)
     assert servicer.app_state_history[res.app_id] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_DEPLOYED]
 
 
-def test_detach_state(client, servicer):
+def test_detach_state(client, servicer) -> None:
     app = App()
     with app.run(client=client, detach=True):
         assert servicer.app_state_history[app.app_id] == [api_pb2.APP_STATE_INITIALIZING, api_pb2.APP_STATE_DETACHED]
 
 
 @pytest.mark.asyncio
-async def test_grpc_protocol(client, servicer):
+async def test_grpc_protocol(client, servicer) -> None:
     app = App()
     async with app.run(client=client):
         await asyncio.sleep(0.01)  # wait for heartbeat
@@ -169,7 +169,7 @@ async def web2(x):
     return {"cube": x**3}
 
 
-def test_registered_web_endpoints(client, servicer):
+def test_registered_web_endpoints(client, servicer) -> None:
     app = App()
     app.function()(square)
     app.function()(web_endpoint()(web1))
@@ -184,7 +184,7 @@ def test_registered_web_endpoints(client, servicer):
     assert app.registered_web_endpoints == ["web1", "web2", "Cls.cls_web_endpoint"]
 
 
-def test_init_types():
+def test_init_types() -> None:
     with pytest.raises(InvalidError):
         # singular secret to plural argument
         App(secrets=Secret.from_dict())  # type: ignore
@@ -202,7 +202,7 @@ def test_init_types():
     )
 
 
-def test_set_image_on_app_as_attribute():
+def test_set_image_on_app_as_attribute() -> None:
     # TODO: do we want to deprecate this syntax? It's kind of random for image to
     #     have a reserved name in the blueprint, and being the only of the construction
     #     arguments that can be set on the instance after construction
@@ -211,7 +211,7 @@ def test_set_image_on_app_as_attribute():
     assert app._get_default_image() == custom_img
 
 
-def test_redeploy_delete_objects(servicer, client):
+def test_redeploy_delete_objects(servicer, client) -> None:
     # Deploy an app with objects d1 and d2
     app = App()
     app.function(name="d1")(dummy)
@@ -232,7 +232,7 @@ def test_redeploy_delete_objects(servicer, client):
 
 
 @pytest.mark.asyncio
-async def test_unhydrate(servicer, client):
+async def test_unhydrate(servicer, client) -> None:
     app = App()
 
     f = app.function()(dummy)
@@ -245,7 +245,7 @@ async def test_unhydrate(servicer, client):
     assert not f.is_hydrated
 
 
-def test_keyboard_interrupt(servicer, client):
+def test_keyboard_interrupt(servicer, client) -> None:
     app = App()
     app.function()(square)
     with app.run(client=client):
@@ -253,7 +253,7 @@ def test_keyboard_interrupt(servicer, client):
         raise KeyboardInterrupt()
 
 
-def test_function_image_positional():
+def test_function_image_positional() -> None:
     app = App()
     image = Image.debian_slim()
 
@@ -266,7 +266,7 @@ def test_function_image_positional():
     assert "function(image=image)" in str(excinfo.value)
 
 
-def test_function_decorator_on_class():
+def test_function_decorator_on_class() -> None:
     app = App()
     with pytest.raises(TypeError, match="cannot be used on a class"):
 
@@ -276,7 +276,7 @@ def test_function_decorator_on_class():
 
 
 @pytest.mark.asyncio
-async def test_deploy_disconnect(servicer, client):
+async def test_deploy_disconnect(servicer, client) -> None:
     app = App()
     app.function(secrets=[Secret.from_name("nonexistent-secret")])(square)
 
@@ -289,14 +289,14 @@ async def test_deploy_disconnect(servicer, client):
     ]
 
 
-def test_parse_custom_domains():
+def test_parse_custom_domains() -> None:
     assert len(_parse_custom_domains(None)) == 0
     assert len(_parse_custom_domains(["foo.com", "bar.com"])) == 2
     with pytest.raises(AssertionError):
         assert _parse_custom_domains("foo.com")
 
 
-def test_hydrated_other_app_object_gets_referenced(servicer, client):
+def test_hydrated_other_app_object_gets_referenced(servicer, client) -> None:
     app = App("my-app")
     with servicer.intercept() as ctx:
         with Volume.ephemeral(client=client) as vol:
@@ -306,12 +306,12 @@ def test_hydrated_other_app_object_gets_referenced(servicer, client):
             assert vol.object_id in app_set_objects_req.unindexed_object_ids
 
 
-def test_hasattr():
+def test_hasattr() -> None:
     app = App()
     assert not hasattr(app, "xyz")
 
 
-def test_app(client):
+def test_app(client) -> None:
     app = App()
     square_modal = app.function()(square)
 
@@ -319,7 +319,7 @@ def test_app(client):
         square_modal.remote(42)
 
 
-def test_list_apps(client):
+def test_list_apps(client) -> None:
     apps_0 = [app.name for app in list_apps(client=client)]
     app = App()
     deploy_app(app, "foobar", client=client)
@@ -329,12 +329,12 @@ def test_list_apps(client):
     assert set(apps_1) - set(apps_0) == set(["foobar"])
 
 
-def test_non_string_app_name():
+def test_non_string_app_name() -> None:
     with pytest.raises(InvalidError, match="Must be string"):
         App(Image.debian_slim())  # type: ignore
 
 
-def test_function_named_app():
+def test_function_named_app() -> None:
     # Make sure we have a helpful warning when a user's function is named "app"
     # as it might collide with the App variable name (in particular if people
     # find & replace "stub" with "app").
@@ -347,19 +347,19 @@ def test_function_named_app():
             ...
 
 
-def test_stub():
+def test_stub() -> None:
     with pytest.warns(match="App"):
         Stub()
 
 
-def test_deploy_stub(servicer, client):
+def test_deploy_stub(servicer, client) -> None:
     app = App("xyz")
     deploy_app(app, client=client)
     with pytest.warns(match="deploy_app"):
         deploy_stub(app, client=client)
 
 
-def test_app_logs(servicer, client):
+def test_app_logs(servicer, client) -> None:
     app = App()
     f = app.function()(dummy)
 
@@ -370,7 +370,7 @@ def test_app_logs(servicer, client):
     assert logs == ["hello, world (1)\n"]
 
 
-def test_app_interactive(servicer, client, capsys):
+def test_app_interactive(servicer, client, capsys) -> None:
     app = App()
 
     async def app_logs_pty(servicer, stream):
@@ -400,7 +400,7 @@ def test_app_interactive(servicer, client, capsys):
     assert captured.out.endswith("\nsome data\n\r")
 
 
-def test_show_progress_deprecations(client, monkeypatch):
+def test_show_progress_deprecations(client, monkeypatch) -> None:
     # Unset env used to disable warning
     monkeypatch.delenv("MODAL_DISABLE_APP_RUN_OUTPUT_WARNING")
 

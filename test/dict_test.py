@@ -6,7 +6,7 @@ from modal import Dict
 from modal.exception import InvalidError, NotFoundError
 
 
-def test_dict_app(servicer, client):
+def test_dict_app(servicer, client) -> None:
     d = Dict.lookup("my-amazing-dict", {"xyz": 123}, create_if_missing=True, client=client)
     d["foo"] = 42
     d["foo"] += 5
@@ -31,7 +31,7 @@ def test_dict_app(servicer, client):
         Dict.lookup("my-amazing-dict", client=client)
 
 
-def test_dict_ephemeral(servicer, client):
+def test_dict_ephemeral(servicer, client) -> None:
     assert servicer.n_dict_heartbeats == 0
     with Dict.ephemeral({"bar": 123}, client=client, _heartbeat_sleep=1) as d:
         d["foo"] = 42
@@ -42,7 +42,7 @@ def test_dict_ephemeral(servicer, client):
     assert servicer.n_dict_heartbeats == 2
 
 
-def test_dict_lazy_hydrate_named(set_env_client, servicer):
+def test_dict_lazy_hydrate_named(set_env_client, servicer) -> None:
     with servicer.intercept() as ctx:
         d = Dict.from_name("foo", create_if_missing=True)
         assert len(ctx.get_requests("DictGetOrCreate")) == 0  # sanity check that the get request is lazy
@@ -52,6 +52,6 @@ def test_dict_lazy_hydrate_named(set_env_client, servicer):
 
 
 @pytest.mark.parametrize("name", ["has space", "has/slash", "a" * 65])
-def test_invalid_name(servicer, client, name):
+def test_invalid_name(servicer, client, name) -> None:
     with pytest.raises(InvalidError, match="Invalid Dict name"):
         Dict.lookup(name)

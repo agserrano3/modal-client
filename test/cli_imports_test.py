@@ -100,7 +100,7 @@ dir_containing_python_package = {
         (dir_containing_python_package, "pack/local.py::app.main", _LocalEntrypoint),
     ],
 )
-def test_import_object(dir_structure, ref, expected_object_type, mock_dir):
+def test_import_object(dir_structure, ref, expected_object_type, mock_dir) -> None:
     with mock_dir(dir_structure):
         import_ref = parse_import_ref(ref)
         module = import_file_or_module(import_ref.file_or_module)
@@ -109,7 +109,7 @@ def test_import_object(dir_structure, ref, expected_object_type, mock_dir):
         assert isinstance(_translated_obj, expected_object_type)
 
 
-def test_import_package_and_module_names(monkeypatch, supports_dir):
+def test_import_package_and_module_names(monkeypatch, supports_dir) -> None:
     # We try to reproduce the package/module naming standard that the `python` command line tool uses,
     # i.e. when loading using a module path (-m flag w/ python) you get a fully qualified package/module name
     # but when loading using a filename, some/mod.py it will not have a __package__

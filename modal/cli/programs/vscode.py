@@ -41,7 +41,7 @@ volume = (
 volumes = {"/home/coder/volume": volume} if volume else {}
 
 
-def wait_for_port(data: Tuple[str, str], q: Queue):
+def wait_for_port(data: Tuple[str, str], q: Queue) -> None:
     start_time = time.monotonic()
     while True:
         try:
@@ -64,7 +64,7 @@ def wait_for_port(data: Tuple[str, str], q: Queue):
     volumes=volumes,
     concurrency_limit=1 if volume else None,
 )
-def run_vscode(q: Queue):
+def run_vscode(q: Queue) -> None:
     os.chdir("/home/coder")
     token = secrets.token_urlsafe(13)
     with forward(8080) as tunnel:
@@ -78,7 +78,7 @@ def run_vscode(q: Queue):
 
 
 @app.local_entrypoint()
-def main():
+def main() -> None:
     with Queue.ephemeral() as q:
         run_vscode.spawn(q)
         url, token = q.get()

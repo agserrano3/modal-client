@@ -54,7 +54,7 @@ class BytesIOSegmentPayload(BytesIOPayload):
         segment_length: int,
         chunk_size: int = DEFAULT_SEGMENT_CHUNK_SIZE,
         progress_report_cb: Optional[Callable] = None,
-    ):
+    ) -> None:
         # not thread safe constructor!
         super().__init__(bytes_io)
         self.initial_seek_pos = bytes_io.tell()
@@ -67,13 +67,13 @@ class BytesIOSegmentPayload(BytesIOPayload):
         self.progress_report_cb = progress_report_cb or (lambda *_, **__: None)
         self.reset_state()
 
-    def reset_state(self):
+    def reset_state(self) -> None:
         self._md5_checksum = hashlib.md5()
         self.num_bytes_read = 0
         self._value.seek(self.initial_seek_pos)
 
     @contextmanager
-    def reset_on_error(self):
+    def reset_on_error(self) -> None:
         try:
             yield
         except Exception as exc:
@@ -178,7 +178,7 @@ async def perform_multipart_upload(
     completion_url: str,
     upload_chunk_size: int = DEFAULT_SEGMENT_CHUNK_SIZE,
     progress_report_cb: Optional[Callable] = None,
-):
+) -> None:
     upload_coros = []
     file_offset = 0
     num_bytes_left = content_length

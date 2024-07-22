@@ -2,5 +2,5 @@
 from . import tracing_module_2 # noqa
 
 
-def foo():
+def foo() -> None:
     pass

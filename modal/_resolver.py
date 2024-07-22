@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class StatusRow:
-    def __init__(self, progress: "Optional[Tree]"):
+    def __init__(self, progress: "Optional[Tree]") -> None:
         from ._output import (
             step_progress,
         )
@@ -29,13 +29,13 @@ class StatusRow:
             self._spinner = step_progress()
             self._step_node = progress.add(self._spinner)
 
-    def message(self, message):
+    def message(self, message) -> None:
         from ._output import step_progress_update
 
         if self._spinner is not None:
             step_progress_update(self._spinner, message)
 
-    def finish(self, message):
+    def finish(self, message) -> None:
         from ._output import step_completed, step_progress_update
 
         if self._step_node is not None:
@@ -56,7 +56,7 @@ class Resolver:
         *,
         environment_name: Optional[str] = None,
         app_id: Optional[str] = None,
-    ):
+    ) -> None:
         from rich.tree import Tree
 
         from ._output import step_progress
@@ -80,7 +80,7 @@ class Resolver:
     def environment_name(self):
         return self._environment_name
 
-    async def preload(self, obj, existing_object_id: Optional[str]):
+    async def preload(self, obj, existing_object_id: Optional[str]) -> None:
         if obj._preload is not None:
             await obj._preload(obj, self, existing_object_id)
 
@@ -162,7 +162,7 @@ class Resolver:
         return list(unique_objects.values())
 
     @contextlib.contextmanager
-    def display(self):
+    def display(self) -> None:
         # TODO(erikbern): get rid of this wrapper
         from ._output import OutputManager, step_completed
 

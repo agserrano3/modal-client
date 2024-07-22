@@ -23,7 +23,7 @@ from .token import _new_token, token_cli
 from .volume import volume_cli
 
 
-def version_callback(value: bool):
+def version_callback(value: bool) -> None:
     if value:
         from modal_version import __version__
 
@@ -48,7 +48,7 @@ entrypoint_cli_typer = typer.Typer(
 def modal(
     ctx: typer.Context,
     version: bool = typer.Option(None, "--version", callback=version_callback),
-):
+) -> None:
     pass
 
 
@@ -76,7 +76,7 @@ def check_path():
 
 
 @synchronizer.create_blocking
-async def setup(profile: Optional[str] = None):
+async def setup(profile: Optional[str] = None) -> None:
     check_path()
 
     # Fetch a new token (same as `modal token new` but redirect to /home once finishes)

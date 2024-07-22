@@ -5,5 +5,5 @@ app = modal.App("c")
 
 
 @app.function()
-def c_func():
+def c_func() -> None:
     pass
