@@ -5,10 +5,10 @@ app = modal.App()
 
 
 @app.function()
-def foo():
+def foo() -> None:
     pass
 
 
 @app.function()
-def bar():
+def bar() -> None:
     pass

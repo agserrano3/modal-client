@@ -4,7 +4,7 @@ import pkg_resources
 import modal
 
 
-def test_version():
+def test_version() -> None:
     mod_version = modal.__version__
     pkg_version = pkg_resources.require("modal")[0].version
 

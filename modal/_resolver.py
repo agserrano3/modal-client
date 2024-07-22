@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class StatusRow:
-    def __init__(self, progress: "Optional[Tree]"):
+    def __init__(self, progress: "Optional[Tree]") -> None:
         from ._output import (
             step_progress,
         )
@@ -31,13 +31,13 @@ class StatusRow:
             self._spinner = step_progress()
             self._step_node = progress.add(self._spinner)
 
-    def message(self, message):
+    def message(self, message) -> None:
         from ._output import step_progress_update
 
         if self._spinner is not None:
             step_progress_update(self._spinner, message)
 
-    def finish(self, message):
+    def finish(self, message) -> None:
         from ._output import step_completed, step_progress_update
 
         if self._step_node is not None:
@@ -59,7 +59,7 @@ class Resolver:
         output_mgr=None,
         environment_name: Optional[str] = None,
         app_id: Optional[str] = None,
-    ):
+    ) -> None:
         from rich.tree import Tree
 
         from ._output import step_progress
@@ -84,7 +84,7 @@ class Resolver:
     def environment_name(self):
         return self._environment_name
 
-    async def preload(self, obj, existing_object_id: Optional[str]):
+    async def preload(self, obj, existing_object_id: Optional[str]) -> None:
         if obj._preload is not None:
             await obj._preload(obj, self, existing_object_id)
 
@@ -166,7 +166,7 @@ class Resolver:
         return list(unique_objects.values())
 
     @contextlib.contextmanager
-    def display(self):
+    def display(self) -> None:
         from ._output import step_completed
 
         if self._output_mgr is None or not self._output_mgr.is_visible():
@@ -180,14 +180,14 @@ class Resolver:
     def add_status_row(self) -> StatusRow:
         return StatusRow(self._tree)
 
-    async def console_write(self, log: api_pb2.TaskLogs):
+    async def console_write(self, log: api_pb2.TaskLogs) -> None:
         if self._output_mgr is not None:
             await self._output_mgr.put_log_content(log)
 
-    def console_flush(self):
+    def console_flush(self) -> None:
         if self._output_mgr is not None:
             self._output_mgr.flush_lines()
 
-    def image_snapshot_update(self, image_id: str, task_progress: api_pb2.TaskProgress):
+    def image_snapshot_update(self, image_id: str, task_progress: api_pb2.TaskProgress) -> None:
         if self._output_mgr is not None:
             self._output_mgr.update_snapshot_progress(image_id, task_progress)

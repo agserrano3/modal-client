@@ -77,7 +77,7 @@ class FileEntry:
             size=proto.size,
         )
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> None:
         deprecation_error(
             (2024, 4, 15),
             (
@@ -131,7 +131,7 @@ class _Volume(_Object, type_prefix="vo"):
 
     _lock: asyncio.Lock
 
-    def _initialize_from_empty(self):
+    def _initialize_from_empty(self) -> None:
         # To (mostly*) prevent multiple concurrent operations on the same volume, which can cause problems under
         # some unlikely circumstances.
         # *: You can bypass this by creating multiple handles to the same volume, e.g. via lookup. But this
@@ -139,7 +139,7 @@ class _Volume(_Object, type_prefix="vo"):
         self._lock = asyncio.Lock()
 
     @staticmethod
-    def new():
+    def new() -> None:
         """`Volume.new` is deprecated.
 
         Please use `Volume.from_name` (for persisted) or `Volume.ephemeral` (for ephemeral) volumes.
@@ -225,7 +225,7 @@ class _Volume(_Object, type_prefix="vo"):
         namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
         environment_name: Optional[str] = None,
         cloud: Optional[str] = None,
-    ):
+    ) -> None:
         """Deprecated! Use `Volume.from_name(name, create_if_missing=True)`."""
         deprecation_error((2024, 3, 1), _Volume.persisted.__doc__)
 
@@ -281,13 +281,13 @@ class _Volume(_Object, type_prefix="vo"):
         return resp.volume_id
 
     @live_method
-    async def _do_reload(self, lock=True):
+    async def _do_reload(self, lock=True) -> None:
         async with self._lock if lock else asyncnullcontext():
             req = api_pb2.VolumeReloadRequest(volume_id=self.object_id)
             _ = await retry_transient_errors(self._client.stub.VolumeReload, req)
 
     @live_method
-    async def commit(self):
+    async def commit(self) -> None:
         """Commit changes to the volume.
 
         If successful, the changes made are now persisted in durable storage and available to other containers accessing
@@ -305,7 +305,7 @@ class _Volume(_Object, type_prefix="vo"):
                 raise RuntimeError(exc.message) if exc.status in (Status.FAILED_PRECONDITION, Status.NOT_FOUND) else exc
 
     @live_method
-    async def reload(self):
+    async def reload(self) -> None:
         """Make latest committed state of volume available in the running container.
 
         Any uncommitted changes to the volume, such as new or modified files, may implicitly be committed when
@@ -508,7 +508,7 @@ class _Volume(_Object, type_prefix="vo"):
         return _VolumeUploadContextManager(self.object_id, self._client, force=force)
 
     @live_method
-    async def _instance_delete(self):
+    async def _instance_delete(self) -> None:
         await retry_transient_errors(
             self._client.stub.VolumeDelete, api_pb2.VolumeDeleteRequest(volume_id=self.object_id)
         )
@@ -550,7 +550,7 @@ class _VolumeUploadContextManager:
     progress_cb: Callable
     _upload_generators: List[Generator[Callable[[], FileUploadSpec], None, None]]
 
-    def __init__(self, volume_id: str, client: _Client, progress_cb: Optional[Callable] = None, force: bool = False):
+    def __init__(self, volume_id: str, client: _Client, progress_cb: Optional[Callable] = None, force: bool = False) -> None:
         """mdmd:hidden"""
         self._volume_id = volume_id
         self._client = client
@@ -561,7 +561,7 @@ class _VolumeUploadContextManager:
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         if not exc_val:
             # Flatten all the uploads yielded by the upload generators in the batch
             def gen_upload_providers():
@@ -599,7 +599,7 @@ class _VolumeUploadContextManager:
         local_file: Union[Path, str, BinaryIO],
         remote_path: Union[PurePosixPath, str],
         mode: Optional[int] = None,
-    ):
+    ) -> None:
         """Upload a file from a local file or file-like object.
 
         Will create any needed parent directories automatically.

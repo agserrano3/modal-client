@@ -5,5 +5,5 @@ my_app = modal.App()
 
 
 @my_app.function()
-def foo():
+def foo() -> None:
     pass

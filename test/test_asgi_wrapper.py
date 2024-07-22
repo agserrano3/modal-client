@@ -22,7 +22,7 @@ def sync_index():
 
 
 @app.get("/error")
-def sync_error():
+def sync_error() -> None:
     raise DummyException()
 
 
@@ -33,7 +33,7 @@ async def async_index_reading_body(req: fastapi.Request):
 
 
 @app.get("/async_error")
-async def async_error():
+async def async_error() -> None:
     raise DummyException()
 
 
@@ -68,7 +68,7 @@ class MockIOManager:
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(1)
-async def test_success():
+async def test_success() -> None:
     mock_manager = MockIOManager()
     _set_current_context_ids("in-123", "fc-123")
     wrapped_app = asgi_app_wrapper(app, mock_manager)
@@ -86,7 +86,7 @@ async def test_success():
 @pytest.mark.asyncio
 @pytest.mark.parametrize("endpoint_url", ["/error", "/async_error"])
 @pytest.mark.timeout(1)
-async def test_endpoint_exception(endpoint_url):
+async def test_endpoint_exception(endpoint_url) -> None:
     mock_manager = MockIOManager()
     _set_current_context_ids("in-123", "fc-123")
     wrapped_app = asgi_app_wrapper(app, mock_manager)
@@ -116,7 +116,7 @@ class BrokenIOManager:
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(1)
-async def test_broken_io_unused(caplog):
+async def test_broken_io_unused(caplog) -> None:
     # if IO channel breaks, but the endpoint doesn't actually use
     # any of the body data, it should be allowed to output its data
     # and not raise an exception - but print a warning since it's unexpected
@@ -138,7 +138,7 @@ async def test_broken_io_unused(caplog):
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(10)
-async def test_broken_io_used():
+async def test_broken_io_used() -> None:
     mock_manager = BrokenIOManager()
     _set_current_context_ids("in-123", "fc-123")
     wrapped_app = asgi_app_wrapper(app, mock_manager)
@@ -162,7 +162,7 @@ class SlowIOManager:
 
 @pytest.mark.asyncio
 @pytest.mark.timeout(2)
-async def test_first_message_timeout(monkeypatch):
+async def test_first_message_timeout(monkeypatch) -> None:
     monkeypatch.setattr("modal._asgi.FIRST_MESSAGE_TIMEOUT_SECONDS", 0.1)  # simulate timeout
     _set_current_context_ids("in-123", "fc-123")
     wrapped_app = asgi_app_wrapper(app, SlowIOManager())
@@ -177,7 +177,7 @@ async def test_first_message_timeout(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_cancellation_cleanup(caplog):
+async def test_cancellation_cleanup(caplog) -> None:
     # this test mostly exists to get some coverage on the cancellation/error paths and
     # ensure nothing unexpected happens there
     _set_current_context_ids("in-123", "fc-123")
@@ -198,7 +198,7 @@ async def test_cancellation_cleanup(caplog):
 
 
 @pytest.mark.asyncio
-async def test_streaming_response():
+async def test_streaming_response() -> None:
     _set_current_context_ids("in-123", "fc-123")
     wrapped_app = asgi_app_wrapper(app, SlowIOManager())
     asgi_scope = _asgi_get_scope("/streaming_response", "GET")
@@ -224,7 +224,7 @@ class StreamingIOManager:
 
 
 @pytest.mark.asyncio
-async def test_streaming_body():
+async def test_streaming_body() -> None:
     _set_current_context_ids("in-123", "fc-123")
 
     wrapped_app = asgi_app_wrapper(app, StreamingIOManager())

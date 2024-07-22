@@ -8,11 +8,11 @@ import modal
 from modal.exception import InvalidError, NotFoundError
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def test_network_file_system_files(client, test_dir, servicer):
+def test_network_file_system_files(client, test_dir, servicer) -> None:
     app = modal.App()
     nfs = modal.NetworkFileSystem.from_name("xyz", create_if_missing=True)
 
@@ -22,7 +22,7 @@ def test_network_file_system_files(client, test_dir, servicer):
         dummy_modal.remote()
 
 
-def test_network_file_system_bad_paths():
+def test_network_file_system_bad_paths() -> None:
     app = modal.App()
     nfs = modal.NetworkFileSystem.from_name("xyz", create_if_missing=True)
 
@@ -39,7 +39,7 @@ def test_network_file_system_bad_paths():
         app.function(network_file_systems={"/tmp/": nfs})(dummy)
 
 
-def test_network_file_system_handle_single_file(client, tmp_path, servicer):
+def test_network_file_system_handle_single_file(client, tmp_path, servicer) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -57,7 +57,7 @@ def test_network_file_system_handle_single_file(client, tmp_path, servicer):
 
 
 @pytest.mark.asyncio
-async def test_network_file_system_handle_dir(client, tmp_path, servicer):
+async def test_network_file_system_handle_dir(client, tmp_path, servicer) -> None:
     local_dir = tmp_path / "some_dir"
     local_dir.mkdir()
     (local_dir / "smol").write_text("###")
@@ -79,7 +79,7 @@ async def test_network_file_system_handle_dir(client, tmp_path, servicer):
 
 
 @pytest.mark.asyncio
-async def test_network_file_system_handle_big_file(client, tmp_path, servicer, blob_server, *args):
+async def test_network_file_system_handle_big_file(client, tmp_path, servicer, blob_server, *args) -> None:
     with mock.patch("modal.network_file_system.LARGE_FILE_LIMIT", 10):
         local_file_path = tmp_path / "bigfile"
         local_file_path.write_text("hello world, this is a lot of text")
@@ -96,14 +96,14 @@ async def test_network_file_system_handle_big_file(client, tmp_path, servicer, b
         assert blobs["bl-1"] == b"hello world, this is a lot of text"
 
 
-def test_read_file(client, tmp_path, servicer):
+def test_read_file(client, tmp_path, servicer) -> None:
     with modal.NetworkFileSystem.ephemeral(client=client) as nfs:
         with pytest.raises(FileNotFoundError):
             for _ in nfs.read_file("idontexist.txt"):
                 ...
 
 
-def test_write_file(client, tmp_path, servicer):
+def test_write_file(client, tmp_path, servicer) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -114,7 +114,7 @@ def test_write_file(client, tmp_path, servicer):
         nfs.write_file("remote_path.txt", open(local_file_path, "rb"))
 
 
-def test_persisted(servicer, client):
+def test_persisted(servicer, client) -> None:
     # Lookup should fail since it doesn't exist
     with pytest.raises(NotFoundError):
         modal.NetworkFileSystem.lookup("xyz", client=client)
@@ -126,7 +126,7 @@ def test_persisted(servicer, client):
     modal.NetworkFileSystem.lookup("xyz", client=client)
 
 
-def test_nfs_ephemeral(servicer, client, tmp_path):
+def test_nfs_ephemeral(servicer, client, tmp_path) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -141,19 +141,19 @@ def test_nfs_ephemeral(servicer, client, tmp_path):
     assert servicer.n_nfs_heartbeats == 2
 
 
-def test_nfs_lazy_hydration_from_name(set_env_client):
+def test_nfs_lazy_hydration_from_name(set_env_client) -> None:
     nfs = modal.NetworkFileSystem.from_name("nfs", create_if_missing=True)
     bio = BytesIO(b"content")
     nfs.write_file("blah", bio)
 
 
 @pytest.mark.parametrize("name", ["has space", "has/slash", "a" * 65])
-def test_invalid_name(servicer, client, name):
+def test_invalid_name(servicer, client, name) -> None:
     with pytest.raises(InvalidError, match="Invalid NetworkFileSystem name"):
         modal.NetworkFileSystem.lookup(name)
 
 
-def test_attempt_mount_volume(client, servicer):
+def test_attempt_mount_volume(client, servicer) -> None:
     app = modal.App()
     modal.Volume.create_deployed("my-other-vol", client=client)
     vol = modal.NetworkFileSystem.from_name("my-other-vol", create_if_missing=False)

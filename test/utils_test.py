@@ -16,7 +16,7 @@ from modal._utils.package_utils import parse_major_minor_version
 from modal.exception import DeprecationError, InvalidError
 
 
-def test_subdomain_label():
+def test_subdomain_label() -> None:
     assert is_valid_subdomain_label("banana")
     assert is_valid_subdomain_label("foo-123-456")
     assert not is_valid_subdomain_label("BaNaNa")
@@ -24,7 +24,7 @@ def test_subdomain_label():
     assert not is_valid_subdomain_label("ban/ana")
 
 
-def test_object_name():
+def test_object_name() -> None:
     assert is_valid_object_name("baNaNa")
     assert is_valid_object_name("foo-123_456")
     assert is_valid_object_name("a" * 64)
@@ -36,7 +36,7 @@ def test_object_name():
         check_object_name("foo/bar", "Volume", warn=True)
 
 
-def test_environment_name():
+def test_environment_name() -> None:
     assert is_valid_object_name("a" * 64)
     assert not is_valid_object_name("a" * 65)
     assert not is_valid_environment_name("--help")
@@ -47,7 +47,7 @@ def test_environment_name():
     assert not is_valid_environment_name("")
 
 
-def test_tag():
+def test_tag() -> None:
     assert is_valid_tag("v1.0.0")
     assert is_valid_tag("a38298githash39920bk")
     assert not is_valid_tag("v1 .0.0-alpha")
@@ -55,7 +55,7 @@ def test_tag():
 
 
 @pytest.mark.asyncio
-async def test_file_segment_payloads():
+async def test_file_segment_payloads() -> None:
     data = io.BytesIO(b"abc123")
     data2 = io.BytesIO(data.getbuffer())
 
@@ -99,7 +99,7 @@ async def test_file_segment_payloads():
 
 
 @pytest.mark.asyncio
-async def test_file_segment_payloads_concurrency():
+async def test_file_segment_payloads_concurrency() -> None:
     data = io.BytesIO((b"123" * 1024 * 350)[: 1024 * 1024])  # 1 MiB
     data2 = io.BytesIO(data.getbuffer())
 
@@ -118,7 +118,7 @@ async def test_file_segment_payloads_concurrency():
     assert out1.value + out2.value == data.getvalue()
 
 
-def test_parse_major_minor_version():
+def test_parse_major_minor_version() -> None:
     assert parse_major_minor_version("3.8") == (3, 8)
     assert parse_major_minor_version("3.9.1") == (3, 9)
     assert parse_major_minor_version("3.10.1rc0") == (3, 10)

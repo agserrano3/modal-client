@@ -3,7 +3,7 @@ import logging
 import os
 
 
-def configure_logger(logger: logging.Logger, log_level: str, log_format: str):
+def configure_logger(logger: logging.Logger, log_level: str, log_format: str) -> None:
     ch = logging.StreamHandler()
     log_level_numeric = logging.getLevelName(log_level.upper())
     logger.setLevel(log_level_numeric)

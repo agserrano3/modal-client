@@ -68,7 +68,7 @@ class _Obj:
         options: Optional[api_pb2.FunctionOptions],
         args,
         kwargs,
-    ):
+    ) -> None:
         for i, arg in enumerate(args):
             check_valid_cls_constructor_arg(i + 1, arg)
         for key, kwarg in kwargs.items():
@@ -142,7 +142,7 @@ class _Obj:
 
         return self._user_cls_instance
 
-    def enter(self):
+    def enter(self) -> None:
         if not self._entered:
             if hasattr(self._user_cls_instance, "__enter__"):
                 self._user_cls_instance.__enter__()
@@ -166,7 +166,7 @@ class _Obj:
         self._entered = val
 
     @synchronizer.nowrap
-    async def aenter(self):
+    async def aenter(self) -> None:
         if not self.entered:
             user_cls_instance = self._get_user_cls_instance()
             if hasattr(user_cls_instance, "__aenter__"):
@@ -199,7 +199,7 @@ class _Cls(_Object, type_prefix="cs"):
     _from_other_workspace: Optional[bool]  # Functions require FunctionBindParams before invocation.
     _app: Optional["modal.app._App"] = None  # not set for lookups
 
-    def _initialize_from_empty(self):
+    def _initialize_from_empty(self) -> None:
         self._user_cls = None
         self._class_service_function = None
         self._method_functions = {}
@@ -208,7 +208,7 @@ class _Cls(_Object, type_prefix="cs"):
         self._from_other_workspace = None
         self._output_mgr: Optional[OutputManager] = None
 
-    def _initialize_from_other(self, other: "_Cls"):
+    def _initialize_from_other(self, other: "_Cls") -> None:
         self._user_cls = other._user_cls
         self._class_service_function = other._class_service_function
         self._method_functions = other._method_functions
@@ -217,7 +217,7 @@ class _Cls(_Object, type_prefix="cs"):
         self._from_other_workspace = other._from_other_workspace
         self._output_mgr: Optional[OutputManager] = other._output_mgr
 
-    def _set_output_mgr(self, output_mgr: OutputManager):
+    def _set_output_mgr(self, output_mgr: OutputManager) -> None:
         self._output_mgr = output_mgr
 
     def _get_partial_functions(self) -> Dict[str, _PartialFunction]:
@@ -225,7 +225,7 @@ class _Cls(_Object, type_prefix="cs"):
             raise AttributeError("You can only get the partial functions of a local Cls instance")
         return _find_partial_methods_for_user_cls(self._user_cls, _PartialFunctionFlags.all())
 
-    def _hydrate_metadata(self, metadata: Message):
+    def _hydrate_metadata(self, metadata: Message) -> None:
         assert isinstance(metadata, api_pb2.ClassHandleMetadata)
 
         for method in metadata.methods:

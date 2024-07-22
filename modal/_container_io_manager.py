@@ -85,7 +85,7 @@ class _ContainerIOManager:
     _GENERATOR_STOP_SENTINEL: ClassVar[Sentinel] = Sentinel()
     _singleton: ClassVar[Optional["_ContainerIOManager"]] = None
 
-    def _init(self, container_args: api_pb2.ContainerArguments, client: _Client):
+    def _init(self, container_args: api_pb2.ContainerArguments, client: _Client) -> None:
         self.cancelled_input_ids = set()
         self.task_id = container_args.task_id
         self.function_id = container_args.function_id
@@ -118,11 +118,11 @@ class _ContainerIOManager:
         return cls._singleton
 
     @classmethod
-    def _reset_singleton(cls):
+    def _reset_singleton(cls) -> None:
         """Only used for tests."""
         cls._singleton = None
 
-    async def _run_heartbeat_loop(self):
+    async def _run_heartbeat_loop(self) -> None:
         while 1:
             t0 = time.monotonic()
             try:
@@ -210,7 +210,7 @@ class _ContainerIOManager:
             finally:
                 t.cancel()
 
-    def stop_heartbeat(self):
+    def stop_heartbeat(self) -> None:
         if self._heartbeat_loop:
             self._heartbeat_loop.cancel()
 
@@ -424,7 +424,7 @@ class _ContainerIOManager:
         for _ in range(input_concurrency):
             await self._semaphore.acquire()
 
-    async def _push_output(self, input_id, started_at: float, data_format=api_pb2.DATA_FORMAT_UNSPECIFIED, **kwargs):
+    async def _push_output(self, input_id, started_at: float, data_format=api_pb2.DATA_FORMAT_UNSPECIFIED, **kwargs) -> None:
         # upload data to S3 if too big.
         if "data" in kwargs and kwargs["data"] and len(kwargs["data"]) > MAX_OBJECT_SIZE_BYTES:
             data_blob_id = await blob_upload(kwargs["data"], self._client.stub)
@@ -553,7 +553,7 @@ class _ContainerIOManager:
             )
             await self.complete_call(started_at)
 
-    async def complete_call(self, started_at):
+    async def complete_call(self, started_at) -> None:
         self.total_user_time += time.time() - started_at
         self.calls_completed += 1
         self._semaphore.release()
@@ -704,7 +704,7 @@ class _ContainerIOManager:
             raise e
 
     @classmethod
-    def stop_fetching_inputs(cls):
+    def stop_fetching_inputs(cls) -> None:
         assert cls._singleton
         cls._singleton._fetching_inputs = False
 

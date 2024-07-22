@@ -5,5 +5,5 @@ app = modal.App()
 
 
 @app.function()
-def foo():
+def foo() -> None:
     print("foo")

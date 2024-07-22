@@ -5,10 +5,10 @@ app2 = App()
 
 
 @app2.function(volumes={"/foo": Volume.from_name("my-vol")})
-def volume_func():
+def volume_func() -> None:
     pass
 
 
 @app2.function()
-def volume_func_outer():
+def volume_func_outer() -> None:
     volume_func.local()

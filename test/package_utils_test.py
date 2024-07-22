@@ -6,7 +6,7 @@ from modal._utils.package_utils import get_module_mount_info
 from modal.exception import ModuleNotMountable
 
 
-def test_get_module_mount_info():
+def test_get_module_mount_info() -> None:
     res = get_module_mount_info("modal")
     assert len(res) == 1
     assert res[0][0] == True

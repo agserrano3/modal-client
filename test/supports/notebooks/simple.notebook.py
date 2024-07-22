@@ -28,7 +28,7 @@ app = modal.App()
 
 
 @app.function()
-def hello():
+def hello() -> None:
     print("running")
 
 

@@ -23,7 +23,7 @@ async def f(x):
 
 
 @pytest.mark.asyncio
-async def test_webhook(servicer, client, reset_container_app):
+async def test_webhook(servicer, client, reset_container_app) -> None:
     async with app.run(client=client):
         assert f.web_url
 
@@ -91,7 +91,7 @@ async def test_webhook_docs():
     assert client.get("/openapi.json").status_code == 200
 
 
-def test_webhook_generator():
+def test_webhook_generator() -> None:
     app = App()
 
     with pytest.raises(InvalidError) as excinfo:
@@ -105,7 +105,7 @@ def test_webhook_generator():
 
 
 @pytest.mark.asyncio
-async def test_webhook_forgot_function(servicer, client):
+async def test_webhook_forgot_function(servicer, client) -> None:
     lib_dir = pathlib.Path(__file__).parent.parent
     args = [sys.executable, "-m", "test.supports.webhook_forgot_function"]
     ret = subprocess.run(args, cwd=lib_dir, stderr=subprocess.PIPE)
@@ -115,7 +115,7 @@ async def test_webhook_forgot_function(servicer, client):
 
 
 @pytest.mark.asyncio
-async def test_webhook_decorator_in_wrong_order(servicer, client):
+async def test_webhook_decorator_in_wrong_order(servicer, client) -> None:
     app = App()
 
     with pytest.raises(InvalidError) as excinfo:
@@ -129,7 +129,7 @@ async def test_webhook_decorator_in_wrong_order(servicer, client):
 
 
 @pytest.mark.asyncio
-async def test_asgi_wsgi(servicer, client):
+async def test_asgi_wsgi(servicer, client) -> None:
     app = App()
 
     @app.function(serialized=True)
@@ -150,7 +150,7 @@ async def test_asgi_wsgi(servicer, client):
     assert servicer.app_functions["fu-2"].webhook_config.type == api_pb2.WEBHOOK_TYPE_WSGI_APP
 
 
-def test_positional_method(servicer, client):
+def test_positional_method(servicer, client) -> None:
     with pytest.raises(InvalidError, match="method="):
         web_endpoint("GET")
     with pytest.raises(InvalidError, match="label="):

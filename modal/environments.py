@@ -12,7 +12,7 @@ from ._utils.async_utils import synchronizer
 
 
 @synchronizer.create_blocking
-async def delete_environment(name: str, client: Optional[_Client] = None):
+async def delete_environment(name: str, client: Optional[_Client] = None) -> None:
     if client is None:
         client = await _Client.from_env()
     await client.stub.EnvironmentDelete(api_pb2.EnvironmentDeleteRequest(name=name))
@@ -25,7 +25,7 @@ async def update_environment(
     new_name: Optional[str] = None,
     new_web_suffix: Optional[str] = None,
     client: Optional[_Client] = None,
-):
+) -> None:
     new_name_pb2 = None
     new_web_suffix_pb2 = None
     if new_name is not None:
@@ -46,7 +46,7 @@ async def update_environment(
 
 
 @synchronizer.create_blocking
-async def create_environment(name: str, client: Optional[_Client] = None):
+async def create_environment(name: str, client: Optional[_Client] = None) -> None:
     if client is None:
         client = await _Client.from_env()
     await client.stub.EnvironmentCreate(api_pb2.EnvironmentCreateRequest(name=name))

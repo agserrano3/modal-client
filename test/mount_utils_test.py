@@ -7,7 +7,7 @@ from modal.network_file_system import _NetworkFileSystem
 from modal.volume import _Volume
 
 
-def test_validate_mount_points():
+def test_validate_mount_points() -> None:
     # valid mount points
     dict_input = {"/foo/bar": _NetworkFileSystem.from_name("_NetworkFileSystem", create_if_missing=False)}
     validate_mount_points("_NetworkFileSystem", dict_input)  # type: ignore
@@ -20,13 +20,13 @@ def test_validate_mount_points():
 
 
 @pytest.mark.parametrize("path", ["/", "/root", "/tmp", "foo/bar"])
-def test_validate_mount_points_invalid_paths(path):
+def test_validate_mount_points_invalid_paths(path) -> None:
     validated_mount_points = {path: _NetworkFileSystem.from_name("_NetworkFileSystem", create_if_missing=False)}
     with pytest.raises(InvalidError, match="_NetworkFileSystem"):
         validate_mount_points("_NetworkFileSystem", validated_mount_points)
 
 
-def test_validate_network_file_systems(client, servicer):
+def test_validate_network_file_systems(client, servicer) -> None:
     # valid network_file_systems input
     network_file_systems = {"/my/path": _NetworkFileSystem.from_name("foo", create_if_missing=False)}
     validate_network_file_systems(network_file_systems)  # type: ignore
@@ -37,7 +37,7 @@ def test_validate_network_file_systems(client, servicer):
         validate_network_file_systems(not_network_file_systems)  # type: ignore
 
 
-def test_validate_volumes(client, servicer):
+def test_validate_volumes(client, servicer) -> None:
     # valid volume input
     volumes = {"/my/path": _Volume.from_name("foo", create_if_missing=False)}
     validate_volumes(volumes)  # type: ignore

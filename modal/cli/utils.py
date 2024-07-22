@@ -21,7 +21,7 @@ from ..exception import NotFoundError
 
 
 @synchronizer.create_blocking
-async def stream_app_logs(app_id: Optional[str] = None, task_id: Optional[str] = None):
+async def stream_app_logs(app_id: Optional[str] = None, task_id: Optional[str] = None) -> None:
     client = await _Client.from_env()
     output_mgr = OutputManager(status_spinner_text=f"Tailing logs for {app_id}")
     try:

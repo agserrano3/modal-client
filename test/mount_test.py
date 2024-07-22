@@ -13,7 +13,7 @@ from modal.mount import Mount
 
 
 @pytest.mark.asyncio
-async def test_get_files(servicer, client, tmpdir):
+async def test_get_files(servicer, client, tmpdir) -> None:
     small_content = b"# not much here"
     large_content = b"a" * (LARGE_FILE_LIMIT + 1)
 
@@ -72,7 +72,7 @@ def test_create_mount(servicer, client):
     assert repr(Path(local_dir)) in repr(m)
 
 
-def test_create_mount_file_errors(servicer, tmpdir, client):
+def test_create_mount_file_errors(servicer, tmpdir, client) -> None:
     m = Mount.from_local_dir(Path(tmpdir) / "xyz", remote_path="/xyz")
     with pytest.raises(FileNotFoundError):
         m._deploy("my-mount", client=client)
@@ -84,11 +84,11 @@ def test_create_mount_file_errors(servicer, tmpdir, client):
         m._deploy("my-mount", client=client)
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def test_from_local_python_packages(servicer, client, test_dir):
+def test_from_local_python_packages(servicer, client, test_dir) -> None:
     app = App()
 
     sys.path.append((test_dir / "supports").as_posix())
@@ -110,7 +110,7 @@ def test_from_local_python_packages(servicer, client, test_dir):
         assert "/root/pkg_c/j/k.py" not in files
 
 
-def test_app_mounts(servicer, client, test_dir):
+def test_app_mounts(servicer, client, test_dir) -> None:
     sys.path.append((test_dir / "supports").as_posix())
 
     app = App(mounts=[Mount.from_local_python_packages("pkg_b")])
@@ -131,7 +131,7 @@ def test_app_mounts(servicer, client, test_dir):
         assert "/root/pkg_c/j/k.py" not in files
 
 
-def test_from_local_python_packages_missing_module(servicer, client, test_dir, server_url_env):
+def test_from_local_python_packages_missing_module(servicer, client, test_dir, server_url_env) -> None:
     app = App()
     app.function(mounts=[Mount.from_local_python_packages("nonexistent_package")])(dummy)
 
@@ -140,7 +140,7 @@ def test_from_local_python_packages_missing_module(servicer, client, test_dir, s
             pass
 
 
-def test_chained_entries(test_dir):
+def test_chained_entries(test_dir) -> None:
     a_txt = str(test_dir / "a.txt")
     b_txt = str(test_dir / "b.txt")
     with open(a_txt, "w") as f:

@@ -9,7 +9,7 @@ queue = Queue.from_name("my-queue")
 
 
 @app.function(image=image, volumes={"/tmp/xyz": volume})
-def f(x):
+def f(x) -> None:
     # These are hydrated by virtue of being dependencies
     assert image.is_hydrated
     assert volume.is_hydrated

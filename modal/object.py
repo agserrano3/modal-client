@@ -46,13 +46,13 @@ class _Object:
     _is_hydrated: bool
 
     @classmethod
-    def __init_subclass__(cls, type_prefix: Optional[str] = None):
+    def __init_subclass__(cls, type_prefix: Optional[str] = None) -> None:
         super().__init_subclass__()
         if type_prefix is not None:
             cls._type_prefix = type_prefix
             cls._prefix_to_type[type_prefix] = cls
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise InvalidError(f"Class {type(self).__name__} has no constructor. Use class constructor methods instead.")
 
     def _init(
@@ -64,7 +64,7 @@ class _Object:
         hydrate_lazily: bool = False,
         deps: Optional[Callable[..., List["_Object"]]] = None,
         deduplication_key: Optional[Callable[[], Awaitable[Hashable]]] = None,
-    ):
+    ) -> None:
         self._local_uuid = str(uuid.uuid4())
         self._load = load
         self._preload = preload
@@ -80,20 +80,20 @@ class _Object:
 
         self._initialize_from_empty()
 
-    def _unhydrate(self):
+    def _unhydrate(self) -> None:
         self._object_id = None
         self._client = None
         self._is_hydrated = False
 
-    def _initialize_from_empty(self):
+    def _initialize_from_empty(self) -> None:
         # default implementation, can be overriden in subclasses
         pass
 
-    def _initialize_from_other(self, other):
+    def _initialize_from_other(self, other) -> None:
         # default implementation, can be overriden in subclasses
         pass
 
-    def _hydrate(self, object_id: str, client: _Client, metadata: Optional[Message]):
+    def _hydrate(self, object_id: str, client: _Client, metadata: Optional[Message]) -> None:
         assert isinstance(object_id, str)
         if not object_id.startswith(self._type_prefix):
             raise ExecutionError(
@@ -106,7 +106,7 @@ class _Object:
         self._hydrate_metadata(metadata)
         self._is_hydrated = True
 
-    def _hydrate_metadata(self, metadata: Optional[Message]):
+    def _hydrate_metadata(self, metadata: Optional[Message]) -> None:
         # override this is subclasses that need additional data (other than an object_id) for a functioning Handle
         pass
 
@@ -116,7 +116,7 @@ class _Object:
         # the object_id is already provided by other means
         return
 
-    def _init_from_other(self, other: O):
+    def _init_from_other(self, other: O) -> None:
         # Transient use case, see Dict, Queue, and SharedVolume
         self._init(other._rep, other._load, other._is_another_app, other._preload)
 
@@ -173,7 +173,7 @@ class _Object:
 
         return obj
 
-    def _hydrate_from_other(self, other: O):
+    def _hydrate_from_other(self, other: O) -> None:
         self._hydrate(other._object_id, other._client, other._get_metadata())
 
     def __repr__(self):

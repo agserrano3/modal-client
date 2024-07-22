@@ -5,7 +5,7 @@ from modal import Secret
 from modal.exception import InvalidError
 
 
-def test_new_hydrated(client):
+def test_new_hydrated(client) -> None:
     from modal.dict import _Dict
     from modal.object import _Object
     from modal.queue import _Queue
@@ -23,7 +23,7 @@ def test_new_hydrated(client):
         _Object._new_hydrated("xy-123", client, None)
 
 
-def test_constructor():
+def test_constructor() -> None:
     with pytest.raises(InvalidError) as excinfo:
         Secret({"foo": 123})
 

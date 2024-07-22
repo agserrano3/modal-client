@@ -42,7 +42,7 @@ async def set(
     profile: Optional[str] = profile_option,
     activate: bool = activate_option,
     verify: bool = verify_option,
-):
+) -> None:
     if token_id is None:
         token_id = getpass.getpass("Token ID:")
     if token_secret is None:
@@ -57,5 +57,5 @@ async def new(
     activate: bool = activate_option,
     verify: bool = verify_option,
     source: Optional[str] = None,
-):
+) -> None:
     await _new_token(profile=profile, activate=activate, verify=verify, source=source)

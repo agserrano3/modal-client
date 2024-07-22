@@ -9,21 +9,21 @@ app = App()
 
 
 @app.function(_experimental_gpus=["a10g"])
-def f1():
+def f1() -> None:
     pass
 
 
 @app.function(_experimental_gpus=["a10g", "t4:2"])
-def f2():
+def f2() -> None:
     pass
 
 
 @app.function(_experimental_gpus=["h100:2", modal.gpu.A100(count=2, size="80GB")])
-def f3():
+def f3() -> None:
     pass
 
 
-def test_experimental_resources(servicer, client):
+def test_experimental_resources(servicer, client) -> None:
     with app.run(client=client):
         assert len(servicer.app_functions) == 3
 
@@ -75,7 +75,7 @@ def test_experimental_resources(servicer, client):
 
 
 @skip_non_linux
-def test_sandbox_experimental_resources(client, servicer):
+def test_sandbox_experimental_resources(client, servicer) -> None:
     Sandbox.create(
         "bash",
         "-c",

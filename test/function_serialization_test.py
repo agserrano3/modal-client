@@ -6,7 +6,7 @@ from modal._serialization import deserialize
 
 
 @pytest.mark.asyncio
-async def test_serialize_deserialize_function(servicer, client):
+async def test_serialize_deserialize_function(servicer, client) -> None:
     app = App()
 
     @app.function(serialized=True, name="foo")

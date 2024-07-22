@@ -11,7 +11,7 @@ from modal.config import config, logger
 app_ctx: Any
 
 
-def load_ipython_extension(ipython):
+def load_ipython_extension(ipython) -> None:
     global app_ctx
 
     # Set logger for notebook sys.stdout
@@ -35,7 +35,7 @@ def load_ipython_extension(ipython):
     atexit.register(exit_app)
 
 
-def unload_ipython_extension(ipython):
+def unload_ipython_extension(ipython) -> None:
     global app_ctx
 
     run_coro_blocking(app_ctx.__aexit__(None, None, None))

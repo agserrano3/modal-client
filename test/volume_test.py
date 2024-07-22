@@ -16,11 +16,11 @@ from modal.volume import _open_files_error_annotation
 from modal_proto import api_pb2
 
 
-def dummy():
+def dummy() -> None:
     pass
 
 
-def test_volume_mount(client, servicer):
+def test_volume_mount(client, servicer) -> None:
     app = modal.App()
     vol = modal.Volume.from_name("xyz", create_if_missing=True)
 
@@ -30,7 +30,7 @@ def test_volume_mount(client, servicer):
         pass
 
 
-def test_volume_bad_paths():
+def test_volume_bad_paths() -> None:
     app = modal.App()
     vol = modal.Volume.from_name("xyz")
 
@@ -44,7 +44,7 @@ def test_volume_bad_paths():
         app.function(volumes={"/tmp/": vol})(dummy)
 
 
-def test_volume_duplicate_mount():
+def test_volume_duplicate_mount() -> None:
     app = modal.App()
     vol = modal.Volume.from_name("xyz")
 
@@ -53,7 +53,7 @@ def test_volume_duplicate_mount():
 
 
 @pytest.mark.parametrize("skip_reload", [False, True])
-def test_volume_commit(client, servicer, skip_reload):
+def test_volume_commit(client, servicer, skip_reload) -> None:
     with servicer.intercept() as ctx:
         ctx.add_response("VolumeCommit", api_pb2.VolumeCommitResponse(skip_reload=skip_reload))
         ctx.add_response("VolumeCommit", api_pb2.VolumeCommitResponse(skip_reload=skip_reload))
@@ -73,7 +73,7 @@ def test_volume_commit(client, servicer, skip_reload):
 
 
 @pytest.mark.asyncio
-async def test_volume_get(servicer, client, tmp_path):
+async def test_volume_get(servicer, client, tmp_path) -> None:
     await modal.Volume.create_deployed.aio("my-vol", client=client)
     vol = await modal.Volume.lookup.aio("my-vol", client=client)  # type: ignore
 
@@ -99,7 +99,7 @@ async def test_volume_get(servicer, client, tmp_path):
             ...
 
 
-def test_volume_reload(client, servicer):
+def test_volume_reload(client, servicer) -> None:
     with modal.Volume.ephemeral(client=client) as vol:
         # Note that in practice this will not work unless run in a task.
         vol.reload()
@@ -108,7 +108,7 @@ def test_volume_reload(client, servicer):
 
 
 @pytest.mark.asyncio
-async def test_volume_batch_upload(servicer, client, tmp_path):
+async def test_volume_batch_upload(servicer, client, tmp_path) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -149,7 +149,7 @@ async def test_volume_batch_upload(servicer, client, tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_volume_batch_upload_force(servicer, client, tmp_path):
+async def test_volume_batch_upload_force(servicer, client, tmp_path) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -178,7 +178,7 @@ async def test_volume_batch_upload_force(servicer, client, tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_volume_upload_removed_file(servicer, client, tmp_path):
+async def test_volume_upload_removed_file(servicer, client, tmp_path) -> None:
     local_file_path = tmp_path / "some_file"
     local_file_path.write_text("hello world")
 
@@ -190,7 +190,7 @@ async def test_volume_upload_removed_file(servicer, client, tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_volume_upload_large_file(client, tmp_path, servicer, blob_server, *args):
+async def test_volume_upload_large_file(client, tmp_path, servicer, blob_server, *args) -> None:
     with mock.patch("modal._utils.blob_utils.LARGE_FILE_LIMIT", 10):
         local_file_path = tmp_path / "bigfile"
         local_file_path.write_text("hello world, this is a lot of text")
@@ -208,7 +208,7 @@ async def test_volume_upload_large_file(client, tmp_path, servicer, blob_server,
         assert blobs["bl-1"] == b"hello world, this is a lot of text"
 
 @pytest.mark.asyncio
-async def test_volume_upload_large_stream(client, servicer, blob_server, *args):
+async def test_volume_upload_large_stream(client, servicer, blob_server, *args) -> None:
     with mock.patch("modal._utils.blob_utils.LARGE_FILE_LIMIT", 10):
         stream = io.BytesIO(b"hello world, this is a lot of text")
 
@@ -225,7 +225,7 @@ async def test_volume_upload_large_stream(client, servicer, blob_server, *args):
         assert blobs["bl-1"] == b"hello world, this is a lot of text"
 
 @pytest.mark.asyncio
-async def test_volume_upload_file_timeout(client, tmp_path, servicer, blob_server, *args):
+async def test_volume_upload_file_timeout(client, tmp_path, servicer, blob_server, *args) -> None:
     call_count = 0
 
     async def mount_put_file(self, stream):
@@ -250,7 +250,7 @@ async def test_volume_upload_file_timeout(client, tmp_path, servicer, blob_serve
 
 
 @pytest.mark.asyncio
-async def test_volume_copy_1(client, tmp_path, servicer):
+async def test_volume_copy_1(client, tmp_path, servicer) -> None:
     ## test 1: copy src path to dst path ##
     src_path = "original.txt"
     dst_path = "copied.txt"
@@ -273,7 +273,7 @@ async def test_volume_copy_1(client, tmp_path, servicer):
 
 
 @pytest.mark.asyncio
-async def test_volume_copy_2(client, tmp_path, servicer):
+async def test_volume_copy_2(client, tmp_path, servicer) -> None:
     ## test 2: copy multiple files into a directory ##
     file_paths = ["file1.txt", "file2.txt"]
 
@@ -302,7 +302,7 @@ async def test_volume_copy_2(client, tmp_path, servicer):
 
 
 @pytest.mark.parametrize("delete_as_instance_method", [True, False])
-def test_persisted(servicer, client, delete_as_instance_method):
+def test_persisted(servicer, client, delete_as_instance_method) -> None:
     # Lookup should fail since it doesn't exist
     with pytest.raises(NotFoundError):
         modal.Volume.lookup("xyz", client=client)
@@ -325,7 +325,7 @@ def test_persisted(servicer, client, delete_as_instance_method):
         modal.Volume.lookup("xyz", client=client)
 
 
-def test_ephemeral(servicer, client):
+def test_ephemeral(servicer, client) -> None:
     assert servicer.n_vol_heartbeats == 0
     with modal.Volume.ephemeral(client=client, _heartbeat_sleep=1) as vol:
         assert vol.listdir("/") == []
@@ -334,14 +334,14 @@ def test_ephemeral(servicer, client):
     assert servicer.n_vol_heartbeats == 2
 
 
-def test_lazy_hydration_from_named(set_env_client):
+def test_lazy_hydration_from_named(set_env_client) -> None:
     vol = modal.Volume.from_name("my-vol", create_if_missing=True)
     assert vol.listdir("/") == []
 
 
 @pytest.mark.skipif(platform.system() != "Linux", reason="needs /proc")
 @pytest.mark.asyncio
-async def test_open_files_error_annotation(tmp_path):
+async def test_open_files_error_annotation(tmp_path) -> None:
     assert _open_files_error_annotation(tmp_path) is None
 
     # Current process keeps file open
@@ -380,6 +380,6 @@ async def test_open_files_error_annotation(tmp_path):
 
 
 @pytest.mark.parametrize("name", ["has space", "has/slash", "a" * 65])
-def test_invalid_name(servicer, client, name):
+def test_invalid_name(servicer, client, name) -> None:
     with pytest.raises(InvalidError, match="Invalid Volume name"):
         modal.Volume.lookup(name)

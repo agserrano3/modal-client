@@ -157,7 +157,7 @@ MAX_BUFFER_SIZE = 128 * 1024
 class _StreamWriter:
     """Provides an interface to buffer and write logs to a sandbox stream (`stdin`)."""
 
-    def __init__(self, sandbox_id: str, client: _Client):
+    def __init__(self, sandbox_id: str, client: _Client) -> None:
         self._index = 1
         self._sandbox_id = sandbox_id
         self._client = client
@@ -170,7 +170,7 @@ class _StreamWriter:
         self._index += 1
         return index
 
-    def write(self, data: Union[bytes, bytearray, memoryview]):
+    def write(self, data: Union[bytes, bytearray, memoryview]) -> None:
         """
         Writes data to stream's internal buffer, but does not drain/flush the write.
 
@@ -203,7 +203,7 @@ class _StreamWriter:
         else:
             raise TypeError(f"data argument must be a bytes-like object, not {type(data).__name__}")
 
-    def write_eof(self):
+    def write_eof(self) -> None:
         """
         Closes the write end of the stream after the buffered write data is drained.
         If the sandbox process was blocked on input, it will become unblocked after `write_eof()`.
@@ -212,7 +212,7 @@ class _StreamWriter:
         """
         self._is_closed = True
 
-    async def drain(self):
+    async def drain(self) -> None:
         """
         Flushes the write buffer and EOF to the running Sandbox process.
         """
@@ -407,7 +407,7 @@ class _Sandbox(_Object, type_prefix="sb"):
         await resolver.load(obj)
         return obj
 
-    def _hydrate_metadata(self, handle_metadata: Optional[Message]):
+    def _hydrate_metadata(self, handle_metadata: Optional[Message]) -> None:
         self._stdout = LogsReader(api_pb2.FILE_DESCRIPTOR_STDOUT, self.object_id, self._client)
         self._stderr = LogsReader(api_pb2.FILE_DESCRIPTOR_STDERR, self.object_id, self._client)
         self._stdin = StreamWriter(self.object_id, self._client)
@@ -432,7 +432,7 @@ class _Sandbox(_Object, type_prefix="sb"):
 
     # Live handle methods
 
-    async def wait(self, raise_on_termination: bool = True):
+    async def wait(self, raise_on_termination: bool = True) -> None:
         """Wait for the sandbox to finish running."""
 
         while True:
@@ -447,7 +447,7 @@ class _Sandbox(_Object, type_prefix="sb"):
                     raise SandboxTerminatedError()
                 break
 
-    async def terminate(self):
+    async def terminate(self) -> None:
         """Terminate sandbox execution.
 
         This is a no-op if the sandbox has already finished running."""

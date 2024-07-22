@@ -5,7 +5,7 @@ from modal import App, asgi_app, method, web_endpoint, wsgi_app
 from modal.exception import InvalidError
 
 
-def test_local_entrypoint_forgot_parentheses():
+def test_local_entrypoint_forgot_parentheses() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="local_entrypoint()"):
@@ -15,7 +15,7 @@ def test_local_entrypoint_forgot_parentheses():
             pass
 
 
-def test_function_forgot_parentheses():
+def test_function_forgot_parentheses() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="function()"):
@@ -25,7 +25,7 @@ def test_function_forgot_parentheses():
             pass
 
 
-def test_cls_forgot_parentheses():
+def test_cls_forgot_parentheses() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="cls()"):
@@ -35,7 +35,7 @@ def test_cls_forgot_parentheses():
             pass
 
 
-def test_method_forgot_parentheses():
+def test_method_forgot_parentheses() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="method()"):
@@ -47,7 +47,7 @@ def test_method_forgot_parentheses():
                 pass
 
 
-def test_invalid_web_decorator_usage():
+def test_invalid_web_decorator_usage() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="web_endpoint()"):
@@ -72,7 +72,7 @@ def test_invalid_web_decorator_usage():
             pass
 
 
-def test_web_endpoint_method():
+def test_web_endpoint_method() -> None:
     app = App()
 
     with pytest.raises(InvalidError, match="remove the `@method`"):

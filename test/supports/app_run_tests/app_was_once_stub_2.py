@@ -7,5 +7,5 @@ stub = modal.App()
 
 
 @stub.function()
-def foo():
+def foo() -> None:
     print("foo")

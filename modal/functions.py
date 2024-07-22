@@ -99,7 +99,7 @@ class _Invocation:
 
     stub: api_grpc.ModalClientStub
 
-    def __init__(self, stub: api_grpc.ModalClientStub, function_call_id: str, client: _Client):
+    def __init__(self, stub: api_grpc.ModalClientStub, function_call_id: str, client: _Client) -> None:
         self.stub = stub
         self.client = client  # Used by the deserializer.
         self.function_call_id = function_call_id  # TODO: remove and use only input_id
@@ -194,7 +194,7 @@ class _Invocation:
             response.outputs[0].result, response.outputs[0].data_format, self.stub, self.client
         )
 
-    async def run_generator(self):
+    async def run_generator(self) -> None:
         data_stream = _stream_function_call_data(self.client, self.function_call_id, variant="data_out")
         combined_stream = stream.merge(data_stream, stream.call(self.run_function))  # type: ignore
 
@@ -1070,7 +1070,7 @@ class _Function(_Object, type_prefix="fu"):
 
     # Live handle methods
 
-    def _initialize_from_empty(self):
+    def _initialize_from_empty(self) -> None:
         # Overridden concrete implementation of base class method
         self._progress = None
         self._is_generator = None
@@ -1084,7 +1084,7 @@ class _Function(_Object, type_prefix="fu"):
         self._all_mounts = []  # used for file watching
         self._use_function_id = ""
 
-    def _hydrate_metadata(self, metadata: Optional[Message]):
+    def _hydrate_metadata(self, metadata: Optional[Message]) -> None:
         # Overridden concrete implementation of base class method
         assert metadata and isinstance(metadata, (api_pb2.Function, api_pb2.FunctionHandleMetadata))
         self._is_generator = metadata.function_type == api_pb2.Function.FUNCTION_TYPE_GENERATOR
@@ -1115,10 +1115,10 @@ class _Function(_Object, type_prefix="fu"):
             class_parameter_info=self._class_parameter_info,
         )
 
-    def _set_mute_cancellation(self, value: bool = True):
+    def _set_mute_cancellation(self, value: bool = True) -> None:
         self._mute_cancellation = value
 
-    def _set_output_mgr(self, output_mgr: OutputManager):
+    def _set_output_mgr(self, output_mgr: OutputManager) -> None:
         self._output_mgr = output_mgr
 
     @property
@@ -1188,7 +1188,7 @@ class _Function(_Object, type_prefix="fu"):
     @warn_if_generator_is_not_consumed()
     @live_method_gen
     @synchronizer.no_input_translation
-    async def _call_generator(self, args, kwargs):
+    async def _call_generator(self, args, kwargs) -> None:
         invocation = await _Invocation.create(self, args, kwargs, client=self._client)
         async for res in invocation.run_generator():
             yield res
@@ -1389,7 +1389,7 @@ class _FunctionCall(_Object, type_prefix="fc"):
         response = await retry_transient_errors(self._client.stub.FunctionGetCallGraph, request)
         return _reconstruct_call_graph(response)
 
-    async def cancel(self):
+    async def cancel(self) -> None:
         """Cancels the function call, which will stop its execution and mark its inputs as
         [`TERMINATED`](/docs/reference/modal.call_graph#modalcall_graphinputstatus)."""
         request = api_pb2.FunctionCallCancelRequest(function_call_id=self.object_id)
